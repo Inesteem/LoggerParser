@@ -31,6 +31,7 @@ import java.util.prefs.Preferences;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.FileUtils;
 
 import java.awt.event.FocusListener;
 import java.awt.event.FocusEvent;
@@ -40,6 +41,9 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.text.*;
 
+import java.util.Date;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class IOManager {
 
@@ -216,7 +220,7 @@ public class IOManager {
 		inputFile = selectedFile.getAbsolutePath();
 		pref.put(default_path, FilenameUtils.getFullPath(inputFile));
 		
-		inputFileName = inputFile.substring(inputFile.lastIndexOf(File.separator)+1);
+		//inputFileName = inputFile.substring(inputFile.lastIndexOf(File.separator)+1);
 		inputFileName = FilenameUtils.getName(inputFile);
 
 		return selectedFile.getAbsolutePath();
@@ -396,6 +400,17 @@ public class IOManager {
 		return -1;
 	}
 	
+	public int askNOptions(String header, String[] options, String dialogstr){
+
+		int confirmed = JOptionPane.showOptionDialog(null, dialogstr, 
+		  header, 
+		  JOptionPane.DEFAULT_OPTION, 
+		  JOptionPane.WARNING_MESSAGE, 
+		  null, options, options[0]);
+
+		return confirmed;
+	}	
+	
 	//public void copyFile(String file, String copy) 
 	//	throws IOException {
   
@@ -408,5 +423,30 @@ public class IOManager {
     //  .equals(Files.readAllLines(copied)));
 	//}
 	
+	
+	public boolean copy_file(String src, String dst){
+		File f = new File(src);
+		if (!f.exists()){ return false; }
+		try{
+			FileUtils.copyFile(f, new File(dst));
+		} catch (IOException  e){
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+		
+	}
+	public boolean create_temp_copy(String src){
+		String tmp_dir = System.getProperty("java.io.tmpdir");
+		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+		String dst = tmp_dir + "LP_" + FilenameUtils.removeExtension(FilenameUtils.getName(src)) + "_" + timeStamp;
+		boolean success = copy_file(src,dst);
+		if (success) {
+			System.out.println("created a tempcopy of file " + dst);
+		} else {
+			System.out.println("no copy of " + src);
+		}
+		return success;
+	}
 	
 }

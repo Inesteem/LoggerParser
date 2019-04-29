@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.beans.*;
+import java.io.File;
 
 public class LoggerParser {
 									
@@ -16,6 +17,7 @@ public class LoggerParser {
 	static String append_file;//needs to be sorted
 
 	public static void main(String[] args) {
+	 
 	  
 	  	int option = iom.askTwoOptions("What do you want to parse?", "file", "folder", "Decide!");
 	
@@ -31,10 +33,6 @@ public class LoggerParser {
 					System.exit(-1);
 				} 
 				append_file = iom.getInputFileName("DEFAULT_APPEND_PATH", "Select the file to append to");
-				if(append_file.length() == 0){
-					iom.asError("No valid appendfile specified!");
-					System.exit(-1);
-				} 
 			} catch (java.lang.NoClassDefFoundError e){
 				iom.asError("jar file missing: make sure there is a 'lib' dir containing a file named 'org.apache.commons.io.FilenameUtils.jar'");
 				System.exit(-1);
@@ -44,11 +42,12 @@ public class LoggerParser {
 			
 			Parser parser = new Parser();
 			//parser.parse(iom.getInputFilePath());
-			parser.parse(log_file, append_file);
+			parser.parse(log_file, append_file, iom);
 			if(!iom.setOutputFileName()){
 				parser.print_log_info();
 			} else {
-				parser.write_log_info( iom.getOutputFilePath());
+				parser.write_log_info( iom.getOutputFilePath(), iom);
+				iom.getOutputFile();
 			}
 			
 			

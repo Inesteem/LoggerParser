@@ -69,7 +69,7 @@ public class Parser{
 		RainPerDate = new HashMap<Date,String>();
 	}
 	
-	public boolean parse(String log_file, String append_file){
+	public boolean parse(String log_file, String append_file, IOManager iom){
 		
 		A_Parser a_parser = new A_Parser();
 		String line="";
@@ -92,7 +92,7 @@ public class Parser{
 			}
 			fileReader.close();
 		} catch (IOException e) {
-			System.out.println("something is wrong with your append file; failed at line: " + line);
+			System.out.println("something is odd with your append file; failed at line: " + line);
 		}	
 		
 		
@@ -125,6 +125,9 @@ public class Parser{
 			if(p_type != ParserType.IMPULS){
 				return false;
 			}
+			boolean ignore_all = false;
+			boolean override_all = false;
+			boolean dub_lines = false;
 			while ((line = bufferedReader.readLine()) != null) {
 				String splitted[] = line.split("\\s+");
 				
@@ -136,17 +139,49 @@ public class Parser{
 					String key_str = output_format.format(key);
 					System.out.println("key: " + key_str);
 					
-					if (RainPerDate.containsKey(key)) {
-						System.out.println("double entry for date: " + key +"; going to ignore it");
-					} else {
-						RainPerDate.put(key, line);
-						dates.add(key);
-					}
+					if (RainPerDate.containsKey(key) && !override_all) {
+						String old_val = RainPerDate.get(key);
+						if(old_val.equals(line)){
+							System.out.println("dublicated line: " + line);
+							dub_lines = true;
+							continue;
+						}
+							
+						if(ignore_all){
+							continue;
+						}
+						
+						
+						String[] options = {"ignore new key", "override old key", "always ignore", "always override","abort operation"};
+						int opt = iom.askNOptions("entry already exists", options,
+						"date:\n "+key+"\nold:\n "+old_val+"\nnew:\n "+line);
+						//int opt = iom.askTwoOptions("test1", "ignore new key", "override old key", 
+						//"the entry with date >" +key +"< already exists; exit dialog to abort");
+						if(opt == 0){
+							System.out.println("ignore");
+							continue;
+						} else if (opt==1){
+							System.out.println("override");
+						} else if (opt==2){
+							System.out.println("always ignore");
+							ignore_all = true;
+						} else if (opt==3){
+							System.out.println("always override");
+							override_all = true;
+						} else {
+							System.exit(0);
+						}
+					} 
+					RainPerDate.put(key, line);
+					dates.add(key);
 					
-					System.out.println("worked!");
+					System.out.println("");
 					
 
 				}
+			}
+			if (dub_lines) {
+				iom.asWarning("some or all lines you've tried to add were already in the choosen append file");
 			}
 			fileReader.close();
 		} catch (IOException e) {
@@ -177,7 +212,11 @@ public class Parser{
 	//	}
 	}
 
-	public void write_log_info(String filename){
+	public void write_log_info(String filename, IOManager iom){
+
+		
+		iom.create_temp_copy(filename);
+		
 		Collections.sort(dates);
 		FileOutputStream outputStream; 
 		try{
