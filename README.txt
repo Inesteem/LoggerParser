@@ -1,2 +1,3 @@
-javac -cp "\.;lib\*;" LoggerParser.java
-java -cp "\.;lib\*;" LoggerParser
+javac -cp "\.;lib\*;lib\colt\lib\*" LoggerParser.java
+
+java -cp "\.;lib\*;lib\colt\lib\*" LoggerParser

@@ -70,6 +70,13 @@ public class IOManager {
 	private boolean append;
 	public final Color ACTIVE_COLOUR = Color.BLACK;
 	public final Color INACTIVE_COLOUR = Color.GRAY;
+	
+	
+	//public final Object[] african_timezones = {"Africa/Abidjan", "Africa/Accra", "Africa/Addis_Ababa", "Africa/Algiers", "Africa/Asmara", "Africa/Asmera", "Africa/Bamako", "Africa/Bangui", "Africa/Banjul", "Africa/Bissau", "Africa/Blantyre", "Africa/Brazzaville", "Africa/Bujumbura", "Africa/Cairo", "Africa/Casablanca", "Africa/Ceuta", "Africa/Conakry", "Africa/Dakar", "Africa/Dar_es_Salaam", "Africa/Djibouti", "Africa/Douala", "Africa/El_Aaiun", "Africa/Freetown", "Africa/Gaborone", "Africa/Harare", "Africa/Johannesburg", "Africa/Juba", "Africa/Kampala", "Africa/Khartoum", "Africa/Kigali", "Africa/Kinshasa", "Africa/Lagos", "Africa/Libreville", "Africa/Lome", "Africa/Luanda", "Africa/Lubumbashi", "Africa/Lusaka", "Africa/Malabo", "Africa/Maputo", "Africa/Maseru", "Africa/Mbabane", "Africa/Mogadishu", "Africa/Monrovia", "Africa/Nairobi", "Africa/Ndjamena", "Africa/Niamey", "Africa/Nouakchott", "Africa/Ouagadougou", "Africa/Porto-Novo", "Africa/Sao_Tome", "Africa/Timbuktu", "Africa/Tripoli", "Africa/Tunis", "Africa/Windhoek"};
+	
+	
+	
+	
 	public IOManager(){
 		inputFile = null;
 		outputFile = null;
@@ -89,6 +96,7 @@ public class IOManager {
 			asError("jar file missing: make sure there is a 'lib' dir containing a file named 'org.apache.commons.io.FilenameUtils.jar'");
 			System.exit(-1);
 		}
+	
 		return "";
 	}
 	public String getOutputFilePath(){
@@ -97,6 +105,37 @@ public class IOManager {
 	
 	public String getWebsiteStr(){
 		return website;
+	}
+
+
+	String getAfricanTimezone() throws java.lang.NoClassDefFoundError {
+		Object[] african_timezones = {"Africa/Abidjan", "Africa/Accra", "Africa/Addis_Ababa", "Africa/Algiers", "Africa/Asmara", "Africa/Asmera", "Africa/Bamako", "Africa/Bangui", "Africa/Banjul", "Africa/Bissau", "Africa/Blantyre", "Africa/Brazzaville", "Africa/Bujumbura", "Africa/Cairo", "Africa/Casablanca", "Africa/Ceuta", "Africa/Conakry", "Africa/Dakar", "Africa/Dar_es_Salaam", "Africa/Djibouti", "Africa/Douala", "Africa/El_Aaiun", "Africa/Freetown", "Africa/Gaborone", "Africa/Harare", "Africa/Johannesburg", "Africa/Juba", "Africa/Kampala", "Africa/Khartoum", "Africa/Kigali", "Africa/Kinshasa", "Africa/Lagos", "Africa/Libreville", "Africa/Lome", "Africa/Luanda", "Africa/Lubumbashi", "Africa/Lusaka", "Africa/Malabo", "Africa/Maputo", "Africa/Maseru", "Africa/Mbabane", "Africa/Mogadishu", "Africa/Monrovia", "Africa/Nairobi", "Africa/Ndjamena", "Africa/Niamey", "Africa/Nouakchott", "Africa/Ouagadougou", "Africa/Porto-Novo", "Africa/Sao_Tome", "Africa/Timbuktu", "Africa/Tripoli", "Africa/Tunis", "Africa/Windhoek"};
+		 Preferences pref = Preferences.userRoot();
+		// Retrieve the selected path or use
+		// an empty string if no path has
+		// previously been selected
+		String pref_zone = pref.get("african_time_zone", "Africa/Dar_es_Salaam");
+		
+		JFrame frame = new JFrame("Choose an african Timezone");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		String s = (String)JOptionPane.showInputDialog(
+                    frame,
+                    "Choose an african Timezone",
+                    "Choose an african Timezone",
+                    JOptionPane.PLAIN_MESSAGE,
+					null,
+                    african_timezones, pref_zone);
+							
+							
+		frame.pack();
+		frame.setVisible(true);		
+		if ((s != null) && (s.length() > 0)) {
+
+			pref.put("african_time_zone", s);
+			return s;
+		}
+		System.exit(0);
+		return "";
 	}
 
 	

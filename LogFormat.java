@@ -1,13 +1,21 @@
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 public interface LogFormat{
 	
-	public boolean parse(String line[]);
 	
-	//public int get_hour();
+	public int get_values(String[] data, List<Double> values);
 	
-	//public double get_val();
 	
-	public Date get_key();
+	public Parser.ParserType get_parser_type();
+	
+	
+				//hour = calendar.get(Calendar.HOUR_OF_DAY); 
+			
+			//calendar.set(Calendar.MINUTE,0); 
+			//calendar.set(Calendar.SECOND,0); 
+			//calendar.set(Calendar.HOUR_OF_DAY,0); 
 }
