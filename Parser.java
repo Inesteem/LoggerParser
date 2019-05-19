@@ -56,12 +56,10 @@ public class Parser {
 		@SuppressWarnings("unchecked")
 		public ArrayList<Double>[] hours = new ArrayList[24];
 		public int[] measurements;
-		int num_values;
 		int num_days; // max 31 days, set bits count as days
 		
 		public Month(){
 			num_days = 0;
-			num_values = 0;
 			measurements = new int[24];
 		}
 		
@@ -73,82 +71,56 @@ public class Parser {
 			if(hours[hour] == null) {
 					hours[hour] = new ArrayList<Double>();
 			}
-			num_values = lf.get_values(data, hours[hour]);
-			if(num_values < 1){ return false;}
+			if(!lf.get_values(data, hours[hour])){ return false; }
 			++measurements[hour];
 			num_days |= 1 << day;
 			return true;
 		}
 		
-		public Pair<Integer, double[]> get_month_avg() {
-			if(num_values == 0) {return new Pair(0, null);}
-			double avg[] = new double[num_values];
-			int num_elements = 0;
-			int num_measures = 0;
-			for (int h = 0; h < 24; ++h) {
-				if(hours[h] == null) { continue; }
-				for (int i = 0; i < hours[h].size(); ++i) {
-						avg[(int) (i/num_values)] += hours[h].get(i);
-					
-				}
-				num_elements += hours[h].size() / num_values;
-				num_measures += measurements[h];
-			}
-			if(num_elements != 0){
-				//avg = java.util.stream.DoubleStream.of(avg).map(p->p/num_elements).toArray();
-				for (int i = 0; i < num_values; ++i){
-					 avg[i] /= num_elements; 
-				}
-			}
-			return new Pair(num_measures, avg);
-		}
 		
 	}
 	
 	public class ImpulsFormat
     implements LogFormat {
 		
-		public int get_values(String[] data, List<Double> values){
+		public boolean get_values(String[] data, List<Double> values){
 			if ( data.length != 3){
-				return -1;
+				return false;
 			}   
-			//try {
-				double val = Double.parseDouble(data[2]);
-				if (val != 0.0) {
-					values.add(val);
-				}
-			//} catch (ParseException e) {
-			//	e.printStackTrace();
-			//	return false;
-			//}
-			return 1;
+			double val = Double.parseDouble(data[2]);
+			if (val != 0.0) {
+				values.add(val);
+			}
+			return true;
 		}
 		
 		public ParserType get_parser_type(){
 			return ParserType.IMPULS;
 		}
 		
-		public Pair<Integer, double[]> get_month_avg() {
-			if(num_values == 0) {return new Pair(0, null);}
-			double avg[] = new double[num_values];
+		public Pair<Integer, double[]> get_month_avg(Parser.Month m) {
+			double avg[] = new double[1];
 			int num_elements = 0;
 			int num_measures = 0;
 			for (int h = 0; h < 24; ++h) {
-				if(hours[h] == null) { continue; }
-				for (int i = 0; i < hours[h].size(); ++i) {
-						avg[(int) (i/num_values)] += hours[h].get(i);
-					
+				if(m.hours[h] == null) { continue; }
+				//for (int i = 0; i < hours[h].size(); ++i) {
+				//		avg += hours[h].get(i);
+				//}
+				for (double v : m.hours[h]){
+					avg[0] += v;
 				}
-				num_elements += hours[h].size() / num_values;
-				num_measures += measurements[h];
+				num_elements += m.hours[h].size();
+				num_measures += m.measurements[h];
 			}
 			if(num_elements != 0){
-				//avg = java.util.stream.DoubleStream.of(avg).map(p->p/num_elements).toArray();
-				for (int i = 0; i < num_values; ++i){
-					 avg[i] /= num_elements; 
-				}
+				avg[0] /= num_elements;
 			}
 			return new Pair(num_measures, avg);
+		}
+		
+		public String get_value_header() {
+			return "impuls";
 		}
 		
 	}
@@ -319,9 +291,9 @@ public class Parser {
 				}
 				int num_days = YearMonth.of(year, m+1).lengthOfMonth();
 				
-				Pair avg = months[m].get_month_avg();
+				Pair avg = l_format.get_month_avg(months[m]);
 				System.out.println("\n avg: " + Arrays.toString((double[])avg.getValue()) + " with " + avg.getKey() + " measurements" + "\n");
-				System.out.println( "measured " +  months[m].get_num_days() + " days of " + num_days);
+				System.out.println( "measured " +  months[m].get_num_days() + " days of " + num_days + " = " + (100 * months[m].get_num_days())/num_days + "%");
 			}
 		}
 	}
@@ -331,36 +303,72 @@ public class Parser {
 		iom.create_temp_copy(filename, calendar);
 		FileOutputStream outputStream; 
 		Iterator it = RainPerYear.entrySet().iterator();
-		
+		String line = "";
+		String header = l_format.get_value_header();
+		int [] all_years_meas = new int[12];
+		@SuppressWarnings("unchecked")
+		ArrayList<Double>[] all_years_avg = new ArrayList[12];
 		try{
 			outputStream = new FileOutputStream(filename);
 			while (it.hasNext()) {
 				Map.Entry pair = (Map.Entry)it.next();
 				Month[] months = (Month[]) pair.getValue();
 				int year  = (int) pair.getKey();
-				line += 
+				line += "\r\nyear \t month \t days \t " + header + "\t #meas";
 				for (int m = 0; m < 12; ++m){
-				
 					if(months[m] == null) { continue; }
-					String line = year + " ";
-					System.out.println(" " + getMonth(m) + ": ");
-					for (ArrayList<Double> hours : months[m].hours) {
-						if (hours == null) { continue; }
-						for ( double v: hours) {
-							System.out.print("   " + v);
-						}
-						
-					}
+					line += "\r\n";
+					
 					int num_days = YearMonth.of(year, m+1).lengthOfMonth();
+					Pair avg = l_format.get_month_avg(months[m]);
+					double [] avg_vals = (double[]) avg.getValue();
+					int meas =  (int) avg.getKey();
 					
-					Pair avg = months[m].get_month_avg();
-					System.out.println("\n avg: " + Arrays.toString((double[])avg.getValue()) + " with " + avg.getKey() + " measurements" + "\n");
-					System.out.println( "measured " +  months[m].get_num_days() + " days of " + num_days);
+					line += year + "\t" + getMonth(m).substring(0,3) + "\t" + months[m].get_num_days() + "/" + num_days;
+					for (double v : avg_vals) {
+						line += "\t" + v;
+					}
+					line += "\t" + meas;
+					if((100 * months[m].get_num_days())/num_days >= 80){
+						if (all_years_avg[m] == null) {
+							all_years_avg[m] = new ArrayList<Double>();
+							for(int i = 0; i < avg_vals.length; ++i){
+								all_years_avg[m].add(0.0);
+							}
+							
+						} 
+						for(int i = 0; i < avg_vals.length; ++i){
+							System.out.println("i " + i + " " + avg_vals.length +  " " + all_years_avg[m].size());
+							all_years_avg[m].set(i,all_years_avg[m].get(i) + avg_vals[i]);
+						}
+						System.out.println(meas);
 					
-					byte[] strToBytes = (line + "\r\n").getBytes();
-					outputStream.write(strToBytes);
+					}
+					//System.out.println("\n avg: " + Arrays.toString((double[])avg.getValue()) + " with " + avg.getKey() + " measurements" + "\n");
+					//System.out.println( "measured " +  months[m].get_num_days() + " days of " + num_days);
+					
 				}
 			}
+			line += "\r\n\r\nall years: \r\n \t month \t "+header + "\r\n";
+			for(int m = 0; m < 12; ++m){
+				line += "\r\n";
+				if(all_years_avg[m] == null) { 
+					line += "-";
+					continue;
+				}
+				line += "\t" + getMonth(m).substring(0,3);
+				for (double v : all_years_avg[m]) {
+					if(all_years_meas[m] != 0){
+						line += "\t" + (double)v/all_years_meas[m];
+					} else {
+						line += "\t" + v;
+					}
+				}
+			}
+			line += "\r\n\r\n";
+			
+			byte[] strToBytes = line.getBytes();
+			outputStream.write(strToBytes);
 			outputStream.close();
 		} catch(IOException e) {
 			e.printStackTrace();

@@ -109,29 +109,30 @@ public class IOManager {
 
 
 	String getAfricanTimezone() throws java.lang.NoClassDefFoundError {
-		Object[] african_timezones = {"Africa/Abidjan", "Africa/Accra", "Africa/Addis_Ababa", "Africa/Algiers", "Africa/Asmara", "Africa/Asmera", "Africa/Bamako", "Africa/Bangui", "Africa/Banjul", "Africa/Bissau", "Africa/Blantyre", "Africa/Brazzaville", "Africa/Bujumbura", "Africa/Cairo", "Africa/Casablanca", "Africa/Ceuta", "Africa/Conakry", "Africa/Dakar", "Africa/Dar_es_Salaam", "Africa/Djibouti", "Africa/Douala", "Africa/El_Aaiun", "Africa/Freetown", "Africa/Gaborone", "Africa/Harare", "Africa/Johannesburg", "Africa/Juba", "Africa/Kampala", "Africa/Khartoum", "Africa/Kigali", "Africa/Kinshasa", "Africa/Lagos", "Africa/Libreville", "Africa/Lome", "Africa/Luanda", "Africa/Lubumbashi", "Africa/Lusaka", "Africa/Malabo", "Africa/Maputo", "Africa/Maseru", "Africa/Mbabane", "Africa/Mogadishu", "Africa/Monrovia", "Africa/Nairobi", "Africa/Ndjamena", "Africa/Niamey", "Africa/Nouakchott", "Africa/Ouagadougou", "Africa/Porto-Novo", "Africa/Sao_Tome", "Africa/Timbuktu", "Africa/Tripoli", "Africa/Tunis", "Africa/Windhoek"};
+		//Object[] african_timezones = {"Africa/Abidjan", "Africa/Accra", "Africa/Addis_Ababa", "Africa/Algiers", "Africa/Asmara", "Africa/Asmera", "Africa/Bamako", "Africa/Bangui", "Africa/Banjul", "Africa/Bissau", "Africa/Blantyre", "Africa/Brazzaville", "Africa/Bujumbura", "Africa/Cairo", "Africa/Casablanca", "Africa/Ceuta", "Africa/Conakry", "Africa/Dakar", "Africa/Dar_es_Salaam", "Africa/Djibouti", "Africa/Douala", "Africa/El_Aaiun", "Africa/Freetown", "Africa/Gaborone", "Africa/Harare", "Africa/Johannesburg", "Africa/Juba", "Africa/Kampala", "Africa/Khartoum", "Africa/Kigali", "Africa/Kinshasa", "Africa/Lagos", "Africa/Libreville", "Africa/Lome", "Africa/Luanda", "Africa/Lubumbashi", "Africa/Lusaka", "Africa/Malabo", "Africa/Maputo", "Africa/Maseru", "Africa/Mbabane", "Africa/Mogadishu", "Africa/Monrovia", "Africa/Nairobi", "Africa/Ndjamena", "Africa/Niamey", "Africa/Nouakchott", "Africa/Ouagadougou", "Africa/Porto-Novo", "Africa/Sao_Tome", "Africa/Timbuktu", "Africa/Tripoli", "Africa/Tunis", "Africa/Windhoek"};
+		Object[] timezones = {"UTC", "UTC+1", "UTC+2", "UTC+3", "GMT", "GMT+1", "GMT+2", "GMT+3"};
 		 Preferences pref = Preferences.userRoot();
 		// Retrieve the selected path or use
 		// an empty string if no path has
 		// previously been selected
-		String pref_zone = pref.get("african_time_zone", "Africa/Dar_es_Salaam");
+		String pref_zone = pref.get("time_zone", "GMT+3");
 		
-		JFrame frame = new JFrame("Choose an african Timezone");
+		JFrame frame = new JFrame("Choose a timezone");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		String s = (String)JOptionPane.showInputDialog(
                     frame,
-                    "Choose an african Timezone",
-                    "Choose an african Timezone",
+                    "Choose a timezone",
+                    "Choose a timezone",
                     JOptionPane.PLAIN_MESSAGE,
 					null,
-                    african_timezones, pref_zone);
+                    timezones, pref_zone);
 							
 							
 		frame.pack();
 		frame.setVisible(true);		
 		if ((s != null) && (s.length() > 0)) {
 
-			pref.put("african_time_zone", s);
+			pref.put("time_zone", s);
 			return s;
 		}
 		System.exit(0);

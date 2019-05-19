@@ -53,16 +53,11 @@ public class LoggerParser {
 			
 			
 			
-			parser.print_log_info();
+			//parser.print_log_info();
 			
 			
-			System.exit(0);
-			if(!iom.setOutputFileName()){
-				parser.print_log_info();
-			} else {
-		//		parser.write_log_info( iom.getOutputFilePath(), iom);
-				iom.getOutputFile();
-			}
+			//System.exit(0);
+
 			
 			
 		} else {
@@ -95,11 +90,16 @@ public class LoggerParser {
 				}
 			}
 			
-			parser.print_log_info();
+			//parser.print_log_info();
 			System.out.println("parsed " + cnt + " files");
 		
 		}
-	  
+  		if(!iom.setOutputFileName()){
+			parser.print_log_info();
+		} else {
+			parser.write_log_info( iom.getOutputFilePath(), iom);
+			iom.getOutputFile();
+		}
 	  System.exit(0);
 	  
   }
