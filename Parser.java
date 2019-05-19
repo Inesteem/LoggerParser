@@ -17,7 +17,7 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
-
+import java.time.YearMonth;
 import javafx.util.Pair;
 
 
@@ -41,6 +41,7 @@ public class Parser {
 	String time_zone = "UTC";
 	HashMap<Date,String[]> RainPerDate;
 	HashMap<Integer,Month[]> RainPerYear;
+	Calendar calendar; 
     
 	SimpleDateFormat date_format;	
 	
@@ -55,37 +56,51 @@ public class Parser {
 		@SuppressWarnings("unchecked")
 		public ArrayList<Double>[] hours = new ArrayList[24];
 		public int[] measurements;
-		int num_elements;
+		int num_values;
+		int num_days; // max 31 days, set bits count as days
 		
 		public Month(){
-			num_elements = 0;
+			num_days = 0;
+			num_values = 0;
 			measurements = new int[24];
 		}
 		
-		public boolean add_data(int hour, String[] data, LogFormat lf){
+		public int get_num_days(){
+			return java.lang.Integer.bitCount(num_days);
+		}
+		
+		public boolean add_data(int day, int hour, String[] data, LogFormat lf){
 			if(hours[hour] == null) {
 					hours[hour] = new ArrayList<Double>();
 			}
-			num_elements = lf.get_values(data, hours[hour]);
-			if(num_elements < 1){ return false;}
+			num_values = lf.get_values(data, hours[hour]);
+			if(num_values < 1){ return false;}
 			++measurements[hour];
+			num_days |= 1 << day;
 			return true;
 		}
 		
-		public Pair<Integer, Double> get_month_avg() {
-			double avg = 0;
+		public Pair<Integer, double[]> get_month_avg() {
+			if(num_values == 0) {return new Pair(0, null);}
+			double avg[] = new double[num_values];
 			int num_elements = 0;
 			int num_measures = 0;
-			for (int i = 0; i < 24; ++i) {
-				if(hours[i] == null) { continue; }
-				for (double v : hours[i]) {
-					avg += v;
-					++num_elements;
+			for (int h = 0; h < 24; ++h) {
+				if(hours[h] == null) { continue; }
+				for (int i = 0; i < hours[h].size(); ++i) {
+						avg[(int) (i/num_values)] += hours[h].get(i);
+					
 				}
-				num_measures += measurements[i];
+				num_elements += hours[h].size() / num_values;
+				num_measures += measurements[h];
 			}
-			if(num_elements != 0) { avg /= num_elements; }
-			return new Pair<Integer, Double>(num_measures, avg);
+			if(num_elements != 0){
+				//avg = java.util.stream.DoubleStream.of(avg).map(p->p/num_elements).toArray();
+				for (int i = 0; i < num_values; ++i){
+					 avg[i] /= num_elements; 
+				}
+			}
+			return new Pair(num_measures, avg);
 		}
 		
 	}
@@ -113,6 +128,29 @@ public class Parser {
 			return ParserType.IMPULS;
 		}
 		
+		public Pair<Integer, double[]> get_month_avg() {
+			if(num_values == 0) {return new Pair(0, null);}
+			double avg[] = new double[num_values];
+			int num_elements = 0;
+			int num_measures = 0;
+			for (int h = 0; h < 24; ++h) {
+				if(hours[h] == null) { continue; }
+				for (int i = 0; i < hours[h].size(); ++i) {
+						avg[(int) (i/num_values)] += hours[h].get(i);
+					
+				}
+				num_elements += hours[h].size() / num_values;
+				num_measures += measurements[h];
+			}
+			if(num_elements != 0){
+				//avg = java.util.stream.DoubleStream.of(avg).map(p->p/num_elements).toArray();
+				for (int i = 0; i < num_values; ++i){
+					 avg[i] /= num_elements; 
+				}
+			}
+			return new Pair(num_measures, avg);
+		}
+		
 	}
 	
 
@@ -124,6 +162,8 @@ public class Parser {
 		date_format = new SimpleDateFormat("dd.MM.yy HH:mm:ss");
 		date_format.setTimeZone(TimeZone.getTimeZone(time_zone));
 		p_type = ParserType.NONE;
+		calendar = GregorianCalendar.getInstance(); 
+		calendar.setTimeZone(TimeZone.getTimeZone(time_zone));
 	}
 	
 	public void setLogFormat(LogFormat lf){
@@ -138,7 +178,6 @@ public class Parser {
 		
 		//identify parser type
 		String line="";
-		Calendar calendar = GregorianCalendar.getInstance(); // creates a new calendar instance
 					
 		try {
 			File file = new File(filename);
@@ -164,7 +203,10 @@ public class Parser {
 						}
 					}
 			}
-			if(p_type != type) {
+			if(p_type == ParserType.NONE){
+				p_type = type;
+				setLogFormat((LogFormat)new ImpulsFormat());
+			} else if(p_type != type) {
 				System.out.println("File types do not match! Aborting.");
 				iom.asWarning("File types do not match! Aborting.");
 				return false;
@@ -187,12 +229,12 @@ public class Parser {
 					
 				if (RainPerDate.containsKey(date) && !override_all) {
 					String old_val[] = RainPerDate.get(date);
-					/*
-					if(old_val.equals(line)){
+					
+					if(Arrays.equals(old_val, splitted)){
 						System.out.println("dublicated line: " + line);
 						dub_lines = true;
 						continue;
-					} */
+					} 
 							
 					if(ignore_all){
 						continue;
@@ -200,7 +242,7 @@ public class Parser {
 						
 						
 					int opt = iom.askNOptions("entry already exists", options,
-					"date:\n "+key_str+"\nold:\n "+old_val+"\nnew:\n "+line);
+					"date:\n "+key_str+"\nold:\n "+Arrays.toString(old_val)+"\nnew:\n "+line);
 					//int opt = iom.askTwoOptions("test1", "ignore new key", "override old key", 
 					//"the entry with date >" +key +"< already exists; exit dialog to abort");
 					if(opt == 0){
@@ -221,6 +263,7 @@ public class Parser {
 				RainPerDate.put(date, splitted);
 				int year = calendar.get(Calendar.YEAR);
 				int month = calendar.get(Calendar.MONTH);
+				int day = calendar.get(Calendar.DAY_OF_MONTH);
 				int hour = calendar.get(Calendar.HOUR_OF_DAY);
 				System.out.println(year + " " + month + " " + hour);
 				Month[] months;
@@ -235,7 +278,7 @@ public class Parser {
 				if(months[month] == null){
 					months[month] = new Month();
 				}
-				if(!months[month].add_data(hour, splitted, l_format )){
+				if(!months[month].add_data(day, hour, splitted, l_format )){
 					System.out.println("an error occurred!");
 					
 				}
@@ -274,12 +317,57 @@ public class Parser {
 					}
 					
 				}
+				int num_days = YearMonth.of(year, m+1).lengthOfMonth();
+				
 				Pair avg = months[m].get_month_avg();
-				System.out.println("\n avg: " + avg.getValue() + " with " + avg.getKey() + " measurements" + "\n");
-					
+				System.out.println("\n avg: " + Arrays.toString((double[])avg.getValue()) + " with " + avg.getKey() + " measurements" + "\n");
+				System.out.println( "measured " +  months[m].get_num_days() + " days of " + num_days);
 			}
 		}
 	}
+	public void write_log_info(String filename, IOManager iom){
+
+		
+		iom.create_temp_copy(filename, calendar);
+		FileOutputStream outputStream; 
+		Iterator it = RainPerYear.entrySet().iterator();
+		
+		try{
+			outputStream = new FileOutputStream(filename);
+			while (it.hasNext()) {
+				Map.Entry pair = (Map.Entry)it.next();
+				Month[] months = (Month[]) pair.getValue();
+				int year  = (int) pair.getKey();
+				line += 
+				for (int m = 0; m < 12; ++m){
+				
+					if(months[m] == null) { continue; }
+					String line = year + " ";
+					System.out.println(" " + getMonth(m) + ": ");
+					for (ArrayList<Double> hours : months[m].hours) {
+						if (hours == null) { continue; }
+						for ( double v: hours) {
+							System.out.print("   " + v);
+						}
+						
+					}
+					int num_days = YearMonth.of(year, m+1).lengthOfMonth();
+					
+					Pair avg = months[m].get_month_avg();
+					System.out.println("\n avg: " + Arrays.toString((double[])avg.getValue()) + " with " + avg.getKey() + " measurements" + "\n");
+					System.out.println( "measured " +  months[m].get_num_days() + " days of " + num_days);
+					
+					byte[] strToBytes = (line + "\r\n").getBytes();
+					outputStream.write(strToBytes);
+				}
+			}
+			outputStream.close();
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+
 	
 	/*
 	public void print_log_info(){
@@ -336,7 +424,7 @@ public class Parser {
 	public void write_log_info(String filename, IOManager iom){
 
 		
-		iom.create_temp_copy(filename);
+		iom.create_temp_copy(filename, calendar);
 		
 		Collections.sort(dates);
 		FileOutputStream outputStream; 

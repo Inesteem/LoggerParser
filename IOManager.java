@@ -230,18 +230,30 @@ public class IOManager {
 		return website; 	 
 	}
 	
-	String getInputFileName(String default_path, String message) throws java.lang.NoClassDefFoundError {
+	
+	public enum InputType {
+		FILE, DIR
+	}
+	
+	String getInputFileName(String default_path, String message, InputType i_type) throws java.lang.NoClassDefFoundError {
 		 Preferences pref = Preferences.userRoot();
 		// Retrieve the selected path or use
 		// an empty string if no path has
 		// previously been selected
+		if(i_type == InputType.DIR){
+			default_path += "_DIR";
+		}
 		String pref_path = pref.get(default_path, "");
-
+		
 
 	//	JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
 		JFileChooser jfc = new JFileChooser();
 		if(pref_path != null) jfc.setCurrentDirectory(new File(pref_path));
-		jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		if (InputType.DIR == i_type) {
+			jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		} else {
+			jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		}
 		jfc.setDialogTitle(message);
 		
 		//jfc.setAcceptAllFileFilterUsed(false);
@@ -257,12 +269,15 @@ public class IOManager {
 			return "";
 		} 
 		inputFile = selectedFile.getAbsolutePath();
-		pref.put(default_path, FilenameUtils.getFullPath(inputFile));
-		
+		if(i_type == InputType.FILE) {
+			pref.put(default_path, FilenameUtils.getFullPath(inputFile));
+		} else {
+			pref.put(default_path, inputFile);
+		}
 		//inputFileName = inputFile.substring(inputFile.lastIndexOf(File.separator)+1);
 		inputFileName = FilenameUtils.getName(inputFile);
-
-		return selectedFile.getAbsolutePath();
+		
+		return inputFile;
 	}
 	
 
@@ -475,9 +490,9 @@ public class IOManager {
 		return true;
 		
 	}
-	public boolean create_temp_copy(String src){
+	public boolean create_temp_copy(String src, Calendar calendar){
 		String tmp_dir = System.getProperty("java.io.tmpdir");
-		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(calendar.getTime());
 		String dst = tmp_dir + "LP_" + FilenameUtils.removeExtension(FilenameUtils.getName(src)) + "_" + timeStamp;
 		boolean success = copy_file(src,dst);
 		if (success) {

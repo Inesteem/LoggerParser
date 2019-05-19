@@ -13,9 +13,6 @@ public interface LogFormat{
 	public Parser.ParserType get_parser_type();
 	
 	
-				//hour = calendar.get(Calendar.HOUR_OF_DAY); 
-			
-			//calendar.set(Calendar.MINUTE,0); 
-			//calendar.set(Calendar.SECOND,0); 
-			//calendar.set(Calendar.HOUR_OF_DAY,0); 
+	public String get_value_names();
+	
 }
