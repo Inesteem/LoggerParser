@@ -51,8 +51,6 @@ public class IOManager {
 	private static final IOManager OBJ = new IOManager();
 
 	private IOManager() {
-		inputFile = null;
-		outputFile = null;
 		append = false;
 	}
 
@@ -76,45 +74,17 @@ public class IOManager {
         }
     }
 
-	private String inputFile; 
-	private String inputFileName; 
-	private String outputFile;
-	private String website;
 	private boolean append;
 	public final Color ACTIVE_COLOUR = Color.BLACK;
 	public final Color INACTIVE_COLOUR = Color.GRAY;
-	
-	
-	//public final Object[] african_timezones = {"Africa/Abidjan", "Africa/Accra", "Africa/Addis_Ababa", "Africa/Algiers", "Africa/Asmara", "Africa/Asmera", "Africa/Bamako", "Africa/Bangui", "Africa/Banjul", "Africa/Bissau", "Africa/Blantyre", "Africa/Brazzaville", "Africa/Bujumbura", "Africa/Cairo", "Africa/Casablanca", "Africa/Ceuta", "Africa/Conakry", "Africa/Dakar", "Africa/Dar_es_Salaam", "Africa/Djibouti", "Africa/Douala", "Africa/El_Aaiun", "Africa/Freetown", "Africa/Gaborone", "Africa/Harare", "Africa/Johannesburg", "Africa/Juba", "Africa/Kampala", "Africa/Khartoum", "Africa/Kigali", "Africa/Kinshasa", "Africa/Lagos", "Africa/Libreville", "Africa/Lome", "Africa/Luanda", "Africa/Lubumbashi", "Africa/Lusaka", "Africa/Malabo", "Africa/Maputo", "Africa/Maseru", "Africa/Mbabane", "Africa/Mogadishu", "Africa/Monrovia", "Africa/Nairobi", "Africa/Ndjamena", "Africa/Niamey", "Africa/Nouakchott", "Africa/Ouagadougou", "Africa/Porto-Novo", "Africa/Sao_Tome", "Africa/Timbuktu", "Africa/Tripoli", "Africa/Tunis", "Africa/Windhoek"};
-	
-	
-	
-	//Getter Methods
-	public String getInputFilePath(){
-		return inputFile;
-	}
-	public String getInputFileName(boolean withExt){
-		if(withExt){return inputFileName;}
 		
-		try { 
-			return FilenameUtils.removeExtension(inputFileName);
-		} catch (java.lang.NoClassDefFoundError e){
-			asError("jar file missing: make sure there is a 'lib' dir containing a file named 'org.apache.commons.io.FilenameUtils.jar'");
-			System.exit(-1);
-		}
-	
-		return "";
-	}
-	public String getOutputFilePath(){
-		return outputFile;
-	}
-	
-	public String getWebsiteStr(){
-		return website;
+	public enum FileType {
+		FILE, DIR, ALL
 	}
 
 
 	public String getAfricanTimezone() throws java.lang.NoClassDefFoundError {
+
 		Object[] timezones = {"Africa/Abidjan", "Africa/Accra", "Africa/Addis_Ababa", "Africa/Algiers", "Africa/Asmara", "Africa/Asmera", "Africa/Bamako", "Africa/Bangui", "Africa/Banjul", "Africa/Bissau", "Africa/Blantyre", "Africa/Brazzaville", "Africa/Bujumbura", "Africa/Cairo", "Africa/Casablanca", "Africa/Ceuta", "Africa/Conakry", "Africa/Dakar", "Africa/Dar_es_Salaam", "Africa/Djibouti", "Africa/Douala", "Africa/El_Aaiun", "Africa/Freetown", "Africa/Gaborone", "Africa/Harare", "Africa/Johannesburg", "Africa/Juba", "Africa/Kampala", "Africa/Khartoum", "Africa/Kigali", "Africa/Kinshasa", "Africa/Lagos", "Africa/Libreville", "Africa/Lome", "Africa/Luanda", "Africa/Lubumbashi", "Africa/Lusaka", "Africa/Malabo", "Africa/Maputo", "Africa/Maseru", "Africa/Mbabane", "Africa/Mogadishu", "Africa/Monrovia", "Africa/Nairobi", "Africa/Ndjamena", "Africa/Niamey", "Africa/Nouakchott", "Africa/Ouagadougou", "Africa/Porto-Novo", "Africa/Sao_Tome", "Africa/Timbuktu", "Africa/Tripoli", "Africa/Tunis", "Africa/Windhoek","UTC", "UTC+1", "UTC+2", "UTC+3", "GMT", "GMT+1", "GMT+2", "GMT+3"};
 	//	Object[] timezones = {"UTC", "UTC+1", "UTC+2", "UTC+3", "GMT", "GMT+1", "GMT+2", "GMT+3"};
 		 Preferences pref = Preferences.userRoot();
@@ -145,148 +115,63 @@ public class IOManager {
 		return "";
 	}
 
-	
-	public String getWebsite(){
-		String strD = null;
-		Object[] options1 = { "Parse website", "Exit"};
-		String web_default = "http://www.hydrosciences.fr/sierem/";
-        JPanel panel = new JPanel();
-        panel.add(new JLabel("Website:"));
-  //     JTextField textField = new JTextField("http://www.hydrosciences.fr/sierem/v2/graphSC.asp?SCID=TZPR114", 100);//VERSION7
- //      JTextField textField = new JTextField("http://www.hydrosciences.fr/sierem/v2/graphSC.asp?SCID=DZPR017", 100); //VERSION6
-       JTextField textField = new JTextField("http://www.hydrosciences.fr/sierem/v2/graphSC.asp?SCID=TZPR575", 100); //int exception
 
-		textField.setForeground(INACTIVE_COLOUR);
-		textField.addFocusListener(new FocusListener() {
-			
-			boolean def_val = true;
-			@Override
-			public void focusGained(FocusEvent e) {
-				if(def_val){textField.setText("");}
-				def_val = false;
-				textField.setForeground(ACTIVE_COLOUR);
-			}
-			
-			@Override
-			public void focusLost(FocusEvent e) {
-				textField.setForeground(INACTIVE_COLOUR);
-				// nothing
-			}
-		});
-        panel.add(textField);
-        
-		//Popup
-		JPopupMenu menu = new JPopupMenu();
-		
-        Action paste = new DefaultEditorKit.PasteAction();
-        paste.putValue(Action.NAME, "Paste");
-        paste.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control V"));
-        menu.add( paste );
-        
-        Action cut = new DefaultEditorKit.CutAction();
-        cut.putValue(Action.NAME, "Cut");
-        cut.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control X"));
-        menu.add( cut );
-
-        Action copy = new DefaultEditorKit.CopyAction();
-        copy.putValue(Action.NAME, "Copy");
-        copy.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control C"));
-        menu.add( copy );
-
-
-        Action selectAll = new SelectAll();
-        menu.add( selectAll );
-
-        textField.setComponentPopupMenu( menu );		
-
-		//popup end
-        
-		while(website == null){
-				
-	        int result = JOptionPane.showOptionDialog(null, panel, "Enter the charts weblink",
-                JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE,
-                null, options1, options1[0]);
-                
-				website = textField.getText();		
-                
-			if (result != JOptionPane.YES_OPTION || website == null){
-					return null;
-			}
-            //JOptionPane.showMessageDialog(null, textField.getText());
-			if (!website.startsWith(web_default)){
-				Object[] options = {"Let's try it!","Redo","I'm out!"};
-				//int confirmed = JOptionPane.showConfirmDialog(null, 
-				//"The file " + FilenameUtils.getName(outputFile) + " already exists; are you sure you want to override it?", "Decide wisely...",
-				//	JOptionPane.YES_NO_OPTION);
-				int confirmed = JOptionPane.showOptionDialog(null, "The website " + website + 
-				  " seems weard to me. Sure its the link to a chart?", 
-				  "Decide wisely...", 
-				  JOptionPane.YES_NO_CANCEL_OPTION, 
-				  JOptionPane.WARNING_MESSAGE, 
-				  null, options, options[0]);
-				if (confirmed == JOptionPane.NO_OPTION) {
-					website = null;
-				} else if (confirmed == JOptionPane.CANCEL_OPTION) {
-					return null;
-				} else if (confirmed == JOptionPane.CLOSED_OPTION) {
-					return null;
-				}
-			
-			} 
-		}
-		return website; 	 
-	}
-	
-	
-	public enum FileType {
-		FILE, DIR
-	}
-	
-	public String getInputFileName(String default_path, String message, FileType i_type) throws java.lang.NoClassDefFoundError {
+	public File[] getFileFromUser(String default_path, String message, FileType f_type, boolean multiple_files) throws java.lang.NoClassDefFoundError {
+		//set preferred start path
 		Preferences pref = Preferences.userRoot();
-		// Retrieve the selected path or use
-		// an empty string if no path has
-		// previously been selected
-		if(i_type == FileType.DIR){
-			default_path += "_DIR";
-		}
 		String pref_path = pref.get(default_path, "");
-		
-
-	//	JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
 		JFileChooser jfc = new JFileChooser();
 		if(pref_path != null) jfc.setCurrentDirectory(new File(pref_path));
-		if (FileType.DIR == i_type) {
+
+		//restrict selection
+		if (f_type == FileType.DIR) {
 			jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		} else {
+		} else if(f_type == FileType.FILE) {
 			jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		}
+		} else {
+			jfc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+    } 
+    if (multiple_files){
+      jfc.setMultiSelectionEnabled(true);
+	  }	
 		jfc.setDialogTitle(message);
 		
-		//jfc.setAcceptAllFileFilterUsed(false);
-		//FileNameExtensionFilter filter = new FileNameExtensionFilter("*.kml", "kml");
-		//jfc.addChoosableFileFilter(filter);
 
 		int returnValue = jfc.showOpenDialog(null);
-		if(returnValue != JFileChooser.APPROVE_OPTION) { return "";} //CANCEL_OPTION
+    if(returnValue != JFileChooser.APPROVE_OPTION) { return null ;} //CANCEL_OPTION
 
-		File selectedFile = jfc.getSelectedFile();
-		if (selectedFile == null){
-			JOptionPane.showMessageDialog(null, "No input file selected. Exiting.","IQ Error", JOptionPane.ERROR_MESSAGE);
-			return "";
-		} 
-		inputFile = selectedFile.getAbsolutePath();
-		//if(i_type == FileType.FILE) {
-		//	pref.put(default_path, FilenameUtils.getFullPath(inputFile));
-		//} else {
-			pref.put(default_path, inputFile);
-		//}
-		//inputFileName = inputFile.substring(inputFile.lastIndexOf(File.separator)+1);
-		inputFileName = FilenameUtils.getName(inputFile);
-		
-		return inputFile;
+    File[] selectedFiles = null;
+
+    if (multiple_files){
+      selectedFiles= jfc.getSelectedFiles();
+    } else {
+      selectedFiles = new File[1];
+      selectedFiles[0] = jfc.getSelectedFile();
+    }
+
+
+		if (selectedFiles != null && selectedFiles.length > 0){
+			if(f_type == FileType.FILE || selectedFiles.length == 1) {
+				pref.put(default_path, FilenameUtils.getFullPath(selectedFiles[0].getAbsolutePath()));
+			} else {
+				pref.put(default_path,selectedFiles[0].getAbsolutePath());
+			}
+		}
+
+		return selectedFiles;
 	}
-	
+
+	public File[] getFileList(String default_path, String message, FileType f_type) throws java.lang.NoClassDefFoundError {
+      return getFileFromUser(default_path,message,f_type,true);
+  }
+
+	public File getFile(String default_path, String message, FileType f_type) throws java.lang.NoClassDefFoundError {
+      File[] file =  getFileFromUser(default_path,message,f_type,false);
+      if (file == null || file.length == 0) return null;
+      return file[0];
+      
+  }
+
 	public void createDir(String filepath){		
 		try {
 			Path pathToFile = Paths.get(filepath);
@@ -308,82 +193,7 @@ public class IOManager {
 	public void createFile(String filepath){		
 		createFile(new File(filepath));
 	}
-
-	public String getOutputFileName(String default_path, String message, FileType i_type) throws java.lang.NoClassDefFoundError {
-		Preferences pref = Preferences.userRoot();
-		// Retrieve the selected path or use
-		// an empty string if no path has
-		// previously been selected
-		String pref_path = pref.get(default_path, "");
-		//JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
-		JFileChooser jfc = new JFileChooser(FilenameUtils.getFullPath(inputFile));
-		if(pref_path != null) jfc.setCurrentDirectory(new File(pref_path));
-		jfc.setDialogTitle(message);
-	
-		if (FileType.DIR == i_type) {
-			jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		} else {
-			jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		}
-		if(inputFileName != null){
-			jfc.setSelectedFile(new File(inputFileName));
-		} else { 
-			jfc.setSelectedFile(new File("log.txt"));
-		}
-		
-		boolean choosen = false;
-		while(!choosen){
-
-			int returnValue = jfc.showOpenDialog(null);
-			if(returnValue != JFileChooser.APPROVE_OPTION) { return "";} //CANCEL_OPTION
-
-			File selectedFile = jfc.getSelectedFile();
-			if (selectedFile == null){
-				JOptionPane.showMessageDialog(null, "No output path selected. Exiting.","IQ Error", JOptionPane.ERROR_MESSAGE);
-				return "";
-			} 
-			
-			outputFile = selectedFile.getAbsolutePath();
-			
-			if (i_type == FileType.FILE && selectedFile.exists()){
-				Object[] options = {"Override",
-									"Select again","42"};
-				//int confirmed = JOptionPane.showConfirmDialog(null, 
-				//"The file " + FilenameUtils.getName(outputFile) + " already exists; are you sure you want to override it?", "Decide wisely...",
-				//	JOptionPane.YES_NO_OPTION);
-				int confirmed = JOptionPane.showOptionDialog(null, "The file " + selectedFile.getName() + 
-                  " already exists. Do you want to replace the existing file?", 
-                  "Decide wisely...", 
-                  JOptionPane.YES_NO_CANCEL_OPTION, 
-                  JOptionPane.WARNING_MESSAGE, 
-                  null, options, options[0]);
-				if (confirmed == JOptionPane.YES_OPTION) {
-					choosen = true;
-				} else if (confirmed == JOptionPane.CANCEL_OPTION) {
-					choosen = true;
-					append = true;
-				} else if (confirmed == JOptionPane.CLOSED_OPTION) {
-					JOptionPane.showMessageDialog(null, "No output file selected. Exiting.","IQ Error", JOptionPane.ERROR_MESSAGE);
-					return "";
-				}
-				
-			} else {
-				choosen = true;
-				createFile(selectedFile);
-			}
-		}
-		pref.put(default_path, FilenameUtils.getFullPath(outputFile));
-		System.out.println(default_path+": " +FilenameUtils.getFullPath(outputFile));
-		
-		System.out.println("You have chosen " + outputFile);		
-
-		return outputFile;
-	}	
-
-	public void setOutputFileName(String path){
-		if(path != null){outputFile = path;}
-	}
-	public boolean writeData(List<String> lines, boolean app){
+	public boolean writeData(List<String> lines, String outputFile, boolean app){
 		if(outputFile == null){
 			return false;
 		}
@@ -404,9 +214,7 @@ public class IOManager {
 
 	
 	
-	public File getOutputFile(){	
-		if(outputFile == null) new File("tmp.txt");
-		File file = new File(outputFile);
+	public File getOutputFile(File file){	
 		try {
 			if(file.exists()){ 
 				if (System.getProperty("os.name").toLowerCase().contains("windows")) {
@@ -538,5 +346,6 @@ public class IOManager {
 		}
 		return success;
 	}
-	
 }
+
+

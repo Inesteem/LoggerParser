@@ -161,7 +161,8 @@ public class Parser {
 	
 	
 	
-	public boolean parse(String filename){
+	public boolean parse(File file){
+
 		
 		IOManager iom = IOManager.getInstance();
 		
@@ -169,7 +170,6 @@ public class Parser {
 		String line="";
 					
 		try {
-			File file = new File(filename);
 			
 			FileReader fileReader = new FileReader(file);
 			BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -277,9 +277,9 @@ public class Parser {
 				System.out.println("");
 				
 			}
-			if (dub_lines) {
-				iom.asWarning("some or all lines you've tried to add were already in the choosen append file");
-			}
+			//if (dub_lines) {
+			//	iom.asWarning("some or all lines you've tried to add were already in the choosen append file");
+			//}
 			fileReader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -319,10 +319,9 @@ public class Parser {
 			}
 		}
 	}
-	public void write_log_info(){
+	public void write_log_info(String filename){
 
 		IOManager iom = IOManager.getInstance();
-		String filename = iom.getOutputFilePath();
 		iom.create_temp_copy(filename, calendar);
 		FileOutputStream outputStream; 
 		Iterator it = RainPerYear.entrySet().iterator();
