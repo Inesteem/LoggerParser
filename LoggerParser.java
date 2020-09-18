@@ -39,8 +39,8 @@ public class LoggerParser {
   public static final String PREF_OUTPUT_PATH_FILE = "LP_PREF_OUTPUT_PATH";
 
   static JPanel statusBar;
-  static final JFrame frame = new JFrame("LoggerParser"); 
-  static final JLabel status = new JLabel(); 
+  static final JFrame frame = new JFrame("Parse Log-Files"); 
+  static final JLabel status = new JLabel("morestuff"); 
   static JLabel content = new JLabel("stuff");
 
   static void set_frame(){ 
@@ -64,8 +64,7 @@ public class LoggerParser {
         }
         });
 
-    frame.setBounds(20,20,200,200);
-    frame.setVisible(true);
+    frame.setBounds(20,20,400,200);
   }
 
 
@@ -74,11 +73,13 @@ public class LoggerParser {
     String new_output_path = output_path;
     int cnt = 0;
 
+    frame.setVisible(true);
     for (final File fileEntry : input_paths) {
 
+      status.setText(fileEntry.getName());
       if (fileEntry.isFile()){		
         System.out.println("parsing file " + fileEntry.getName());
-        parser.parse(fileEntry);
+        parser.parse(fileEntry, content);
         ++cnt;
       } else if ( fileEntry.isDirectory() ){
         new_output_path = output_path + "\\" + fileEntry.getName();
@@ -98,7 +99,8 @@ public class LoggerParser {
       System.out.println("parsed " + cnt + " files for " + new_output_path);
       parser.print_log_info();
     }
-    //parser.write_log_info();
+    parser.write_log_info(new_output_path);
+    frame.setVisible(false);
 
 
   }
@@ -142,6 +144,7 @@ public class LoggerParser {
     parse_logs(input_paths, output_path.getAbsolutePath());
     iom.asMessage("Finished!");
     iom.getOutputFile(output_path);
+
     System.exit(0);
 
   }

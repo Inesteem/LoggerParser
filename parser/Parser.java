@@ -23,6 +23,7 @@ import javafx.util.Pair;
 
 
 import java.text.DateFormatSymbols;
+import javax.swing.JLabel;
 
 
 
@@ -161,7 +162,7 @@ public class Parser {
 	
 	
 	
-	public boolean parse(File file){
+	public boolean parse(File file,JLabel label){
 
 		
 		IOManager iom = IOManager.getInstance();
@@ -217,6 +218,7 @@ public class Parser {
 					
 				String key_str = date_format.format(date);
 				System.out.println("date: " + date + " " + key_str);
+        label.setText(line);
 					
 				if (RainPerDate.containsKey(date) && !override_all) {
 					String old_val[] = RainPerDate.get(date);
