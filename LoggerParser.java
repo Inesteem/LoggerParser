@@ -37,6 +37,7 @@ public class LoggerParser {
 
   public static final String PREF_INPUT_PATH_FILE = "LP_PREF_INPUT_PATH";
   public static final String PREF_OUTPUT_PATH_FILE = "LP_PREF_OUTPUT_PATH";
+  public static final String PREF_TIMEZONE = "LP_PREF_TIMEZONE";
 
   static JPanel statusBar;
   static final JFrame frame = new JFrame("Parse Log-Files"); 
@@ -73,13 +74,13 @@ public class LoggerParser {
     String new_output_path = output_path;
     int cnt = 0;
 
-    frame.setVisible(true);
     for (final File fileEntry : input_paths) {
 
       status.setText(fileEntry.getName());
       if (fileEntry.isFile()){		
         System.out.println("parsing file " + fileEntry.getName());
         parser.parse(fileEntry, content);
+        frame.setVisible(true);
         ++cnt;
       } else if ( fileEntry.isDirectory() ){
         new_output_path = output_path + "\\" + fileEntry.getName();
@@ -98,8 +99,8 @@ public class LoggerParser {
 
       System.out.println("parsed " + cnt + " files for " + new_output_path);
       parser.print_log_info();
+      parser.write_log_info(new_output_path);
     }
-    parser.write_log_info(new_output_path);
     frame.setVisible(false);
 
 
@@ -139,7 +140,7 @@ public class LoggerParser {
   public static void main(String[] args) {
     set_frame();
     set_io_files();	
-    timezone = iom.getAfricanTimezone();
+    timezone = iom.getAfricanTimezone(PREF_TIMEZONE);
 
     parse_logs(input_paths, output_path.getAbsolutePath());
     iom.asMessage("Finished!");

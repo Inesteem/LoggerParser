@@ -25,10 +25,12 @@ import javafx.util.Pair;
 import java.text.DateFormatSymbols;
 import javax.swing.JLabel;
 
-
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 public class Parser {
-	
+  static DecimalFormat df;	
 	
 	public static String getMonth(int month) {
 		return new DateFormatSymbols().getMonths()[month];
@@ -86,6 +88,12 @@ public class Parser {
     implements LogFormat {
 	//num_elements: counts impulses > 0
 	//num_measurements: counts all (even 0 values)
+    double mm;
+    public static final String PREF_IMPULS_MM = "LP_PREF_IMPULS_MM";
+    
+    public ImpulsFormat(){
+      mm = IOManager.getInstance().getImpulsMM(PREF_IMPULS_MM);
+    }
 
 		public boolean get_values(String[] data, List<Double> values){
 			if ( data.length != 3){
@@ -102,7 +110,7 @@ public class Parser {
 			return ParserType.IMPULS;
 		}
 		
-		public Pair<Integer, double[]> get_month_avg(Parser.Month m) {
+		public Pair<Integer, double[]> get_month_sum(Parser.Month m) {
 			double avg[] = new double[1];
 			int num_elements = 0;
 			int num_measures = 0;
@@ -112,7 +120,7 @@ public class Parser {
 				//		avg += hours[h].get(i);
 				//}
 				for (double v : m.hours[h]){
-					avg[0] += v;
+					avg[0] += v * mm;
 				}
 				num_elements += m.hours[h].size();
 				num_measures += m.measurements[h];
@@ -124,7 +132,7 @@ public class Parser {
 		}
 		
 		public String get_value_header() {
-			return "impuls";
+			return "mm";
 		}
 		
 	}
@@ -151,7 +159,9 @@ public class Parser {
 		//pdt.setEndRule(Calendar.OCTOBER, -1, Calendar.SUNDAY, 2 * 60 * 60 * 1000);	
 		calendar.setTimeZone(pdt);
 
-
+  Locale locale = new Locale("en","UK");
+  df = (DecimalFormat) NumberFormat.getNumberInstance(locale);
+  df.applyPattern("##.##");
 
 	}
 	
@@ -315,7 +325,7 @@ public class Parser {
 				}
 				int num_days = YearMonth.of(year, m+1).lengthOfMonth();
 				
-				Pair avg = l_format.get_month_avg(months[m]);
+				Pair avg = l_format.get_month_sum(months[m]);
 				System.out.println("\n avg: " + Arrays.toString((double[])avg.getValue()) + " with " + avg.getKey() + " measurements" + "\n");
 				System.out.println( "measured " +  months[m].get_num_days() + " days of " + num_days + " = " + (100 * months[m].get_num_days())/num_days + "%");
 			}
@@ -327,8 +337,8 @@ public class Parser {
 		iom.create_temp_copy(filename, calendar);
 		FileOutputStream outputStream; 
 		Iterator it = RainPerYear.entrySet().iterator();
-		String line = "";
 		String header = l_format.get_value_header();
+		String line = "\r\nyear \t month \t days \t " + header + "\t measurements";
 		int [] all_years_meas = new int[12];
 		@SuppressWarnings("unchecked")
 		ArrayList<Double>[] all_years_avg = new ArrayList[12];
@@ -338,36 +348,50 @@ public class Parser {
 				Map.Entry pair = (Map.Entry)it.next();
 				Month[] months = (Month[]) pair.getValue();
 				int year  = (int) pair.getKey();
-				line += "\r\nyear \t month \t days \t " + header + "\t #meas";
 				for (int m = 0; m < 12; ++m){
 					if(months[m] == null) { continue; }
 					line += "\r\n";
 					
 					int num_days = YearMonth.of(year, m+1).lengthOfMonth();
-					Pair avg = l_format.get_month_avg(months[m]);
+					Pair avg = l_format.get_month_sum(months[m]);
 					double [] avg_vals = (double[]) avg.getValue();
 					int meas =  (int) avg.getKey();
 					
 					line += year + "\t" + getMonth(m).substring(0,3) + "\t" + months[m].get_num_days() + "/" + num_days;
-					for (double v : avg_vals) {
-						line += "\t" + v;
+					for (int pos = 0; pos < avg_vals.length; ++pos) {
+						line += "\t" + df.format(avg_vals[pos]);
+            
+          if(all_years_avg[m] == null) {
+            all_years_avg[m] = new ArrayList<>();
+            }
+            if(all_years_avg[m].size() <= pos){
+                all_years_avg[m].add(avg_vals[pos]);
+                System.out.println(m + " " + avg_vals[pos]);
+            }else{
+							all_years_avg[m].set(pos,all_years_avg[m].get(pos) + avg_vals[pos]);
+              }
+                  
 					}
+          all_years_meas[m] += 1;
 					line += "\t" + meas;
-					if((100 * months[m].get_num_days())/num_days >= 80){
-						if (all_years_avg[m] == null) {
-							all_years_avg[m] = new ArrayList<Double>();
-							for(int i = 0; i < avg_vals.length; ++i){
-								all_years_avg[m].add(0.0);
-							}
-							
-						} 
-						for(int i = 0; i < avg_vals.length; ++i){
-							System.out.println("i " + i + " " + avg_vals.length +  " " + all_years_avg[m].size());
-							all_years_avg[m].set(i,all_years_avg[m].get(i) + avg_vals[i]);
-						}
-						System.out.println(meas);
+
+          
+//					if((100 * months[m].get_num_days())/num_days >= 80){
+//						if (all_years_avg[m] == null) {
+//							all_years_avg[m] = new ArrayList<Double>();
+//							for(int i = 0; i < avg_vals.length; ++i){
+//								all_years_avg[m].add(0.0);
+//							}
+//							
+//						} 
+//						for(int i = 0; i < avg_vals.length; ++i){
+//							System.out.println("i " + i + " " + avg_vals.length +  " " + all_years_avg[m].size());
+//							all_years_avg[m].set(i,all_years_avg[m].get(i) + avg_vals[i]);
+//              all_years_meas[m] += 1;
+//						}
+//						System.out.println(meas);
 					
-					}
+//					}
 					//System.out.println("\n avg: " + Arrays.toString((double[])avg.getValue()) + " with " + avg.getKey() + " measurements" + "\n");
 					//System.out.println( "measured " +  months[m].get_num_days() + " days of " + num_days);
 					
@@ -383,9 +407,9 @@ public class Parser {
 				line += "\t" + getMonth(m).substring(0,3);
 				for (double v : all_years_avg[m]) {
 					if(all_years_meas[m] != 0){
-						line += "\t" + (double)v/all_years_meas[m];
+						line += "\t" + df.format((double)v/all_years_meas[m]);
 					} else {
-						line += "\t" + v;
+						line += "\t" + df.format(v);
 					}
 				}
 			}

@@ -49,6 +49,7 @@ import java.util.Calendar;
 public class IOManager {
 
 	private static final IOManager OBJ = new IOManager();
+  private static double ml = 0;
 
 	private IOManager() {
 		append = false;
@@ -82,16 +83,46 @@ public class IOManager {
 		FILE, DIR, ALL
 	}
 
+	public double getImpulsMM(String pref_str) throws java.lang.NoClassDefFoundError {
+    if (ml > 0) return ml;
+    Object[] impuls_mms = {"0.2","0.5"};
+	  Preferences pref = Preferences.userRoot();
+    String pref_mm = pref.get(pref_str, "");
+			
+		JFrame frame = new JFrame("Choose milli-meter per impuls:");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		String s = (String)JOptionPane.showInputDialog(
+                    frame,
+                    "Choose milli-meter per impuls:",
+                    "mm",
+                    JOptionPane.PLAIN_MESSAGE,
+					null,
+                    impuls_mms, pref_mm);
+							
+							
+		frame.pack();
+		frame.setVisible(true);		
+		if ((s != null) && (s.length() > 0)) {
 
-	public String getAfricanTimezone() throws java.lang.NoClassDefFoundError {
+			pref.put(pref_str, s);
+			return Double.parseDouble(s);
+		}
+    asError("wrong mm return value");
+		System.exit(0);
+		return 0;
+
+
+  }
+
+	public String getAfricanTimezone(String pref_str) throws java.lang.NoClassDefFoundError {
 
 		Object[] timezones = {"Africa/Abidjan", "Africa/Accra", "Africa/Addis_Ababa", "Africa/Algiers", "Africa/Asmara", "Africa/Asmera", "Africa/Bamako", "Africa/Bangui", "Africa/Banjul", "Africa/Bissau", "Africa/Blantyre", "Africa/Brazzaville", "Africa/Bujumbura", "Africa/Cairo", "Africa/Casablanca", "Africa/Ceuta", "Africa/Conakry", "Africa/Dakar", "Africa/Dar_es_Salaam", "Africa/Djibouti", "Africa/Douala", "Africa/El_Aaiun", "Africa/Freetown", "Africa/Gaborone", "Africa/Harare", "Africa/Johannesburg", "Africa/Juba", "Africa/Kampala", "Africa/Khartoum", "Africa/Kigali", "Africa/Kinshasa", "Africa/Lagos", "Africa/Libreville", "Africa/Lome", "Africa/Luanda", "Africa/Lubumbashi", "Africa/Lusaka", "Africa/Malabo", "Africa/Maputo", "Africa/Maseru", "Africa/Mbabane", "Africa/Mogadishu", "Africa/Monrovia", "Africa/Nairobi", "Africa/Ndjamena", "Africa/Niamey", "Africa/Nouakchott", "Africa/Ouagadougou", "Africa/Porto-Novo", "Africa/Sao_Tome", "Africa/Timbuktu", "Africa/Tripoli", "Africa/Tunis", "Africa/Windhoek","UTC", "UTC+1", "UTC+2", "UTC+3", "GMT", "GMT+1", "GMT+2", "GMT+3"};
 	//	Object[] timezones = {"UTC", "UTC+1", "UTC+2", "UTC+3", "GMT", "GMT+1", "GMT+2", "GMT+3"};
-		 Preferences pref = Preferences.userRoot();
+	  Preferences pref = Preferences.userRoot();
 		// Retrieve the selected path or use
 		// an empty string if no path has
 		// previously been selected
-		String pref_zone = pref.get("time_zone", "Africa/Nairobi");
+		String pref_zone = pref.get(pref_str, "Africa/Nairobi");
 		
 		JFrame frame = new JFrame("Choose a timezone");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -108,9 +139,10 @@ public class IOManager {
 		frame.setVisible(true);		
 		if ((s != null) && (s.length() > 0)) {
 
-			pref.put("time_zone", s);
+			pref.put(pref_str, s);
 			return s;
 		}
+    asError("wrong timezone return value");
 		System.exit(0);
 		return "";
 	}
