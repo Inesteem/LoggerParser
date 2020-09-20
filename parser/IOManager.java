@@ -85,7 +85,7 @@ public class IOManager {
 
 	public double getImpulsMM(String pref_str) throws java.lang.NoClassDefFoundError {
     if (ml > 0) return ml;
-    Object[] impuls_mms = {"0.2","0.5"};
+    Object[] impuls_mms = {"0.2","0.5","1.0"};
 	  Preferences pref = Preferences.userRoot();
     String pref_mm = pref.get(pref_str, "");
 			
@@ -152,8 +152,19 @@ public class IOManager {
 		//set preferred start path
 		Preferences pref = Preferences.userRoot();
 		String pref_path = pref.get(default_path, "");
+    File sf = new File(pref_path);
+    File[] sfs = {sf};
+
 		JFileChooser jfc = new JFileChooser();
-		if(pref_path != null) jfc.setCurrentDirectory(new File(pref_path));
+		if(pref_path != null){
+      if (sf.isDirectory()) {
+        jfc.setCurrentDirectory(sf);
+      } else {
+        jfc.setSelectedFile(sf);
+        jfc.setSelectedFiles(sfs);
+        System.out.println("FILES");
+      }
+    }
 
 		//restrict selection
 		if (f_type == FileType.DIR) {
@@ -184,7 +195,8 @@ public class IOManager {
 
 		if (selectedFiles != null && selectedFiles.length > 0){
 			if(f_type == FileType.FILE || selectedFiles.length == 1) {
-				pref.put(default_path, FilenameUtils.getFullPath(selectedFiles[0].getAbsolutePath()));
+				pref.put(default_path, selectedFiles[0].getAbsolutePath());
+				//pref.put(default_path, FilenameUtils.getFullPath(selectedFiles[0].getAbsolutePath()));
 			} else {
 				pref.put(default_path,selectedFiles[0].getAbsolutePath());
 			}

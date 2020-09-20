@@ -21,11 +21,13 @@ import java.util.Collections;
 import java.time.YearMonth;
 import javafx.util.Pair;
 
+import java.lang.NumberFormatException;
 
 import java.text.DateFormatSymbols;
 import javax.swing.JLabel;
 
 import java.text.DecimalFormat;
+import java.text.Number;
 import java.text.NumberFormat;
 import java.util.Locale;
 
@@ -40,7 +42,7 @@ public class Parser {
 	String impulse_type1[] = {"Date", "Time", "Impulses", "[]"};
 	String impulse_type2[] = {"Datum", "Zeit", "1.Impulse", "[]"};
 	String moment_vals[]   = {"Date", "Time", "Resistance", "[Ohm]", "Current", "[mA]"};
-	String rel_hum[]       = {"Datum", "Zeit", "1.Temperatur", "[Â°C]", "2.rel.Feuchte", "[%]"};	
+	String rel_hum[]       = {"Datum", "Zeit", "1.Temperatur", "[°C]", "2.rel.Feuchte", "[%]"};	
 	String[] options = {"keep key", "override old key", "always keep", "always override","abort operation"};
 	String time_zone = "UTC";
 	HashMap<Date,String[]> RainPerDate;
@@ -84,6 +86,61 @@ public class Parser {
 		
 	}
 	
+	public class TempRelHumFormat
+    implements LogFormat {
+    
+    public TempRelHumFormat(){}
+
+		public boolean get_values(String[] data, List<Double> values){
+			if ( data.length != 4){
+				return false;
+			}
+    
+			double temp;
+			double relH;
+      try {
+        tem= Double.parseDouble(data[2]);
+        relH = Double.parseDouble(data[3]);
+      } catch (NumberFormatException e){
+        NumberFormat f = NumberFomat.getInstance(Locale.FRANCE);
+        Number number = format.parse(Double.parseDouble(data[2]));
+        tem= number.doubleValue();
+        Number number = format.parse(Double.parseDouble(data[3]));
+        relH= number.doubleValue();
+      }
+		  values.add(temp);
+		  values.add(relH);
+			return true;
+		}
+		
+		public ParserType get_parser_type(){
+			return ParserType.REL_HUM;
+		}
+		
+		public Pair<Integer, double[]> get_month_sum(Parser.Month m) {
+			double sum[] = new double[2];
+			int num_measures = 0;
+			for (int h = 0; h < 24; ++h) {
+				if(m.hours[h] == null) { continue; }
+				//for (int i = 0; i < hours[h].size(); ++i) {
+				//		avg += hours[h].get(i);
+				//}
+				for (int e = 0; e < m.hours[h].size(); e+=2){
+					sum[0] += m.hours[h].get(e);
+					sum[1] += m.hours[h].get(e+1);
+				}
+				num_measures += m.hours[h].size()/2;
+			}
+			return new Pair<Integer,double[]>(num_measures, sum);
+		}
+		
+		public String get_value_header() {
+			return "temp rel_hum";
+		}
+		
+	}
+	
+
 	public class ImpulsFormat
     implements LogFormat {
 	//num_elements: counts impulses > 0
@@ -132,12 +189,12 @@ public class Parser {
 		}
 		
 		public String get_value_header() {
+        if(mm == 1){return "impuls";}
 			return "mm";
 		}
 		
 	}
 	
-
 	
 	public Parser(String tz){
 		time_zone = tz;
@@ -191,8 +248,8 @@ public class Parser {
 					if(splitted.length == 4 && (Arrays.equals(impulse_type1,splitted) || Arrays.equals(impulse_type2,splitted))){
 							type = ParserType.IMPULS;
 							break;
-					}
-					else if(splitted.length == 6){
+          }
+          else if(splitted.length == 6){
 						if(Arrays.equals(moment_vals,splitted)){
 							type = ParserType.MOMENT_VALS;
 							break;
@@ -201,15 +258,22 @@ public class Parser {
 							type = ParserType.REL_HUM;
 							break;
 						}
-					}
-			}
-			//file append support; check if file types match
-			if(p_type == ParserType.NONE){
-				p_type = type;
-				setLogFormat((LogFormat)new ImpulsFormat());
-			} else if(p_type != type) {
-				System.out.println("File types do not match! Aborting.");
-				iom.asWarning("File types do not match! Aborting.");
+          }
+      }
+
+      //file append support; check if file types match
+      if(p_type == ParserType.NONE){
+        p_type = type;
+        if ( p_type == ParserType.REL_HUM) {
+          setLogFormat((LogFormat) new TempRelHumFormat());
+        } else if ( p_type == ParserType.IMPULS) {
+          setLogFormat((LogFormat) new ImpulsFormat());
+        } else {
+          iom.asError("logger format unsupported : " + file.getAbsolutePath());
+        }
+      } else if(p_type != type) {
+        System.out.println("File types do not match! Aborting.");
+        iom.asWarning("File types do not match! Aborting.");
 				return false;
 					
 			}
