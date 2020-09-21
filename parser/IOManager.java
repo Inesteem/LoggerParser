@@ -194,6 +194,7 @@ public class IOManager {
 
 
 		if (selectedFiles != null && selectedFiles.length > 0){
+			System.out.println("default_path:" + selectedFiles[0].getAbsolutePath());
 			if(f_type == FileType.FILE || selectedFiles.length == 1) {
 				pref.put(default_path, selectedFiles[0].getAbsolutePath());
 				//pref.put(default_path, FilenameUtils.getFullPath(selectedFiles[0].getAbsolutePath()));

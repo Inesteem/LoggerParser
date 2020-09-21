@@ -22,12 +22,12 @@ import java.time.YearMonth;
 import javafx.util.Pair;
 
 import java.lang.NumberFormatException;
+import java.lang.Number;
 
 import java.text.DateFormatSymbols;
 import javax.swing.JLabel;
 
 import java.text.DecimalFormat;
-import java.text.Number;
 import java.text.NumberFormat;
 import java.util.Locale;
 
@@ -96,17 +96,22 @@ public class Parser {
 				return false;
 			}
     
-			double temp;
-			double relH;
+			double temp = -1;
+			double relH = -1;
       try {
-        tem= Double.parseDouble(data[2]);
+        temp= Double.parseDouble(data[2]);
         relH = Double.parseDouble(data[3]);
       } catch (NumberFormatException e){
-        NumberFormat f = NumberFomat.getInstance(Locale.FRANCE);
-        Number number = format.parse(Double.parseDouble(data[2]));
-        tem= number.doubleValue();
-        Number number = format.parse(Double.parseDouble(data[3]));
-        relH= number.doubleValue();
+        try {
+          NumberFormat format = NumberFormat.getInstance(Locale.FRANCE);
+          Number number = format.parse(data[2]);
+          temp= number.doubleValue();
+          number = format.parse(data[3]);
+          relH= number.doubleValue();
+        } catch (ParseException e2){
+          e2.printStackTrace();
+          IOManager.getInstance().asError("double parse exception with " + data[2]+ " or " + data[3]);
+        }
       }
 		  values.add(temp);
 		  values.add(relH);
@@ -130,6 +135,10 @@ public class Parser {
 					sum[1] += m.hours[h].get(e+1);
 				}
 				num_measures += m.hours[h].size()/2;
+			}
+			if(num_measures != 0){
+				sum[0] /= num_measures;
+				sum[1] /= num_measures;
 			}
 			return new Pair<Integer,double[]>(num_measures, sum);
 		}
