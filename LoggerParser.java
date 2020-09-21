@@ -7,7 +7,10 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.FlowLayout;
+import java.awt.Toolkit;
+import java.awt.Dimension;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 //from w  w w  . j ava2  s.co  m
@@ -17,7 +20,7 @@ import javax.swing.JPanel;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
-
+import javax.swing.SwingConstants;
 
 import java.beans.*;
 import java.io.IOException;
@@ -39,33 +42,29 @@ public class LoggerParser {
   public static final String PREF_OUTPUT_PATH_FILE = "LP_PREF_OUTPUT_PATH";
   public static final String PREF_TIMEZONE = "LP_PREF_TIMEZONE";
 
-  static JPanel statusBar;
-  static final JFrame frame = new JFrame("Parse Log-Files"); 
-  static final JLabel status = new JLabel("morestuff"); 
+  static JFrame frame = new JFrame("Parse Log-Files"); 
   static JLabel content = new JLabel("stuff");
 
+  static Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
   static void set_frame(){ 
 
-    statusBar = new JPanel(new FlowLayout(FlowLayout.LEFT));
-    statusBar.setBorder(new CompoundBorder(new LineBorder(Color.DARK_GRAY),
-          new EmptyBorder(4, 4, 4, 4)));
-    statusBar.add(status);
-
+    Font f = content.getFont();
+    content.setFont(f.deriveFont(f.getStyle() | Font.BOLD));
     content.setHorizontalAlignment(JLabel.CENTER);
+
 
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.setLayout(new BorderLayout());
     frame.add(content);
-    frame.add(statusBar, BorderLayout.SOUTH);
-
-    frame.addComponentListener(new ComponentAdapter() {
-        @Override
-        public void componentResized(ComponentEvent e) {
-        status.setText(frame.getWidth() + "x" + frame.getHeight());
-        }
-        });
-
-    frame.setBounds(20,20,400,200);
+    frame.setBounds(20,20,600,100);
+    frame.setLocation(dim.width/2-frame.getSize().width/2, dim.height/2-frame.getSize().height*2);
+//    frame.addComponentListener(new ComponentAdapter() {
+//        @Override
+//        public void componentResized(ComponentEvent e) {
+//        status.setText(frame.getWidth() + "x" + frame.getHeight());
+//        content.setText(frame.getWidth() + "x" + frame.getHeight());
+//        }
+//        });
   }
 
 
@@ -75,12 +74,14 @@ public class LoggerParser {
     int cnt = 0;
 
     for (final File fileEntry : input_paths) {
+  
 
-      status.setText(fileEntry.getName());
+      content.setText("<html><b><center>Parsing File:<center/><b/><br/>"+fileEntry.getName()+"</html>");
+
+      //frame.pack();
       if (fileEntry.isFile()){		
         System.out.println("parsing file " + fileEntry.getName());
-        parser.parse(fileEntry, content);
-        frame.setVisible(true);
+        parser.parse(fileEntry, content,frame);
         ++cnt;
       } else if ( fileEntry.isDirectory() ){
         new_output_path = output_path + "\\" + fileEntry.getName();
@@ -101,7 +102,6 @@ public class LoggerParser {
       parser.print_log_info();
       parser.write_log_info(new_output_path);
     }
-    frame.setVisible(false);
 
 
   }
@@ -142,7 +142,9 @@ public class LoggerParser {
     set_io_files();	
     timezone = iom.getAfricanTimezone(PREF_TIMEZONE);
 
+    frame.setVisible(true);
     parse_logs(input_paths, output_path.getAbsolutePath());
+    frame.setVisible(false);
     iom.asMessage("Finished!");
     iom.getOutputFile(output_path);
 

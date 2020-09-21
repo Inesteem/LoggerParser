@@ -26,6 +26,7 @@ import java.lang.Number;
 
 import java.text.DateFormatSymbols;
 import javax.swing.JLabel;
+import javax.swing.JFrame;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -238,7 +239,7 @@ public class Parser {
 	
 	
 	
-	public boolean parse(File file,JLabel label){
+	public boolean parse(File file,JLabel label,JFrame frame){
 
 		
 		IOManager iom = IOManager.getInstance();
@@ -285,8 +286,9 @@ public class Parser {
         iom.asWarning("File types do not match! Aborting.");
 				return false;
 					
-			}
-				
+			} else if ( p_type == ParserType.IMPULS) {
+          setLogFormat((LogFormat) new ImpulsFormat());
+        }
 			boolean keep_all = false;
 			boolean override_all = false;
 			boolean dub_lines = false;
@@ -301,7 +303,9 @@ public class Parser {
 					
 				String key_str = date_format.format(date);
 				System.out.println("date: " + date + " " + key_str);
-        label.setText(line);
+        label.setText("<html><b><center>Parsing Line:<center/><b/><br/>"+line+"</html>");
+        
+        //frame.pack();
 					
 				if (RainPerDate.containsKey(date) && !override_all) {
 					String old_val[] = RainPerDate.get(date);
