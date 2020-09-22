@@ -40,10 +40,7 @@ public class Parser {
 	}
 
 	
-	String impulse_type1[] = {"Date", "Time", "Impulses", "[]"};
-	String impulse_type2[] = {"Datum", "Zeit", "1.Impulse", "[]"};
 	String moment_vals[]   = {"Date", "Time", "Resistance", "[Ohm]", "Current", "[mA]"};
-	String rel_hum[]       = {"Datum", "Zeit", "1.Temperatur", "[°C]", "2.rel.Feuchte", "[%]"};	
 	String[] options = {"keep key", "override old key", "always keep", "always override","abort operation"};
 	String time_zone = "UTC";
 	HashMap<Date,String[]> RainPerDate;
@@ -58,153 +55,7 @@ public class Parser {
 	public enum ParserType {
 		NONE, IMPULS, MOMENT_VALS, REL_HUM, OTHER
 	}
-	
-	public class Month {
-		@SuppressWarnings("unchecked")
-		public ArrayList<Double>[] hours = new ArrayList[24];
-		public int[] measurements;
-		int num_days; // max 31 days, set bits count as days
-		
-		public Month(){
-			num_days = 0;
-			measurements = new int[24];
-		}
-		
-		public int get_num_days(){
-			return java.lang.Integer.bitCount(num_days);
-		}
-		
-		public boolean add_data(int day, int hour, String[] data, LogFormat lf){
-			if(hours[hour] == null) {
-				hours[hour] = new ArrayList<Double>();
-			}
-			if(!lf.get_values(data, hours[hour])){ return false; }
-			++measurements[hour];
-			num_days |= 1 << day;
-			return true;
-		}
-		
-		
-	}
-	
-	public class TempRelHumFormat
-    implements LogFormat {
-    
-    public TempRelHumFormat(){}
 
-		public boolean get_values(String[] data, List<Double> values){
-			if ( data.length != 4){
-				return false;
-			}
-    
-			double temp = -1;
-			double relH = -1;
-      try {
-        temp= Double.parseDouble(data[2]);
-        relH = Double.parseDouble(data[3]);
-      } catch (NumberFormatException e){
-        try {
-          NumberFormat format = NumberFormat.getInstance(Locale.FRANCE);
-          Number number = format.parse(data[2]);
-          temp= number.doubleValue();
-          number = format.parse(data[3]);
-          relH= number.doubleValue();
-        } catch (ParseException e2){
-          e2.printStackTrace();
-          IOManager.getInstance().asError("double parse exception with " + data[2]+ " or " + data[3]);
-        }
-      }
-		  values.add(temp);
-		  values.add(relH);
-			return true;
-		}
-		
-		public ParserType get_parser_type(){
-			return ParserType.REL_HUM;
-		}
-		
-		public Pair<Integer, double[]> get_month_sum(Parser.Month m) {
-			double sum[] = new double[2];
-			int num_measures = 0;
-			for (int h = 0; h < 24; ++h) {
-				if(m.hours[h] == null) { continue; }
-				//for (int i = 0; i < hours[h].size(); ++i) {
-				//		avg += hours[h].get(i);
-				//}
-				for (int e = 0; e < m.hours[h].size(); e+=2){
-					sum[0] += m.hours[h].get(e);
-					sum[1] += m.hours[h].get(e+1);
-				}
-				num_measures += m.hours[h].size()/2;
-			}
-			if(num_measures != 0){
-				sum[0] /= num_measures;
-				sum[1] /= num_measures;
-			}
-			return new Pair<Integer,double[]>(num_measures, sum);
-		}
-		
-		public String get_value_header() {
-			return "temp rel_hum";
-		}
-		
-	}
-	
-
-	public class ImpulsFormat
-    implements LogFormat {
-	//num_elements: counts impulses > 0
-	//num_measurements: counts all (even 0 values)
-    double mm;
-    public static final String PREF_IMPULS_MM = "LP_PREF_IMPULS_MM";
-    
-    public ImpulsFormat(){
-      mm = IOManager.getInstance().getImpulsMM(PREF_IMPULS_MM);
-    }
-
-		public boolean get_values(String[] data, List<Double> values){
-			if ( data.length != 3){
-				return false;
-			}   
-			double val = Double.parseDouble(data[2]);
-			if (val != 0.0) {
-				values.add(val);
-			}
-			return true;
-		}
-		
-		public ParserType get_parser_type(){
-			return ParserType.IMPULS;
-		}
-		
-		public Pair<Integer, double[]> get_month_sum(Parser.Month m) {
-			double avg[] = new double[1];
-			int num_elements = 0;
-			int num_measures = 0;
-			for (int h = 0; h < 24; ++h) {
-				if(m.hours[h] == null) { continue; }
-				//for (int i = 0; i < hours[h].size(); ++i) {
-				//		avg += hours[h].get(i);
-				//}
-				for (double v : m.hours[h]){
-					avg[0] += v * mm;
-				}
-				num_elements += m.hours[h].size();
-				num_measures += m.measurements[h];
-			}
-			//if(num_elements != 0){
-			//	avg[0] /= num_elements;
-			//}
-			return new Pair<Integer,double[]>(num_measures, avg);
-		}
-		
-		public String get_value_header() {
-        if(mm == 1){return "impuls";}
-			return "mm";
-		}
-		
-	}
-	
 	
 	public Parser(String tz){
 		time_zone = tz;
@@ -238,7 +89,6 @@ public class Parser {
 	}
 	
 	
-	
 	public boolean parse(File file,JLabel label,JFrame frame){
 
 		
@@ -255,20 +105,18 @@ public class Parser {
 			ParserType type = ParserType.NONE;
 			while ((line = bufferedReader.readLine()) != null) {
 					String splitted[] = line.split("\\s+");
-					if(splitted.length == 4 && (Arrays.equals(impulse_type1,splitted) || Arrays.equals(impulse_type2,splitted))){
+				  if(ImpulsFormat.matches(splitted)){
 							type = ParserType.IMPULS;
 							break;
           }
-          else if(splitted.length == 6){
-						if(Arrays.equals(moment_vals,splitted)){
-							type = ParserType.MOMENT_VALS;
-							break;
-						}
-						if(Arrays.equals(rel_hum,splitted)){
+				//		if(Arrays.equals(moment_vals,splitted)){
+				//			type = ParserType.MOMENT_VALS;
+				//			break;
+				//		}
+				  else if(TempRelHumFormat.matches(splitted)){
 							type = ParserType.REL_HUM;
 							break;
 						}
-          }
       }
 
       //file append support; check if file types match

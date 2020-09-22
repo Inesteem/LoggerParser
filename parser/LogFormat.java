@@ -14,10 +14,11 @@ public interface LogFormat{
 	
 	
 	public Parser.ParserType get_parser_type();
+	public static boolean matches(String[] line){return false;}
 	
 	
-//	public Pair<Integer, double[]> get_month_avg(Parser.Month m);
-	public Pair<Integer, double[]> get_month_sum(Parser.Month m);
+//	public Pair<Integer, double[]> get_month_avg(Month m);
+	public Pair<Integer, double[]> get_month_sum(Month m);
 	
 	
 	public String get_value_header();
