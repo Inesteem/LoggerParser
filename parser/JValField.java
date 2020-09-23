@@ -5,12 +5,14 @@ import java.awt.event.*;
 import javax.swing.*;
 public abstract class JValField<T extends java.lang.Number> extends JTextField{
   private T value;
+  private Font normal; 
 
   public JValField (int length) {
     super(length);
+    normal = getFont();
     value = errVal();
     this.addKeyListener(new KeyAdapter() {
-        public void keyPressed(KeyEvent ke) {
+        public void keyReleased(KeyEvent ke) {
           setValue();
         }
     });
@@ -23,9 +25,13 @@ public abstract class JValField<T extends java.lang.Number> extends JTextField{
     try {
       value = valueOf(str_val);
       setBackground(Color.WHITE);
+      setForeground(Color.BLACK);
+      setFont(normal);
     } catch (Exception e) {
       value = errVal();
       setBackground(Color.RED);
+      setForeground(Color.WHITE);
+      setFont(getFont().deriveFont(Font.BOLD, 14f));
     }
   }
 

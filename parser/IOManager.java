@@ -106,7 +106,6 @@ public class IOManager {
       return Double.parseDouble(s);
     }
     asError("wrong mm return value");
-    System.exit(0);
     return 0;
 
 
@@ -141,7 +140,6 @@ public class IOManager {
       return s;
     }
     asError("wrong timezone return value");
-    System.exit(0);
     return "";
   }
 
