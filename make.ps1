@@ -1,1 +1,1 @@
-javac -cp "\.;lib\*;" parser/*.java LoggerParser.java 
+javac -Xlint:unchecked -cp "\.;lib\*;" parser/*.java LoggerParser.java  
