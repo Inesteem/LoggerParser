@@ -34,8 +34,9 @@ import java.util.Locale;
 
 class Column {
 
+
   HashMap<Integer,Month[]> ValPerYear;
-  double l_thresh,u_thresh,min,max;
+  double l_thresh,u_thresh;
   int pos;
   NumberFormat format;
   Calendar calendar;
@@ -45,8 +46,6 @@ class Column {
     this.key=key;
     this.l_thresh = l_thresh;
     this.u_thresh = u_thresh;
-    max = l_thresh;
-    min = u_thresh;
     this.pos = pos;
     this.calendar = calendar;
     NumberFormat format = NumberFormat.getInstance(Locale.FRANCE);
@@ -71,8 +70,6 @@ class Column {
     }
 
     if(l_thresh <= val && val <= u_thresh) return false;
-    if(min > val) min = val;
-    if(max < val) max = val;
 
     calendar.setTime(date);   
     int year = calendar.get(Calendar.YEAR);
@@ -97,20 +94,8 @@ class Column {
     return true;
   }
 
-  public Pair<Integer, Double> get_month_sum(Month m) {
-    double sum = 0;
-    int num = 0;
-    for (int h = 0; h < 24; ++h) {
-      if(m.hours[h] == null) { continue; }
-      for (int e = 0; e < m.hours[h].size(); ++e){
-        sum += m.hours[h].get(e);
-        ++num;
-      }
-    }
-    return new Pair<Integer,Double>(num, sum);
-  }
 
-  public void collect_values(HashMap<Integer, HashMap<String, Pair<Integer,Double> > > summedVals, HashMap<Integer, HashMap<String, Pair<Integer,Double> > > summedValsMonth, boolean avg){
+  public void collect_values(HashMap<Integer, HashMap<String, Month.MonthSum > > summedVals, HashMap<String,Month.MonthSum[]> summedPerMonth){
     Iterator it = ValPerYear.entrySet().iterator();
     while (it.hasNext()) {
       Map.Entry pair = (Map.Entry)it.next();
@@ -120,21 +105,34 @@ class Column {
       for (int m = 0; m < 12; ++m){
         if(months[m] == null) { continue; }
 
+        //GET VALUE
         int num_days = YearMonth.of(year, m+1).lengthOfMonth();
-        Pair<Integer,Double> sum = get_month_sum(months[m]);
-        
+        Month.MonthSum sum = months[m].get_month_sum();
 
+        //PER YEAR
         int key = (year << 2) & m;
-        HashMap<String, Pair<Integer,Double> > svs;
+        HashMap<String, Month.MonthSum > svs;
         if (!summedVals.containsKey(key)) {
-          svs = new HashMap<String, Pair<Integer,Double> >();
+          svs = new HashMap<String, Month.MonthSum >();
           summedVals.put(key,svs);	
         } else {
           svs = summedVals.get(key);
         }
         svs.put(this.key, sum);
+
+        //PER MONTH
+        if (!summedPerMonth.containsKey(this.key)) {
+          summedPerMonth.put(this.key,new Month.MonthSum[12]);
+
+        }
+        if (summedPerMonth.get(this.key)[m] == null) {
+          summedPerMonth.get(this.key)[m] = new Month.MonthSum();
+        }
+        summedPerMonth.get(this.key)[m].add(sum);
+
       }
     }
+
   }
 
 };
