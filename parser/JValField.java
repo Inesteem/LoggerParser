@@ -16,6 +16,7 @@ public abstract class JValField<T extends java.lang.Number> extends JTextField{
           setValue();
         }
     });
+    setHorizontalAlignment(JTextField.CENTER);
   }
   abstract T valueOf(String str);
   abstract T errVal();

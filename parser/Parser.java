@@ -67,7 +67,6 @@ public class Parser {
 
 		p_type = ParserType.NONE;
 		calendar = GregorianCalendar.getInstance(); 
-		    
 		TimeZone pdt=TimeZone.getTimeZone(time_zone);
 		
 		// create a Pacific Standard Time time zone
@@ -90,7 +89,6 @@ public class Parser {
 	
 	
 	public boolean parse(File file,JLabel label,JFrame frame){
-
 		
 		IOManager iom = IOManager.getInstance();
 		
@@ -134,9 +132,10 @@ public class Parser {
         iom.asWarning("File types do not match! Aborting.");
 				return false;
 					
-			} else if ( p_type == ParserType.IMPULS) {
-          setLogFormat((LogFormat) new ImpulsFormat());
-        }
+			} 
+       
+      l_format.configure(file.getName());
+      
 			boolean keep_all = false;
 			boolean override_all = false;
 			boolean dub_lines = false;
@@ -152,8 +151,7 @@ public class Parser {
 				String key_str = date_format.format(date);
 				System.out.println("date: " + date + " " + key_str);
         label.setText("<html><b><center>Parsing Line:<center/><b/><br/>"+line+"</html>");
-        
-        //frame.pack();
+       
 					
 				if (RainPerDate.containsKey(date) && !override_all) {
 					String old_val[] = RainPerDate.get(date);
@@ -188,6 +186,9 @@ public class Parser {
 						System.exit(0);
 					}
 				} 
+
+        
+
 				RainPerDate.put(date, splitted);
 				int year = calendar.get(Calendar.YEAR);
 				int month = calendar.get(Calendar.MONTH);
@@ -250,8 +251,8 @@ public class Parser {
 				}
 				int num_days = YearMonth.of(year, m+1).lengthOfMonth();
 				
-				Pair avg = l_format.get_month_sum(months[m]);
-				System.out.println("\n avg: " + Arrays.toString((double[])avg.getValue()) + " with " + avg.getKey() + " measurements" + "\n");
+				Pair avg = l_format.get_month_val(months[m]);
+				System.out.println("\n avg: " + Arrays.toString((double[])avg.getValue()) + " with " + avg.getKey() +  "\n");
 				System.out.println( "measured " +  months[m].get_num_days() + " days of " + num_days + " = " + (100 * months[m].get_num_days())/num_days + "%");
 			}
 		}
@@ -278,13 +279,13 @@ public class Parser {
 					line += "\r\n";
 					
 					int num_days = YearMonth.of(year, m+1).lengthOfMonth();
-					Pair avg = l_format.get_month_sum(months[m]);
+					Pair avg = l_format.get_month_val(months[m]);
 					double [] avg_vals = (double[]) avg.getValue();
-					int meas =  (int) avg.getKey();
+					int[] meas =  (int[]) avg.getKey();
 					
 					line += year + "\t" + getMonth(m).substring(0,3) + "\t" + months[m].get_num_days() + "/" + num_days;
 					for (int pos = 0; pos < avg_vals.length; ++pos) {
-						line += "\t" + df.format(avg_vals[pos]);
+						line += "\t" + df.format(avg_vals[pos]) + "\t" + meas[pos];
             
           if(all_years_avg[m] == null) {
             all_years_avg[m] = new ArrayList<>();
@@ -298,7 +299,6 @@ public class Parser {
                   
 					}
           all_years_meas[m] += 1;
-					line += "\t" + meas;
 
           
 //					if((100 * months[m].get_num_days())/num_days >= 80){

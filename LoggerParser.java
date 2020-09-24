@@ -138,10 +138,6 @@ public class LoggerParser {
 
 
   public static void main(String[] args) {
-
-    ImpulsFormat iform = new ImpulsFormat();
-    System.exit(0);
-
     set_frame();
     set_io_files();	
     timezone = iom.getAfricanTimezone(PREF_TIMEZONE);

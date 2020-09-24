@@ -8,100 +8,82 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.List;
+import java.util.ArrayList;
 
 import java.lang.Thread;
 
 import java.util.prefs.Preferences;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
 import java.lang.InterruptedException;
 
-
-//import java.util.Date;
-//import java.util.HashMap;
-//import java.util.ArrayList;
-//import java.util.List;
-//import javafx.util.Pair;
-
 public abstract class LogFormat{
+
 	private Parser.ParserType type;
   protected boolean for_all = false;
-  protected int min;
-  protected int max;
-
-  private static final String PREF_MIN = "LP_PREF_MIN";
-  private static final String PREF_MAX = "LP_PREF_MAX";
-  private static final String PREF_ALL = "LP_PREF_ALL";
-
+  protected ArrayList<ValuePanel> val_panels;
+  private final String pref_all_str;
   private Object lock = new Object();
+  protected String frame_title = "Configure Parser";
 
-	public LogFormat(Parser.ParserType t){ 
+	public LogFormat(Parser.ParserType t, String pas){ 
+      pref_all_str = pas;
       type = t;
+      val_panels= new ArrayList<ValuePanel>();
   }
 
 	public abstract boolean get_values(String[] data, List<Double> values);
-	
+
+  public abstract void configure(String file_name);
 	
 	public Parser.ParserType get_parser_type() { return type;}
 	public static boolean matches(String[] line){return false;}
 	
 	
 //	public Pair<Integer, double[]> get_month_avg(Month m);
-	public abstract Pair<Integer, double[]> get_month_sum(Month m);
+	public abstract Pair<int[], double[]> get_month_val(Month m);
 	
 	
 	public abstract String get_value_header();
 
 
-  public void configure(String title, String pref_ext, JPanel options){
+  public void configure(String file_name, JPanel options){
     if (for_all) return;
     Preferences pref = Preferences.userRoot();
-    int pref_min = pref.getInt(PREF_MIN + pref_ext, 0);
-    int pref_max = pref.getInt(PREF_MAX + pref_ext, Integer.MAX_VALUE);
-    boolean pref_all = pref.getBoolean(PREF_ALL + pref_ext, false);
+    boolean pref_all = pref.getBoolean(pref_all_str, false);
 
-    JFrame frame = new JFrame(title);
-    //JFrame frame = new JFrame("How to parse Impulses:");
+
+
+    JFrame frame = new JFrame(frame_title);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
     //configure components
-    JIntField minField = new JIntField(10);
-    minField.setValue(pref_min);
-    JIntField maxField = new JIntField(10);
-    maxField.setValue(pref_max);
-
     JButton OKButton = new JButton("Only this File");
-//    OKButton.setSelected(!pref_all);
     JButton OKAllButton = new JButton("All Files");
-//    OKAllButton.setSelected(pref_all);
   
-
     //configure panels
     JPanel panelHeader= new JPanel();
-    panelHeader.add(new JLabel("Thresholds for impulses (integer, incl.):"),BorderLayout.CENTER);
+    JLabel title_l = new JLabel(file_name);
+    title_l.setFont(title_l.getFont().deriveFont(Font.BOLD, 14f));
+    panelHeader.add(title_l, BorderLayout.CENTER);
 
     JPanel panelThresh= new JPanel();
-    panelThresh.setLayout(new BoxLayout(panelThresh, BoxLayout.X_AXIS));
-    panelThresh.add(Box.createRigidArea(new Dimension(20,0))); // a spacer
-    panelThresh.add(new JLabel("min:"));
-    panelThresh.add(Box.createRigidArea(new Dimension(20,0))); // a spacer
-    panelThresh.add(minField);
-    panelThresh.add(Box.createRigidArea(new Dimension(20,0))); // a spacer
-    panelThresh.add(new JLabel("max:"));
-    panelThresh.add(Box.createRigidArea(new Dimension(20,0))); // a spacer
-    panelThresh.add(maxField);
-    panelThresh.add(Box.createRigidArea(new Dimension(20,0))); // a spacer
-
-
+    panelThresh.setLayout(new BoxLayout(panelThresh, BoxLayout.Y_AXIS));
+    for(ValuePanel p : val_panels){
+      panelThresh.add(Box.createRigidArea(new Dimension(0,10))); // a spacer
+      panelThresh.add(p);
+    }
 
     JPanel panelMiddle = new JPanel();
     panelMiddle.setLayout(new BoxLayout(panelMiddle, BoxLayout.Y_AXIS));
     panelMiddle.add(panelThresh);
-    panelMiddle.add(Box.createRigidArea(new Dimension(0,10))); // a spacer
-    panelMiddle.add(options);
+    if(options != null){
+      panelMiddle.add(Box.createRigidArea(new Dimension(0,10))); // a spacer
+      panelMiddle.add(options);
+      panelMiddle.add(new JSeparator());
+    }
 
     JPanel panelFooter= new JPanel();
     panelFooter.add(OKButton);
@@ -112,7 +94,7 @@ public abstract class LogFormat{
     contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
     contentPane.add(Box.createRigidArea(new Dimension(0,5))); // a spacer
     contentPane.add(panelHeader);
-    contentPane.add(Box.createRigidArea(new Dimension(0,10))); // a spacer
+    contentPane.add(new JSeparator());
     contentPane.add(panelMiddle);
     contentPane.add(Box.createRigidArea(new Dimension(0,10))); // a spacer
     contentPane.add(panelFooter);
@@ -180,7 +162,10 @@ public abstract class LogFormat{
 
 
     //run window
-    while(true){
+    boolean finished = false;
+    while(!finished){
+      finished = true;
+
       frame.setVisible(true);
       Thread t = new Thread() {
         public void run() {
@@ -200,21 +185,19 @@ public abstract class LogFormat{
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
+      
+      pref.putBoolean(pref_all_str,for_all);
 
-      //process results
-      min = minField.getValue();
-      max = maxField.getValue();
-      if (min < 0 || max < 0){
-        IOManager.asWarning("Wrong threshold values set. Retry or exit");
-        for_all=false;
-        continue;
+      for(ValuePanel p : val_panels){
+         if (!p.valid()) {
+          IOManager.asWarning("Wrong values entered. Please retry or exit.");
+          for_all=false;
+          finished=false;
+          break;
+        }
+        p.updatePrefs();
       }
 
-      pref.putInt(PREF_MIN, min);
-      pref.putInt(PREF_MAX, max);
-      pref.putBoolean(PREF_ALL,for_all);
-
-      break;
     }
   } 
 
