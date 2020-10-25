@@ -2,6 +2,9 @@ package timeunits;
 
 import java.util.Calendar;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 public interface TimeUnitI{
  
 
@@ -20,5 +23,7 @@ public interface TimeUnitI{
   public void validate();
 
   public void add_val(double val, Calendar cal);
-
+  public void write_to_file(Metric metric, FileOutputStream ostream, TimeRange tr) throws IOException;
+  
+  public String identifier(int idx);
 }

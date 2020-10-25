@@ -7,16 +7,16 @@ public class Year extends TimeUnit<Month> {
 
   public Year(){
     super();
-    subUnits = new ArrayList<Month>(12);
+    subUnits = new Month[12];
     metric = Metric.MONTH;
   }
 
    public void add_val(double val, Calendar cal){
     int idx =  cal.get(Calendar.MONTH);
-      if(subUnits.get(idx) == null){
-      subUnits.set(idx,new Month());
+      if(subUnits[idx] == null){
+      subUnits[idx] = new Month();
     }
-    subUnits.get(idx).add_val(val, cal);
+    subUnits[idx].add_val(val, cal);
   }
 
 

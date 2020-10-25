@@ -3,6 +3,10 @@ package timeunits;
 import java.util.Calendar;
 import java.util.ArrayList;
 
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 public class Hour implements TimeUnitI {
   double sum;
   double min;
@@ -59,4 +63,12 @@ public class Hour implements TimeUnitI {
     return get_sum();
   }
 
-}
+
+  public String identifier(int idx) {return String.valueOf(idx);}
+ 
+
+  public void write_to_file(Metric metric, FileOutputStream ostream, TimeRange tr) throws IOException{
+    return;
+  }
+
+  }
