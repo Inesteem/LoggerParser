@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.ArrayList;
 import javafx.util.Pair;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class TempRelHumFormat
 extends LogFormat {
@@ -23,10 +25,18 @@ extends LogFormat {
 
   static String rel_hum1[]       = {"Datum", "Zeit", "1.Temperatur", "[°C]", "2.rel.Feuchte", "[%]"};	
   static String rel_hum2[]       = {"Date", "Time", "1.Temperature", "[DegC]", "2.rel.Humidity", "[%]"};	
+
+
+  static String TEMP_KEY = "temp";
+  static String RHUM_KEY = "rhum";
+
   public TempRelHumFormat(){
     super(Parser.ParserType.REL_HUM, PREF_ALL);
     val_panels.add(new ValuePanel("Temperature", PREF_STR+"_TEMP", 10, 0, 100, true));
     val_panels.add(new ValuePanel("Relative Humidity", PREF_STR+"_RH", 10, 0, 42, true));
+
+    columns.add(new Column(TEMP_KEY, 0, 100 , 2, true, calendar));
+    columns.add(new Column(RHUM_KEY, 0, 100 , 3, true, calendar));
   }
 
   public void configure(String file_name){
@@ -38,70 +48,6 @@ extends LogFormat {
       return true;
     }
     return false;
-  }
-
-  public boolean get_values(String[] data, List<Double> values){
-    if ( data.length != 4){
-      return false;
-    }
-
-    double temp = -1;
-    double relH = -1;
-    try {
-      temp= Double.parseDouble(data[2]);
-      relH = Double.parseDouble(data[3]);
-    } catch (NumberFormatException e){
-      try {
-        NumberFormat format = NumberFormat.getInstance(Locale.FRANCE);
-        Number number = format.parse(data[2]);
-        temp= number.doubleValue();
-        number = format.parse(data[3]);
-        relH= number.doubleValue();
-      } catch (ParseException e2){
-        e2.printStackTrace();
-        IOManager.getInstance().asError("double parse exception with " + data[2]+ " or " + data[3]);
-      }
-    }
-
-    if (val_panels.get(0).isAllowed(temp)){
-      values.add(temp);
-
-    } else {
-      System.out.println("not allowed TEMP: " + temp);
-      values.add(-1.0);
-    }
-    if (val_panels.get(1).isAllowed(relH)){
-      values.add(relH);
-    } else {
-      System.out.println("not allowed RELH: "+ relH);
-      values.add(-1.0);
-      }
-    return true;
-  }
-
-
-  public Pair<int[], double[]> get_month_val(Month m) {
-    double sum[] = new double[2];
-    int num_measures[]= {0,0};
-    for (int h = 0; h < 24; ++h) {
-      if(m.hours[h] == null) { continue; }
-      //for (int i = 0; i < hours[h].size(); ++i) {
-      //		avg += hours[h].get(i);
-      //}
-      for (int e = 0; e < m.hours[h].size(); ++e){
-        double tmp = m.hours[h].get(e);
-        if(tmp == -1) continue;
-        sum[e%2] += tmp;
-        ++num_measures[e%2];
-      }
-    }
-    if(num_measures[0] != 0){
-      sum[0] /= num_measures[0];
-    }
-    if(num_measures[1] != 0){
-      sum[1] /= num_measures[1];
-    }
-    return new Pair<int[],double[]>(num_measures, sum);
   }
 
   public String get_value_header() {

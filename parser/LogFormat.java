@@ -1,52 +1,118 @@
 package parser;
-import javafx.util.Pair;
-import java.util.Arrays;
+
+import java.util.Locale;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.lang.NumberFormatException;
 import java.lang.Number;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.Locale;
-import java.util.List;
-import java.util.ArrayList;
-
 import java.lang.Thread;
+import java.lang.InterruptedException;
 
-import java.util.prefs.Preferences;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-import java.lang.InterruptedException;
+
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Iterator;
+
+import java.time.YearMonth;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.Date;
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
+
+
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Locale;
+
+import javafx.util.Pair;
+import java.util.prefs.Preferences;
+
+
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public abstract class LogFormat{
 
-	private Parser.ParserType type;
+  private Parser.ParserType type;
   protected boolean for_all = false;
   protected ArrayList<ValuePanel> val_panels;
+  protected ArrayList<Column> columns;
+
   private final String pref_all_str;
+  public static final String PREF_TIMEZONE = "LP_PREF_TIMEZONE";
+
   private Object lock = new Object();
   protected String frame_title = "Configure Parser";
+  protected Calendar calendar;
+  public SimpleDateFormat date_format;
+  protected JComboBox<String> timezone_select;
+  String[] timezones = {"Africa/Abidjan", "Africa/Accra", "Africa/Addis_Ababa", "Africa/Algiers", "Africa/Asmara", "Africa/Bamako", "Africa/Bangui", "Africa/Banjul", "Africa/Bissau", "Africa/Blantyre", "Africa/Brazzaville", "Africa/Bujumbura", "Africa/Cairo", "Africa/Casablanca", "Africa/Ceuta", "Africa/Conakry", "Africa/Dakar", "Africa/Dar_es_Salaam", "Africa/Djibouti", "Africa/Douala", "Africa/El_Aaiun", "Africa/Freetown", "Africa/Gaborone", "Africa/Harare", "Africa/Johannesburg", "Africa/Juba", "Africa/Kampala", "Africa/Khartoum", "Africa/Kigali", "Africa/Kinshasa", "Africa/Lagos", "Africa/Libreville", "Africa/Lome", "Africa/Luanda", "Africa/Lubumbashi", "Africa/Lusaka", "Africa/Malabo", "Africa/Maputo", "Africa/Maseru", "Africa/Mbabane", "Africa/Mogadishu", "Africa/Monrovia", "Africa/Nairobi", "Africa/Ndjamena", "Africa/Niamey", "Africa/Nouakchott", "Africa/Ouagadougou", "Africa/Porto-Novo", "Africa/Sao_Tome", "Africa/Timbuktu", "Africa/Tripoli", "Africa/Tunis", "Africa/Windhoek","UTC", "UTC+1", "UTC+2", "UTC+3", "GMT", "GMT+1", "GMT+2", "GMT+3"};
 
-	public LogFormat(Parser.ParserType t, String pas){ 
-      pref_all_str = pas;
-      type = t;
-      val_panels= new ArrayList<ValuePanel>();
+
+  static DecimalFormat df;	
+  HashMap<Integer, HashMap<String, Month.MonthSum > > summedVals;
+  HashMap<String,Month.MonthSum[]> summedPerMonth;
+
+
+  public JFrame frame;
+  public JButton OKButton;
+  public JButton OKAllButton;
+
+  public LogFormat(Parser.ParserType t, String pas){ 
+    pref_all_str = pas;
+    type = t;
+    val_panels= new ArrayList<ValuePanel>();
+    columns= new ArrayList<Column>();
+
+    summedVals = new HashMap<Integer, HashMap<String, Month.MonthSum> >();
+    summedPerMonth = new HashMap<String,Month.MonthSum[]>();
+
+    calendar = GregorianCalendar.getInstance();
+    date_format = new SimpleDateFormat("dd.MM.yy HH:mm:ss");
+
+
+    timezone_select= new JComboBox<String>(timezones);
+    timezone_select.setMaximumSize(timezone_select.getPreferredSize() );
+    //((JLabel)timezone_select.getRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
+    //((JLabel)timezone_select.getRenderer()).setVerticalAlignment(SwingConstants.CENTER);
+
+    Locale locale = new Locale("en","UK");
+    df = (DecimalFormat) NumberFormat.getNumberInstance(locale);
+    df.applyPattern("##.##");
+
+
+    frame = new JFrame(frame_title);
+    OKButton = new JButton("Only this File");
+    OKAllButton = new JButton("All Files");
   }
 
-	public abstract boolean get_values(String[] data, List<Double> values);
+  public JFrame get_frame() {return frame;}
+
 
   public abstract void configure(String file_name);
-	
-	public Parser.ParserType get_parser_type() { return type;}
-	public static boolean matches(String[] line){return false;}
-	
-	
-//	public Pair<Integer, double[]> get_month_avg(Month m);
-	public abstract Pair<int[], double[]> get_month_val(Month m);
-	
-	
-	public abstract String get_value_header();
+
+  public Parser.ParserType get_parser_type() { return type;}
+  public static boolean matches(String[] line){return false;}
+
+
+  //	public Pair<Integer, double[]> get_month_avg(Month m);
+
+
+  public abstract String get_value_header();
+
+  public String get_selected_timezone() { return (String) timezone_select.getSelectedItem();}
+
 
 
   public void configure(String file_name, JPanel options){
@@ -56,13 +122,10 @@ public abstract class LogFormat{
 
 
 
-    JFrame frame = new JFrame(frame_title);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
     //configure components
-    JButton OKButton = new JButton("Only this File");
-    JButton OKAllButton = new JButton("All Files");
-  
+
     //configure panels
     JPanel panelHeader= new JPanel();
     JLabel title_l = new JLabel(file_name);
@@ -79,9 +142,26 @@ public abstract class LogFormat{
     JPanel panelMiddle = new JPanel();
     panelMiddle.setLayout(new BoxLayout(panelMiddle, BoxLayout.Y_AXIS));
     panelMiddle.add(panelThresh);
+
+    //TIMEZONES
+    String pref_zone = pref.get(PREF_TIMEZONE, "Africa/Nairobi");
+    timezone_select.setSelectedItem(pref_zone);
+    timezone_select.setEditable(true);
+
+    JPanel panelTZ = new JPanel();
+    //panelTZ.setLayout(new BoxLayout(panelTZ, BoxLayout.X_AXIS));
+    panelTZ.add(new JLabel("Select timezone: "));
+    //panelTZ.add(Box.createRigidArea(new Dimension(5,0))); // a spacer
+    panelTZ.add(timezone_select);
+    panelMiddle.add(Box.createRigidArea(new Dimension(0,10))); // a spacer
+    panelMiddle.add(panelTZ);
+    panelMiddle.add(Box.createRigidArea(new Dimension(0,10))); // a spacer
+    panelMiddle.add(new JSeparator());
+
     if(options != null){
       panelMiddle.add(Box.createRigidArea(new Dimension(0,10))); // a spacer
       panelMiddle.add(options);
+      panelMiddle.add(Box.createRigidArea(new Dimension(0,10))); // a spacer
       panelMiddle.add(new JSeparator());
     }
 
@@ -109,55 +189,56 @@ public abstract class LogFormat{
 
         @Override
         public void windowClosing(WindowEvent arg0) {
-          synchronized (lock) {
-            frame.setVisible(false);
-            lock.notify();
-          }
+        synchronized (lock) {
+        frame.setVisible(false);
+        IOManager.getInstance().asError("Configuration aborted");
+        lock.notify();
+        }
         }
 
-      });
-  frame.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,0),"clickButton");
+        });
+    frame.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,0),"clickButton");
 
-  frame.getRootPane().getActionMap().put("clickButton",new AbstractAction(){
-      public void actionPerformed(ActionEvent ae)
-      {
+    frame.getRootPane().getActionMap().put("clickButton",new AbstractAction(){
+        public void actionPerformed(ActionEvent ae)
+        {
         if (OKButton.hasFocus()){ OKButton.doClick(); }
         else if (OKAllButton.hasFocus()){ OKAllButton.doClick(); }
-      }
-      });
+        }
+        });
 
 
     //button event press
-     OKButton.addActionListener(new ActionListener() {
+    OKButton.addActionListener(new ActionListener() {
 
-     public void actionPerformed(ActionEvent e){
-       synchronized (lock) {
-            frame.setVisible(false);
-            for_all = false;
-            lock.notify();
-          }
+        public void actionPerformed(ActionEvent e){
+        synchronized (lock) {
+        frame.setVisible(false);
+        for_all = false;
+        lock.notify();
         }
-      });
-
-
-     OKAllButton.addActionListener(new ActionListener() {
-
-     public void actionPerformed(ActionEvent e){
-       synchronized (lock) {
-            frame.setVisible(false);
-            for_all = true;
-            lock.notify();
-          }
         }
-      });
+        });
+
+
+    OKAllButton.addActionListener(new ActionListener() {
+
+        public void actionPerformed(ActionEvent e){
+        synchronized (lock) {
+        frame.setVisible(false);
+        for_all = true;
+        lock.notify();
+        }
+        }
+        });
 
     //set default button  
     if(pref_all) {
-        frame.getRootPane().setDefaultButton(OKAllButton);
-       OKAllButton.requestFocus();
+      frame.getRootPane().setDefaultButton(OKAllButton);
+      OKAllButton.requestFocus();
     } else {
-        frame.getRootPane().setDefaultButton(OKButton);
-        OKButton.requestFocus();
+      frame.getRootPane().setDefaultButton(OKButton);
+      OKButton.requestFocus();
     }
 
 
@@ -185,23 +266,106 @@ public abstract class LogFormat{
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
-      
-      pref.putBoolean(pref_all_str,for_all);
 
-      for(ValuePanel p : val_panels){
-         if (!p.valid()) {
+      String timezone = get_selected_timezone();
+      pref.putBoolean(pref_all_str,for_all);
+      pref.put(PREF_TIMEZONE,timezone);
+
+
+      TimeZone pdt=TimeZone.getTimeZone(timezone);
+      calendar.setTimeZone(pdt);
+      date_format.setTimeZone(TimeZone.getTimeZone(timezone));
+
+      for(int i = 0; i < val_panels.size(); ++i){
+        ValuePanel p = val_panels.get(i);
+        Column c = columns.get(i);
+
+        if (!p.valid()) {
           IOManager.asWarning("Wrong values entered. Please retry or exit.");
           for_all=false;
           finished=false;
           break;
         }
+        c.l_thresh = p.getMin();
+        c.u_thresh = p.getMax();
+        c.log_meas = p.useMeas();
         p.updatePrefs();
       }
 
     }
   } 
 
+  public Date get_date(String[] data) {
+
+    Date date = null; 
+    try{
+      date = date_format.parse(data[0] + " " + data[1]);
+    } catch (ParseException e) {
+      IOManager.getInstance().asError("error while parsing " + Arrays.toString(data)); 
+    }
+    return date;
+  }
+
+  public boolean set_values(String[] data){
+    //		calendar.setTime(date);   // assigns calendar to given date 
+    Date date = get_date(data);
+    for(Column c : columns) {
+      // out of bounds (thresholds)
+      if(!c.set_values(data, date)){
+        return false;
+      }
+    }
+    return true;
+  }
 
 
-	
+  void write_to_file(FileOutputStream ostream) throws IOException{
+
+    String line = "\r\nyear \t month";
+
+    for(int i = 0; i < columns.size();++i) {
+      columns.get(i).collect_values(summedVals,summedPerMonth);
+      line+= " \t days \t min \t max \t " + columns.get(i).key;
+      if(val_panels.get(i).useMeas())
+        line += " \t meas";
+    }
+
+    line += "\r\n\r\n";
+    ostream.write(line.getBytes());
+    Iterator it = summedVals.entrySet().iterator();
+
+    while (it.hasNext()) {
+
+      line = "";
+      Map.Entry pair = (Map.Entry) it.next();
+      @SuppressWarnings("unchecked")
+        HashMap<String, Month.MonthSum >  monthMap = (HashMap<String, Month.MonthSum >) pair.getValue();
+
+      int key= (Integer) pair.getKey();
+      int year= key >>4;
+      int  m= key & 0xF;
+      int num_days = YearMonth.of(year, m+1).lengthOfMonth();
+
+      System.out.println(year + " " + m);
+      line += year + " \t " + Parser.getMonth(m).substring(0,3); 
+      for (int i = 0; i < columns.size(); ++i) {
+        Column col = columns.get(i);
+        if (monthMap.containsKey(col.key)) {
+          Month.MonthSum month = monthMap.get(col.key);
+          System.out.println(month.sum);
+          line += " \t " + month.num_days + "/" + num_days + " \t " + df.format(month.sum) + " \t " + df.format(month.min) + " \t " + df.format(month.max);
+          if(col.logMeas()) line += "\t" + Integer.valueOf(month.num);
+        } else {
+          line += " \t - \t - \t -";
+          if(col.logMeas()) line += " \t -";
+        }
+      }
+
+      line += "\r\n\r\n";
+      ostream.write(line.getBytes());
+
+    }
+
+  }
+
 }

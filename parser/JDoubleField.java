@@ -9,8 +9,8 @@ public class JDoubleField extends JValField<Double>{
     super(length);
   }
 
-  Double valueOf(String str){
+  public Double valueOf(String str){
     return Double.valueOf(str);
   }
-  Double errVal() {return -1.0;}
+  public Double errVal() {return -1.0;}
 }

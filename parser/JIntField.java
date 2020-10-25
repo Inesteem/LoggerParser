@@ -9,8 +9,8 @@ public class JIntField extends JValField<Integer>{
     super(length);
   }
 
-  Integer valueOf(String str){
+  public Integer valueOf(String str){
     return Integer.valueOf(str);
   }
-  Integer errVal() {return -1;}
+  public Integer errVal() {return -1;}
 }

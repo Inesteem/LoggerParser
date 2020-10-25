@@ -36,21 +36,29 @@ class Column {
 
 
   HashMap<Integer,Month[]> ValPerYear;
-  double l_thresh,u_thresh;
+  public double l_thresh,u_thresh;
   int pos;
+  public double mul;
   NumberFormat format;
   Calendar calendar;
-  String key;
+  public String key;
+  public boolean log_meas;
+  public boolean average;
 
-  public Column(String key, double l_thresh, double u_thresh, int pos, Calendar calendar){
+  public Column(String key, double l_thresh, double u_thresh, int pos, boolean average, Calendar calendar){
     this.key=key;
     this.l_thresh = l_thresh;
     this.u_thresh = u_thresh;
     this.pos = pos;
     this.calendar = calendar;
-    NumberFormat format = NumberFormat.getInstance(Locale.FRANCE);
+    this.log_meas= true;
+    this.average = average;
+    mul = 1.0;
+    format = NumberFormat.getInstance(Locale.FRANCE);
+    ValPerYear = new HashMap<Integer,Month[]>();
   }
 
+ public boolean logMeas() {return log_meas; }
   public boolean set_values(String[] data, Date date){
     if (data.length <= pos){
       return false;
@@ -60,7 +68,7 @@ class Column {
     try {
       val= Double.parseDouble(data[pos]);
     } catch (NumberFormatException e){
-      try {
+      try { // number has , instead of .
         Number number = format.parse(data[pos]);
         val = number.doubleValue();
       } catch (ParseException e2){
@@ -68,8 +76,8 @@ class Column {
         IOManager.getInstance().asError("Parse exception with " + Arrays.toString(data));
       }
     }
-
-    if(l_thresh <= val && val <= u_thresh) return false;
+    val *= mul;
+    if(l_thresh > val || val > u_thresh) return false;
 
     calendar.setTime(date);   
     int year = calendar.get(Calendar.YEAR);
@@ -88,7 +96,7 @@ class Column {
     if(months[month] == null){
       months[month] = new Month();
     }
-
+//    System.out.println("column: parsed " + val);
     months[month].add_data(day, hour, val);
 
     return true;
@@ -108,9 +116,11 @@ class Column {
         //GET VALUE
         int num_days = YearMonth.of(year, m+1).lengthOfMonth();
         Month.MonthSum sum = months[m].get_month_sum();
+        if(average && sum.num != 0) sum.sum /= sum.num;
 
         //PER YEAR
-        int key = (year << 2) & m;
+        int key = (year << 4) | m;
+        System.out.println(year + " " + m + " " +key + " " + sum.sum);
         HashMap<String, Month.MonthSum > svs;
         if (!summedVals.containsKey(key)) {
           svs = new HashMap<String, Month.MonthSum >();

@@ -33,7 +33,6 @@ import parser.*;
 public class LoggerParser {
 
   static IOManager iom = IOManager.getInstance();
-  static String timezone="";
 
   static File[] input_paths= null;
   static File output_path= null;
@@ -41,6 +40,9 @@ public class LoggerParser {
   public static final String PREF_INPUT_PATH_FILE = "LP_PREF_INPUT_PATH";
   public static final String PREF_OUTPUT_PATH_FILE = "LP_PREF_OUTPUT_PATH";
   public static final String PREF_TIMEZONE = "LP_PREF_TIMEZONE";
+
+
+
 
   static JFrame frame = new JFrame("Parse Log-Files"); 
   static JLabel content = new JLabel("stuff");
@@ -68,8 +70,8 @@ public class LoggerParser {
   }
 
 
-  static	void parse_logs(File[] input_paths, String output_path){
-    Parser parser = new Parser(timezone);
+  static void parse_logs(File[] input_paths, String output_path){
+    Parser parser = new Parser();
     String new_output_path = output_path;
     int cnt = 0;
 
@@ -99,7 +101,7 @@ public class LoggerParser {
       iom.createFile(new_output_path);
 
       System.out.println("parsed " + cnt + " files for " + new_output_path);
-      parser.print_log_info();
+      //parser.print_log_info();
       parser.write_log_info(new_output_path);
     }
 
@@ -110,7 +112,6 @@ public class LoggerParser {
   static void set_io_files(){
     try { 
       input_paths = iom.getFileList(PREF_INPUT_PATH_FILE, "Define input file(s)/dir(s).", IOManager.FileType.ALL);
-
       if(input_paths == null || input_paths.length == 0){
         iom.asError("No valid input specified!");
         System.exit(-1);
@@ -127,7 +128,7 @@ public class LoggerParser {
       iom.asError("jar file missing: check if there is a 'lib' dir containing a file named 'org.apache.commons.io.FilenameUtils.jar'");
       System.exit(-1);
     }
-
+    //DEBUG
     System.out.println("INPUTs:");
     for(int i = 0; i < input_paths.length; ++i){
       System.out.println(input_paths[i].getAbsolutePath());	
@@ -138,9 +139,12 @@ public class LoggerParser {
 
 
   public static void main(String[] args) {
+//    ImpulsFormat i_f = new ImpulsFormat();
+//    i_f.configure("test");
+//    System.exit(0);
+    //
     set_frame();
     set_io_files();	
-    timezone = iom.getAfricanTimezone(PREF_TIMEZONE);
 
     frame.setVisible(true);
     parse_logs(input_paths, output_path.getAbsolutePath());

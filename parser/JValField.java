@@ -18,10 +18,10 @@ public abstract class JValField<T extends java.lang.Number> extends JTextField{
     });
     setHorizontalAlignment(JTextField.CENTER);
   }
-  abstract T valueOf(String str);
-  abstract T errVal();
+  public abstract T valueOf(String str);
+  public abstract T errVal();
 
-  void setValue(){
+  public void setValue(){
     String str_val= getText();
     try {
       value = valueOf(str_val);
@@ -36,12 +36,12 @@ public abstract class JValField<T extends java.lang.Number> extends JTextField{
     }
   }
 
-  void setValue(T v){
+  public void setValue(T v){
     setText(String.valueOf(v));
     value = v;
   }
 
-  T getValue(){
+  public T getValue(){
     return value;
   }
 

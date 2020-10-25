@@ -1,6 +1,6 @@
 package parser;
 import java.util.ArrayList;
-
+import java.util.Collections;
 
 	
 	public class Month {
@@ -32,43 +32,66 @@ import java.util.ArrayList;
 
     };
 
-
-		@SuppressWarnings("unchecked")
+  public enum Metric {
+    HOUR,MONTH,DAY 
+  }
+    @SuppressWarnings("unchecked")
 		public ArrayList<Double>[] hours = new ArrayList[24];
-		public int[] measurements;
-		int num_days; // max 31 days, set bits count as days
-	  double min,max;
+    @SuppressWarnings("unchecked")
+		public ArrayList<Double>[] days = new ArrayList[31];
+		int num_days = 0; // max 31 days, set bits count as days
+    double min = Double.MAX_VALUE, max = 0;
 
-		public Month(){
-			num_days = 0;
-			measurements = new int[24];
-      max = -1;
-      min = Double.MAX_VALUE;
-		}
-		
 		public int get_num_days(){
 			return java.lang.Integer.bitCount(num_days);
 		}
-		
-		public boolean add_data(int day, int hour, String[] data, LogFormat lf){
-			if(hours[hour] == null) {
-				hours[hour] = new ArrayList<Double>();
-			}
-			if(!lf.get_values(data, hours[hour])){ return false; }
-			++measurements[hour];
-			num_days |= 1 << day;
-			return true;
-		}
-		
+
+
+    public double get_avg(Metric m, int i){
+      if (m == Metric.MONTH) return min;
+      if (m == Metric.DAY) {
+          if (i < 0 || i >= days.size() || days[i] == null) return -1;
+          return Collections.min(days[i]);
+      }
+      if (i < 0 || i >= hours.size() || hours[i] == null) return -1;
+      return Collections.min(hours[i]);
+    }
+
+    public double get_min(Metric m, int i){
+      if (m == Metric.MONTH) return min;
+      if (m == Metric.DAY) {
+          if (i < 0 || i >= days.size() || days[i] == null) return -1;
+          return Collections.min(days[i]);
+      }
+      if (i < 0 || i >= hours.size() || hours[i] == null) return -1;
+      return Collections.min(hours[i]);
+    }
+
+    public double get_max(Metric m, int i){
+      if (m == Metric.MONTH) return max;
+      if (m == Metric.DAY) {
+          if (i < 0 || i >= days.size() || days[i] == null) return -1;
+          return Collections.max(days[i]);
+      }
+      if (i < 0 || i >= hours.size() || hours[i] == null) return -1;
+      return Collections.max(hours[i]);
+    }
+
+
 		public void add_data(int day, int hour, double val){
 			if(hours[hour] == null) {
 				hours[hour] = new ArrayList<Double>();
 			}
+ 			if(days[day] == null) {
+				days[day] = new ArrayList<Double>();
+			} 
       
-      if(min > val) min = val;
-      if(max < val) max = val;
+      if (min > val) min = val;
+      if (max < val) max = val;
+
       hours[hour].add(val);
-			++measurements[hour];
+      days[day].add(val);
+
 			num_days |= 1 << day;
 		}
 
