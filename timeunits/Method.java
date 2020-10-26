@@ -1,10 +1,10 @@
 package timeunits;
 
 
-public enum Metric {
-  YEAR(0),MONTH(1),DAY(2),HOUR(3),SIZE(4);
+public enum Method {
+  AVG(0),SUM(1),SIZE(2);
   // constructor
-  private Metric(final int value) {
+  private Method(final int value) {
     this.value = value;
   }
 

@@ -14,8 +14,8 @@ public interface TimeUnitI{
   public double get_avg();
   public double get_sum();
   public int get_num();
-  public Object get_min();
-  public Object get_max();
+  public double get_min(Metric m, Method m2);
+  public double get_max(Metric m, Method m2);
 
 
   public boolean is_valid();

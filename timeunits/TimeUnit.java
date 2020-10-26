@@ -8,8 +8,8 @@ import java.io.IOException;
 
 
 public abstract class TimeUnit<T extends TimeUnitI> implements TimeUnitI {
-  protected T minVal;
-  protected T maxVal;
+  protected double minVal[][];
+  protected double maxVal[][];
   protected double avg;
   protected double sum;
   protected int num;
@@ -19,8 +19,15 @@ public abstract class TimeUnit<T extends TimeUnitI> implements TimeUnitI {
   protected Metric metric;
 
   public TimeUnit(){
- //   @SuppressWarnings("unchecked")
-//    subUnits = new ArrayList<T>(num);
+    minVal = new double[Method.SIZE.value()][Metric.SIZE.value()];
+    maxVal = new double[Method.SIZE.value()][Metric.SIZE.value()];
+    for(int i = 0; i< minVal.length; ++i){
+      for(int j = 0; j< minVal[0].length; ++j){
+        minVal[i][j] = Double.NaN;
+        maxVal[i][j] = Double.NaN;
+      }
+    }
+
     sum = Double.NaN;
     avg= Double.NaN;
     num = 0;
@@ -39,32 +46,32 @@ public abstract class TimeUnit<T extends TimeUnitI> implements TimeUnitI {
 
   public void write_to_file(Metric metric, FileOutputStream ostream, TimeRange tr) throws IOException{
     
-    if(metric != this.metric) {
-      for(int idx = 0; idx < subUnits.length; ++idx){
-          if (!tr.in_range(metric, idx)) continue;
-          T unit = subUnits[idx];
-          if(unit == null || !unit.is_valid()) continue;
-          ostream.write((identifier(idx) + ":\n").getBytes());
-          unit.write_to_file(metric,ostream,tr);
-      }
-   
-      return;
-    }
-
-    ostream.write(" num min max ".getBytes());
-    if(avg != Double.NaN)
-      ostream.write("avg\n".getBytes());
-    else
-      ostream.write("sum\n".getBytes());
-
-      ostream.write((String.valueOf(get_num()) + " ").getBytes());
-      ostream.write((String.valueOf(get_min()) + " ").getBytes());
-      ostream.write((String.valueOf(get_max()) + " ").getBytes());
-      if(avg != Double.NaN)
-        ostream.write((String.valueOf(get_avg()) + "\n").getBytes());
-      else
-        ostream.write((String.valueOf(get_sum()) + "\n").getBytes());
-
+//    if(metric != this.metric) {
+//      for(int idx = 0; idx < subUnits.length; ++idx){
+//          if (!tr.in_range(metric, idx)) continue;
+//          T unit = subUnits[idx];
+//          if(unit == null || !unit.is_valid()) continue;
+//          ostream.write((identifier(idx) + ":\n").getBytes());
+//          unit.write_to_file(metric,ostream,tr);
+//      }
+//   
+//      return;
+//    }
+//
+//    ostream.write(" num min max ".getBytes());
+//    if(Double.isNaN(avg))
+//      ostream.write("avg\n".getBytes());
+//    else
+//      ostream.write("sum\n".getBytes());
+//
+//      ostream.write((String.valueOf(get_num()) + " ").getBytes());
+//      ostream.write((String.valueOf(get_min()) + " ").getBytes());
+//      ostream.write((String.valueOf(get_max()) + " ").getBytes());
+//      if(Double.isNaN(avg))
+//        ostream.write((String.valueOf(get_sum()) + "\n").getBytes());
+//      else
+//        ostream.write((String.valueOf(get_avg()) + "\n").getBytes());
+//
   }
   public void write_to_file(Metric metric, FileOutputStream ostream) throws IOException{
     write_to_file(metric,ostream,TimeRange.ALL);
@@ -73,7 +80,8 @@ public abstract class TimeUnit<T extends TimeUnitI> implements TimeUnitI {
 
   // GETTER METHODS
   public double get_sum(final TimeRange tr){
-
+    int methodI = Method.SUM.value();
+    int metricI = metric.value();
     if (Double.isNaN(sum)) {
     sum = 0;
     num = 0;
@@ -86,10 +94,10 @@ public abstract class TimeUnit<T extends TimeUnitI> implements TimeUnitI {
           sum += val;
           num += unit.get_num();
 
-          if(minVal == null || minVal.get_sum() > val) 
-            minVal = unit;
-          if(maxVal == null || maxVal.get_sum() < val) 
-            maxVal = unit;
+          if(Double.isNaN(minVal[methodI][metricI]) || minVal[methodI][metricI] > val) 
+            minVal[methodI][metricI] = val;
+          if(Double.isNaN(maxVal[methodI][metricI]) || maxVal[methodI][metricI] < val) 
+            maxVal[methodI][metricI] = val;
         }
 
       }
@@ -97,23 +105,25 @@ public abstract class TimeUnit<T extends TimeUnitI> implements TimeUnitI {
   }
 
   public double get_avg(final TimeRange tr){
+    int methodI = Method.AVG.value();
+    int metricI = metric.value();
 
     if (Double.isNaN(avg)) {
      avg = 0;
-    num = 0;
+     num = 0;
      for(int idx = 0; idx < subUnits.length; ++idx){
           if (!tr.in_range(metric, idx)) continue;
           T unit = subUnits[idx];
           if(unit == null || !unit.is_valid()) continue;
 
-          double val = unit.get_avg();
           avg += unit.get_sum();
           num += unit.get_num();
+          double val = unit.get_avg();
 
-          if(minVal == null || minVal.get_avg() > val) 
-            minVal = unit;
-          if(maxVal == null || maxVal.get_avg() < val) 
-            maxVal = unit;
+          if(Double.isNaN(minVal[methodI][metricI]) || minVal[methodI][metricI] > val) 
+            minVal[methodI][metricI] = val;
+          if(Double.isNaN(maxVal[methodI][metricI]) || maxVal[methodI][metricI] < val) 
+            maxVal[methodI][metricI] = val;
         }
 
       if(num!=0)avg/=num;
@@ -129,69 +139,57 @@ public abstract class TimeUnit<T extends TimeUnitI> implements TimeUnitI {
     return get_sum(TimeRange.ALL);
   }
 
+  public double get_min(Metric metric,Method method){
+
+    int methodI = method.value();
+    int metricI = metric.value();
+
+    if (Double.isNaN(minVal[methodI][metricI])) {
+
+      for (T unit : subUnits){
+        if(unit == null) continue;
+
+        if (Double.isNaN(minVal[methodI][metricI]) ||
+          unit.get_min(metric,method) < minVal[methodI][metricI]){
+            minVal[methodI][metricI] = unit.get_min(metric,method);
+        }
+      }
+    }
+    return minVal[methodI][metricI];
+  }
+
+
+  public double get_max(Metric metric,Method method){
+
+    int methodI = method.value();
+    int metricI = metric.value();
+
+    if (Double.isNaN(maxVal[methodI][metricI])) {
+
+      for (T unit : subUnits){
+        if(unit == null) continue;
+
+        if (Double.isNaN(maxVal[methodI][metricI]) ||
+          unit.get_max(metric,method) > maxVal[methodI][metricI]){
+            maxVal[methodI][metricI] = unit.get_max(metric,method);
+        }
+      }
+    }
+    return maxVal[methodI][metricI];
+  }
 
   public int get_num(){
       return num;
   }
 
 
-  public T get_min(){
-    return minVal;
+  public double get_min(Method method){
+    return minVal[method.value()][metric.value()];
   }
 
 
-  public T get_max(){
-    return maxVal;
+  public double get_max(Method method){
+    return maxVal[method.value()][metric.value()];
   }
-
-
-  public int get_num(int idx){
-    if (subUnits.length >= idx || idx < 0 || subUnits[idx] == null) 
-      return -1;
-    
-    return subUnits[idx].get_num();
-
-  }
-
-
-  public double get_avg(int idx){
-    if (subUnits.length >= idx || idx < 0 || subUnits[idx] == null) 
-      return -1;
-    
-    return subUnits[idx].get_avg();
-
-  }
-
-  public boolean has_idx(int idx){
-    if (subUnits.length >= idx || idx < 0 || subUnits[idx] == null) 
-      return false;
-    return true;
-  }
-
-  public double get_sum(int idx){
- //   if (subUnits.size() >= idx || idx < 0 || subUnits[idx] == null) 
- //     return -1;
-    
-    return subUnits[idx].get_sum();
-
-  }
-
-  public Object get_max(int idx){
-  //  if (subUnits.size() >= idx || idx < 0 || subUnits[idx] == null) 
- //     return -1;
-    
-    return subUnits[idx].get_max();
-
-  }
-
-  public Object get_min(int idx){
- //   if (subUnits.size() >= idx || idx < 0 || subUnits[idx] == null) 
-//      return -1;
-    
-    return subUnits[idx].get_min();
-
-  }
-
-
 
 }

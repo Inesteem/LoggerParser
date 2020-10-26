@@ -35,13 +35,13 @@ public class Hour implements TimeUnitI {
     return num;
   }
 
-  public Hour get_min(){
-    return this;
+  public double get_min(Metric m,Method m2){
+    return min;
   }
 
 
-  public Hour get_max(){
-    return this;
+  public double get_max(Metric m,Method m2){
+    return max;
   }
   public boolean is_valid(){return valid;}
   public void invalidate(){valid=false;}

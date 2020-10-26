@@ -5,7 +5,7 @@ package timeunits;
 public class TimeRange {
   
  
- int timeunits[] = {0,0,0};
+ int timeunits[] = {0,0,0,0};
  public static final TimeRange ALL= new TimeRange(0xFFFFFFFF);
 
 
@@ -15,9 +15,9 @@ public class TimeRange {
 
 
  public TimeRange(int val){
-    timeunits[0] = val;
-    timeunits[1] = val;
-    timeunits[2] = val;
+    for (int i = 0; i < timeunits.length; ++i){
+      timeunits[i] = val;
+      }
  }
 
  public boolean in_range(Metric m, int idx){
