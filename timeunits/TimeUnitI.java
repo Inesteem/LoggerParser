@@ -1,29 +1,53 @@
 package timeunits;
 
 import java.util.Calendar;
+import java.util.Collection;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public interface TimeUnitI{
- 
+public abstract class TimeUnitI<T>{
+  protected Collection<T> subUnits;
+  protected double sum;
+  protected int num;
 
-  public double get_avg(final TimeRange tr);
-  public double get_sum(final TimeRange tr);
+  public TimeUnitI(){
+    num=-1;
+    sum = Double.NaN;
+  }
 
-  public double get_avg();
-  public double get_sum();
-  public int get_num();
-  public double get_min(Metric m, Method m2);
-  public double get_max(Metric m, Method m2);
+  public int get_num(){
+    if (num == -1) calc();
+    return num;
+  }
+
+  void set_extrema(double val, Method method){}
+
+  protected void calc(){}
+
+  public double get_avg(){
+    if (Double.isNaN(sum)) calc();
+    if(num!=0){
+      return sum/num;
+    };
+
+    return 0;
+  }
+
+  public double get_sum(){
+    if (Double.isNaN(sum)) calc();
+    return sum;
+  }
 
 
-  public boolean is_valid();
-  public void invalidate();
-  public void validate();
+  public abstract double get_min(Metric m, Method m2);
+  public abstract double get_max(Metric m, Method m2);
 
-  public void add_val(double val, Calendar cal);
-  public void write_to_file(Metric metric, FileOutputStream ostream, TimeRange tr) throws IOException;
-  
-  public String identifier(int idx);
+  public String identifier(int idx) {return String.valueOf(idx);}
+
+  public abstract void print();
+
+  public abstract void add_val(double val, TimeRange tr, Calendar cal);
+  public abstract void write_to_file(Metric metric, FileOutputStream ostream, TimeRange tr) throws IOException;
+
 }

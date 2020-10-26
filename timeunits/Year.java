@@ -1,22 +1,24 @@
 package timeunits;
 
 import java.util.Calendar;
-import java.util.ArrayList;
+import java.util.Vector;
 
 public class Year extends TimeUnit<Month> {
 
   public Year(){
-    super();
-    subUnits = new Month[12];
+    super(12);
     metric = Metric.MONTH;
   }
 
-   public void add_val(double val, Calendar cal){
+   public void add_val(double val, TimeRange tr, Calendar cal){
     int idx =  cal.get(Calendar.MONTH);
-      if(subUnits[idx] == null){
-      subUnits[idx] = new Month();
+    if (!tr.in_range(metric, idx)) return;
+
+    Vector<Month> subUnits = (Vector<Month>) this.subUnits;
+    if(subUnits.get(idx) == null){
+      subUnits.set(idx,new Month());
     }
-    subUnits[idx].add_val(val, cal);
+    subUnits.get(idx).add_val(val, tr, cal);
   }
 
 
