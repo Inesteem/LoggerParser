@@ -11,14 +11,14 @@ public class YearMap extends TimeUnit<Year> {
   protected HashMap<Integer,Year> hm;
 
   public YearMap(){
-    super(1);
+    super(0);
     hm =new HashMap<Integer,Year>();
+    metric = Metric.YEAR;
   }
 
 
-  public void add_val(double val, TimeRange tr, Calendar cal){
+  public void add_val(double val,  Calendar cal){
     int idx = cal.get(Calendar.YEAR);
-    if (!tr.in_range(metric, idx)) return;
     Year year;
     if (!hm.containsKey(idx)) {
       year = new Year();
@@ -27,7 +27,7 @@ public class YearMap extends TimeUnit<Year> {
     } else {
       year = hm.get(idx);
     }
-    year.add_val(val,tr,cal);
+    year.add_val(val,cal);
   }
 
 

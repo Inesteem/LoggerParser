@@ -16,18 +16,18 @@ public class Hour extends TimeUnitI<Double> {
     sum = 0;
     min = Double.MAX_VALUE;
     max = 0;
+    num = 0;
   }
 
-  public double get_min(Metric m,Method m2){
+  public double get_max(Method method, TimeRange tr, Metric metric){
+    return max;
+    }
+  
+  public double get_min(Method method, TimeRange tr, Metric metric){
     return min;
   }
 
-
-  public double get_max(Metric m,Method m2){
-    return max;
-  }
-
-  public void add_val(double val, TimeRange tr, Calendar cal){
+  public void add_val(double val,  Calendar cal){
     sum += val;
     ++num;
 
@@ -39,10 +39,14 @@ public class Hour extends TimeUnitI<Double> {
     return;
   }
 
-  public void print(){
+  public void print(TimeRange tr){
     System.out.print(num);
-    System.out.print(" - ");
+    System.out.print(", ");
     System.out.print(sum);
-    System.out.print("    ");
+    System.out.print(" --- ");
+    //System.out.print(min);
+    //System.out.print("    ");
+    //System.out.print(max);
+    //System.out.print("    ");
   }
 }

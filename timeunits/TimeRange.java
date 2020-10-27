@@ -21,6 +21,7 @@ public class TimeRange {
  }
 
  public boolean in_range(Metric m, int idx){
+    if(m == Metric.YEAR) return true;
     return (timeunits[m.value()] & (1 << idx)) != 0;
  }
 

@@ -14,11 +14,9 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
     protected Metric metric;
 
   public TimeUnit(int num){
-    if(num != 0){
       subUnits = new Vector<T>(num);
       for(int i = 0; i < num; ++i)
         subUnits.add(null);
-    }
 
     minVal = new double[Method.SIZE.value()][Metric.SIZE.value()];
     maxVal = new double[Method.SIZE.value()][Metric.SIZE.value()];
@@ -32,20 +30,22 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
     num = 0;
   }
 
-  public abstract void add_val(double val, TimeRange tr, Calendar cal);
+  public abstract void add_val(double val, Calendar cal);
 
-  protected void calc(){
+  protected void calc(TimeRange tr){
     if( !Double.isNaN(sum)) return;
 
     num = 0;
     sum = 0;
-    for(T unit : subUnits){
+    for(int i = 0; i < subUnits.size(); ++i){
+      if (!tr.in_range(this.metric, i)) continue;
+      T unit = subUnits.get(i);
       if(unit == null) continue;
 
-      sum += unit.get_sum();
-      num += unit.get_num();
-      set_extrema(unit.get_sum(), Method.SUM);
-      set_extrema(unit.get_avg(), Method.AVG);
+      sum += unit.get_sum(tr);
+      num += unit.get_num(tr);
+      set_extrema(unit.get_sum(tr), Method.SUM);
+      set_extrema(unit.get_avg(tr), Method.AVG);
 
     }
 
@@ -94,19 +94,24 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
   }
   // GETTER METHODS
 
-  public double get_min(Metric metric,Method method){
+  public double get_min(Method method, TimeRange tr, Metric metric){
 
     int methodI = method.value();
     int metricI = metric.value();
+    num = 0;
 
     if (Double.isNaN(minVal[methodI][metricI])) {
+      minVal[methodI][metricI] = Double.MAX_VALUE;
 
-      for (T unit : subUnits){
+
+      for(int i = 0; i < subUnits.size(); ++i){
+        if (!tr.in_range(this.metric, i)){ System.out.println("skipped "+ String.valueOf(i));continue; }
+        T unit = subUnits.get(i);
         if(unit == null) continue;
 
-        if (Double.isNaN(minVal[methodI][metricI]) ||
-            unit.get_min(metric,method) < minVal[methodI][metricI]){
-          minVal[methodI][metricI] = unit.get_min(metric,method);
+        double min  = unit.get_min(method, tr, metric); 
+        if (Double.isNaN(minVal[methodI][metricI]) || min < minVal[methodI][metricI]){
+          minVal[methodI][metricI] = min;
         }
       }
     }
@@ -114,19 +119,23 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
   }
 
 
-  public double get_max(Metric metric,Method method){
+  public double get_max(Method method, TimeRange tr, Metric metric){
 
     int methodI = method.value();
     int metricI = metric.value();
-
+    num = 0;
     if (Double.isNaN(maxVal[methodI][metricI])) {
+      maxVal[methodI][metricI] = -1;
 
-      for (T unit : subUnits){
+      for(int i = 0; i < subUnits.size(); ++i){
+        if (!tr.in_range(this.metric, i)){ System.out.println("skipped "+ String.valueOf(i));continue; }
+        T unit = subUnits.get(i);
         if(unit == null) continue;
 
-        if (Double.isNaN(maxVal[methodI][metricI]) ||
-            unit.get_max(metric,method) > maxVal[methodI][metricI]){
-          maxVal[methodI][metricI] = unit.get_max(metric,method);
+        double max  = unit.get_max(method, tr, metric);
+        if (Double.isNaN(maxVal[methodI][metricI]) 
+            || max > maxVal[methodI][metricI]){
+          maxVal[methodI][metricI] = max;
         }
       }
     }
@@ -143,7 +152,14 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
     return maxVal[method.value()][metric.value()];
   }
 
-  public void print(){
-    for(T unit : subUnits) if(unit != null) unit.print();
+  public void print(TimeRange tr){
+
+    for(int i = 0; i < subUnits.size(); ++i){
+      if (!tr.in_range(this.metric, i)){ 
+        continue;
+      }
+      T unit = subUnits.get(i);
+      if(unit != null) unit.print(tr);
+    }
   }
 }
