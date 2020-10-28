@@ -13,18 +13,18 @@ import java.util.Locale;
 public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
   protected double minVal[][];
   protected double maxVal[][];
-  @SuppressWarnings("unchecked")
-    protected Metric metric;
+  public Metric metric;
   public DecimalFormat df;	
 
-  public TimeUnit(int num){
-      subUnits = new Vector<T>(num);
-      for(int i = 0; i < num; ++i)
-        subUnits.add(null);
+  public TimeUnit(int num, Limits limits){
+    super(limits);
+    subUnits = new Vector<T>(num);
+    for(int i = 0; i < num; ++i)
+      subUnits.add(null);
 
     minVal = new double[Method.SIZE.value()][Metric.SIZE.value()];
     maxVal = new double[Method.SIZE.value()][Metric.SIZE.value()];
-  
+
     Locale locale = new Locale("en","UK");
     df = (DecimalFormat) NumberFormat.getNumberInstance(locale);
     df.applyPattern("##.##");
@@ -32,8 +32,8 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
   }
 
   public void reset(){
-     super.reset();
-     for(int i = 0; i < minVal.length; ++i){
+    super.reset();
+    for(int i = 0; i < minVal.length; ++i){
       for(int j = 0; j < minVal[0].length; ++j){
         minVal[i][j] = Double.NaN;
         maxVal[i][j] = Double.NaN;
@@ -42,13 +42,13 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
     for(T unit : subUnits) {
       if (unit != null) unit.reset();
     }
- 
+
   }
 
   public abstract void add_val(double val, Calendar cal);
 
   protected void calc(TimeRange tr){
-//    if( !Double.isNaN(sum)) return;
+    //    if( !Double.isNaN(sum)) return;
 
     num = 0;
     sum = 0;
@@ -57,7 +57,8 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
       T unit = subUnits.get(i);
       if(unit == null) continue;
       int u_num = unit.get_num(tr);
-      if (u_num == 0) continue;
+      if(!unit.is_valid()) continue;
+      if (u_num <= 0) continue;
       num += u_num;
       sum += unit.get_sum(tr);
       set_extrema(unit.get_sum(tr), Method.SUM);
@@ -77,10 +78,10 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
       for(int idx = 0; idx < subUnits.size(); ++idx){
         if (!tr.in_range(this.metric, idx)) continue;
         T unit = subUnits.get(idx);
-        if(unit == null) continue;
+        if(unit == null || (unit.get_num(tr) < 0 || !unit.is_valid())) continue;
 
-          ostream.write((prefix + unit.identifier(idx) + ":\n").getBytes());
-          unit.write_to_file(prefix,metric,method,ostream,tr);
+        ostream.write((prefix + unit.identifier(idx) + ":\n").getBytes());
+        unit.write_to_file(prefix,metric,method,ostream,tr);
       }
 
       return;
@@ -121,11 +122,13 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
 
 
       for(int i = 0; i < subUnits.size(); ++i){
-        if (!tr.in_range(this.metric, i)){ System.out.println("skipped "+ String.valueOf(i));continue; }
+        if (!tr.in_range(this.metric, i)) continue; 
         T unit = subUnits.get(i);
         if(unit == null) continue;
 
         double min  = unit.get_min(method, tr, metric); 
+        if(!unit.is_valid()) continue;
+
         if (Double.isNaN(minVal[methodI][metricI]) || min < minVal[methodI][metricI]){
           minVal[methodI][metricI] = min;
         }
@@ -144,11 +147,13 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
       maxVal[methodI][metricI] = -1;
 
       for(int i = 0; i < subUnits.size(); ++i){
-        if (!tr.in_range(this.metric, i)){ System.out.println("skipped "+ String.valueOf(i));continue; }
+        if (!tr.in_range(this.metric, i)) continue; 
         T unit = subUnits.get(i);
         if(unit == null) continue;
 
         double max  = unit.get_max(method, tr, metric);
+        if(!unit.is_valid()) continue;
+
         if (Double.isNaN(maxVal[methodI][metricI]) 
             || max > maxVal[methodI][metricI]){
           maxVal[methodI][metricI] = max;
@@ -171,11 +176,20 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
   public void print(TimeRange tr){
 
     for(int i = 0; i < subUnits.size(); ++i){
-      if (!tr.in_range(this.metric, i)){ 
-        continue;
-      }
+      if (!tr.in_range(this.metric, i)) continue;
       T unit = subUnits.get(i);
-      if(unit != null) unit.print(tr);
+      if(unit != null && unit.is_valid()) unit.print(tr);
+
+    }
+  }
+  public boolean is_valid(){
+    return limits.valid(this.metric, num);
+  }
+
+  public void set_limits(Limits lim){
+    limits = lim;
+    for(T unit : subUnits) {
+      if (unit != null) unit.set_limits(lim);
     }
   }
 }

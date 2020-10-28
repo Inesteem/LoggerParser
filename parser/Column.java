@@ -42,8 +42,8 @@ class Column {
   NumberFormat format;
   Calendar calendar;
   public String key;
-  public boolean log_meas;
   Method method;
+  Limits limits;
 
   public Column(String key, double l_thresh, double u_thresh, int pos, boolean average, Calendar calendar){
     this.key=key;
@@ -51,15 +51,20 @@ class Column {
     this.u_thresh = u_thresh;
     this.pos = pos;
     this.calendar = calendar;
-    this.log_meas= true;
     mul = 1.0;
     format = NumberFormat.getInstance(Locale.FRANCE);
-    dataMap = new YearMap();
+    limits = new Limits();
+    dataMap = new YearMap(limits);
+    dataMap.set_limits(limits);
+
     if (average) method = Method.AVG;
     else method = Method.SUM;
   }
-
-  public boolean logMeas() {return log_meas; }
+  
+  public void set_limits(int minD, int minM){
+    limits.set_limit(Metric.HOUR, minD);
+    limits.set_limit(Metric.DAY, minM);
+  }
 
   public boolean set_values(String[] data, Date date){
     if (data.length <= pos){
@@ -88,8 +93,9 @@ class Column {
   }
 
   public void write_to_file(FileOutputStream ostream) throws IOException{
-//    ostream.write("\n".getBytes());
-//    dataMap.write_to_file(Metric.YEAR,method,ostream);
+    limits.print();
+    ostream.write("\n".getBytes());
+    dataMap.write_to_file(Metric.YEAR,method,ostream);
     ostream.write("\n".getBytes());
     dataMap.write_to_file(Metric.MONTH,method,ostream);
     ostream.write("\n".getBytes());
@@ -98,7 +104,7 @@ class Column {
     dataMap.write_to_file(Metric.HOUR,method,ostream);
     ostream.write("\n".getBytes());
 
-    ostream.write("\n OVERALL MONTHLY AVG: \n".getBytes());
+    ostream.write("\nOVERALL MONTHLY AVG: \n".getBytes());
     TimeRange tr = new TimeRange(0xFFFFFFFF);
     tr.unset_range(Metric.MONTH,0,13);
     for(int i = 0; i < 12; ++i){

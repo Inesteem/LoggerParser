@@ -5,7 +5,7 @@ package timeunits;
 public class TimeRange {
   
  
- int timeUnits[] = {0,0,0,0};
+ int timeUnits[];
  public static final TimeRange ALL= new TimeRange(0xFFFFFFFF);
 
 
@@ -13,11 +13,11 @@ public class TimeRange {
     timeUnits=arr;
  }
 
-
  public TimeRange(int val){
-    for (int i = 0; i < timeUnits.length; ++i){
+  
+    timeUnits= new int[Metric.SIZE.value()];
+    for (int i = 0; i < timeUnits.length; ++i)
       timeUnits[i] = val;
-      }
  }
 
  public boolean in_range(Metric m, int idx){
@@ -45,8 +45,8 @@ public class TimeRange {
 
     timeUnits[m.value()] &= ~mask;
 
-       System.out.println("mask: " + String.format("%32s", 
-                   Integer.toBinaryString(~mask)).replaceAll(" ", "0"));
+  //     System.out.println("mask: " + String.format("%32s", 
+  //                 Integer.toBinaryString(~mask)).replaceAll(" ", "0"));
  }
 
  void print_bits(int num) {
@@ -75,8 +75,8 @@ public class TimeRange {
 
     timeUnits[m.value()] |= mask;
    
-       System.out.println("mask: " + String.format("%32s", 
-                   Integer.toBinaryString(mask)).replaceAll(" ", "0"));
+//       System.out.println("mask: " + String.format("%32s", 
+//                   Integer.toBinaryString(mask)).replaceAll(" ", "0"));
 
  }
 

@@ -10,11 +10,17 @@ public abstract class TimeUnitI<T>{
   protected Vector<T> subUnits;
   protected double sum;
   protected int num;
+  protected Limits limits;
 
-  public TimeUnitI(){
+  public TimeUnitI(Limits limits){
     num = -1;
     sum = Double.NaN;
+    this.limits = limits;
   }
+
+  public void set_limits(Limits lim){
+    limits = lim;
+  } 
 
   public void reset(){
     num = -1;
@@ -40,7 +46,7 @@ public abstract class TimeUnitI<T>{
   }
 
   public int get_num(TimeRange tr){
-    if (num == -1) calc(tr);
+    if (Double.isNaN(sum)) calc(tr);
     return num;
   }
 //
@@ -69,5 +75,5 @@ public abstract class TimeUnitI<T>{
   public void write_to_file(Metric metric, Method method, FileOutputStream ostream, TimeRange tr) throws IOException {
     write_to_file("",metric,method,ostream,tr);
   }
-
+  public boolean is_valid(){return true;}  
 }

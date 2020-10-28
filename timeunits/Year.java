@@ -5,8 +5,8 @@ import java.util.Vector;
 
 public class Year extends TimeUnit<Month> {
   int y;
-  public Year(int y){
-    super(12);
+  public Year(int y,Limits limits){
+    super(12,limits);
     metric = Metric.MONTH;
     this.y = y;
   }
@@ -15,7 +15,7 @@ public class Year extends TimeUnit<Month> {
     int idx =  cal.get(Calendar.MONTH);
 
     if(subUnits.get(idx) == null){
-      subUnits.set(idx,new Month());
+      subUnits.set(idx,new Month(limits));
     }
     subUnits.get(idx).add_val(val,  cal);
   }

@@ -90,8 +90,8 @@ extends LogFormat {
   }
 
   public String get_value_header() {
-    if(mm == 1){return "impuls \t num_meas";}
-    return "mm \t num_meas";
+    if(mm == 1){return "impuls";}
+    return "mm";
   }
 
 

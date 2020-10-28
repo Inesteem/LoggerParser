@@ -51,7 +51,7 @@ extends LogFormat {
   }
 
   public String get_value_header() {
-    return "temp num_meas rel_hum num_meas";
+    return "temp rel_hum";
   }
 
 }

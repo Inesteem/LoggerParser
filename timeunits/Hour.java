@@ -12,8 +12,8 @@ public class Hour extends TimeUnitI<Double> {
   double max;
 
 
-  public Hour(){
-    super();
+  public Hour(Limits limits){
+    super(limits);
     sum = 0;
     min = Double.MAX_VALUE;
     max = 0;
@@ -40,6 +40,7 @@ public class Hour extends TimeUnitI<Double> {
     return;
   }
 
+  public void invalidate(Limits lim){}
   public void reset() {}
   public void print(TimeRange tr){
     System.out.print(num);

@@ -273,19 +273,20 @@ public abstract class LogFormat{
       date_format.setTimeZone(TimeZone.getTimeZone(timezone));
 
       for(int i = 0; i < val_panels.size(); ++i){
-        ValuePanel p = val_panels.get(i);
-        Column c = columns.get(i);
+        ValuePanel panel = val_panels.get(i);
+        Column col = columns.get(i);
 
-        if (!p.valid()) {
+        if (!panel.valid()) {
           IOManager.asWarning("Wrong values entered. Please retry or exit.");
           for_all=false;
           finished=false;
           break;
         }
-        c.l_thresh = p.getMin();
-        c.u_thresh = p.getMax();
-        c.log_meas = p.useMeas();
-        p.updatePrefs();
+        col.l_thresh = panel.getMin();
+        col.u_thresh = panel.getMax();
+        col.set_limits(panel.getMinD(), panel.getMinM());
+
+        panel.updatePrefs();
       }
 
     }

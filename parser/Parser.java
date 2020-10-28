@@ -150,14 +150,14 @@ public class Parser {
 
       while ((line = bufferedReader.readLine()) != null) {
         String splitted[] = line.split("\\s+");
-        System.out.println("trying to parse: " + splitted[0] + " " + splitted[1] + " with val " + line);
+//        System.out.println("trying to parse: " + splitted[0] + " " + splitted[1] + " with val " + line);
 
         //long key = calendar.getTimeInMillis();
 
 
         Date date = l_format.get_date(splitted);
         String key_str = l_format.date_format.format(date);
-        System.out.println("date: " + date + " " + key_str);
+  //      System.out.println("date: " + date + " " + key_str);
         label.setText("<html><b><center>Parsing Line:<center/><b/><br/>"+line+"</html>");
 
         if (RainPerDate.containsKey(date) && !override_all) {

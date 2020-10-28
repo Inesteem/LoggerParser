@@ -19,7 +19,7 @@ public enum Metric {
     if(this == Metric.MONTH){return "Year";}
     if(this == Metric.DAY){return "Month";}
     if(this == Metric.HOUR){return "Day";}
-    return "?";
+    return "Summary";
   }
 
 }
