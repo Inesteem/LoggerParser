@@ -37,20 +37,25 @@ public class ValuePanel extends JPanel{
     min_field = new JDoubleField(len);
     min_field.setName(title + "_min");
     min_field.setValue(val_min);
+    min_field.setToolTipText("min. allowed value for a single valid measurement point (incl.)");
+
     double val_max = pref.getDouble(max_pref, max);
     max_field = new JDoubleField(len);
     max_field.setName(title + "_max");
     max_field.setValue(val_max);
+    max_field.setToolTipText("max. allowed value for a single valid measurement point (incl.)");
 
     int val_minD = pref.getInt(minD_pref, 0);
     minD_field = new JIntField(len);
     minD_field.setName(title + "_minD");
     minD_field.setValue(val_minD);
+    minD_field.setToolTipText("min. num of measurements required for a valid day (NOT num of valid hours)");
 
     int val_minM = pref.getInt(minM_pref, 0);
     minM_field = new JIntField(len);
     minM_field.setName(title + "_minM");
     minM_field.setValue(val_minM);
+    minM_field.setToolTipText("min. num of measurements required for a valid month (NOT num of valid days)");
 
 
     boolean use= pref.getBoolean(use_pref, true);

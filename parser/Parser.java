@@ -47,7 +47,7 @@ public class Parser {
 	HashMap<Date,String[]> RainPerDate;
 
   public enum ParserType {
-    NONE, IMPULS, MOMENT_VALS, REL_HUM, OTHER
+    NONE, IMPULS, MOMENT_VALS, REL_HUM, WITH_FOG, OTHER
   }
 
   public Parser(){
@@ -60,34 +60,6 @@ public class Parser {
     p_type = lf.get_parser_type();
   }
 
-/*
-  public void print_log_info(){
-    Iterator it = RainPerYear.entrySet().iterator();
-    //Calendar calendar = GregorianCalendar.getInstance(); // creates a new calendar instance
-    while (it.hasNext()) {
-      Map.Entry pair = (Map.Entry)it.next();
-      Month[] months = (Month[]) pair.getValue();
-      int year  = (int) pair.getKey();
-      System.out.println(year + ": ");
-      for (int m = 0; m < 12; ++m){
-        if(months[m] == null) { continue; }
-        System.out.println(" " + getMonth(m) + ": ");
-        for (ArrayList<Double> hours : months[m].hours) {
-          if (hours == null) { continue; }
-          for ( double v: hours) {
-            System.out.print("   " + v);
-          }
-
-        }
-        int num_days = YearMonth.of(year, m+1).lengthOfMonth();
-
-        Pair avg = l_format.get_month_val(months[m]);
-        System.out.println("\n avg: " + Arrays.toString((double[])avg.getValue()) + " with " + avg.getKey() +  "\n");
-        System.out.println( "measured " +  months[m].get_num_days() + " days of " + num_days + " = " + (100 * months[m].get_num_days())/num_days + "%");
-      }
-    }
-  }
-*/
 
   public void write_log_info(String filename){
 
@@ -122,6 +94,9 @@ public class Parser {
         } else if(TempRelHumFormat.matches(splitted)){
           type = ParserType.REL_HUM;
           break;
+        } else if(WithFogFormat.matches(splitted)){
+          type = ParserType.WITH_FOG;
+          break;
         }
       }
 
@@ -132,6 +107,8 @@ public class Parser {
           setLogFormat((LogFormat) new TempRelHumFormat());
         } else if ( p_type == ParserType.IMPULS) {
           setLogFormat((LogFormat) new ImpulsFormat());
+        } else if ( p_type == ParserType.WITH_FOG) {
+          setLogFormat((LogFormat) new WithFogFormat());
         } else {
           iom.asError("logger format unsupported : " + file.getAbsolutePath());
         }

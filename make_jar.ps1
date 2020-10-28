@@ -1,1 +1,1 @@
-jar -cmvf Manifest.txt LoggerParser.jar *.class .\parser\*.class .\lib\*
+jar -cmvf Manifest.txt LoggerParser.jar *.class .\timeunits\*.class .\parser\*.class .\lib\*

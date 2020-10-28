@@ -143,6 +143,7 @@ public abstract class LogFormat{
     String pref_zone = pref.get(PREF_TIMEZONE, "Africa/Nairobi");
     timezone_select.setSelectedItem(pref_zone);
     timezone_select.setEditable(true);
+    timezone_select.setToolTipText("Selecting a western timezone for measurements belonging to african regions can result in 'duplicated entries' warnings, since some dates/time combis do not exist in Europa due to clock change. However, don't bother with a 100% correct timezone.");
 
     JPanel panelTZ = new JPanel();
     //panelTZ.setLayout(new BoxLayout(panelTZ, BoxLayout.X_AXIS));
