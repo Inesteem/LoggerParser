@@ -11,11 +11,17 @@ public abstract class TimeUnitI<T>{
   protected double sum;
   protected int num;
   protected Limits limits;
+  int numSubUnits;
 
   public TimeUnitI(Limits limits){
     num = -1;
     sum = Double.NaN;
     this.limits = limits;
+    numSubUnits = 0;
+  }
+
+  public int get_num_subUnits(){ 
+      return java.lang.Integer.bitCount(numSubUnits);
   }
 
   public void set_limits(Limits lim){
@@ -25,6 +31,7 @@ public abstract class TimeUnitI<T>{
   public void reset(){
     num = -1;
     sum = Double.NaN;
+    numSubUnits = 0;
   }
 
   void set_extrema(double val, Method method){}

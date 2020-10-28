@@ -15,6 +15,7 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
   protected double maxVal[][];
   public Metric metric;
   public DecimalFormat df;	
+  
 
   public TimeUnit(int num, Limits limits){
     super(limits);
@@ -44,6 +45,7 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
     }
 
   }
+
 
   public abstract void add_val(double val, Calendar cal);
 
@@ -183,7 +185,7 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
     }
   }
   public boolean is_valid(){
-    return limits.valid(this.metric, num);
+    return limits.valid(this.metric, get_num_subUnits());
   }
 
   public void set_limits(Limits lim){

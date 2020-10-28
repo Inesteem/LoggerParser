@@ -40,6 +40,9 @@ public class Hour extends TimeUnitI<Double> {
     return;
   }
 
+  public int get_num_subUnits(){
+    return num;
+  }
   public void invalidate(Limits lim){}
   public void reset() {}
   public void print(TimeRange tr){

@@ -11,6 +11,7 @@ public class Month extends TimeUnit<Day> {
   }
   public void add_val(double val,  Calendar cal){
     int idx =  cal.get(Calendar.DAY_OF_MONTH)-1;
+    numSubUnits |= 1 << idx;
 
     if(subUnits.get(idx) == null){
       subUnits.set(idx,new Day(limits));

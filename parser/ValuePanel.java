@@ -49,13 +49,13 @@ public class ValuePanel extends JPanel{
     minD_field = new JIntField(len);
     minD_field.setName(title + "_minD");
     minD_field.setValue(val_minD);
-    minD_field.setToolTipText("min. num of measurements required for a valid day (NOT num of valid hours)");
+    minD_field.setToolTipText("min. num of hours required for a valid day");
 
     int val_minM = pref.getInt(minM_pref, 0);
     minM_field = new JIntField(len);
     minM_field.setName(title + "_minM");
     minM_field.setValue(val_minM);
-    minM_field.setToolTipText("min. num of measurements required for a valid month (NOT num of valid days)");
+    minM_field.setToolTipText("min. num of (valid) days required for a valid month");
 
 
     boolean use= pref.getBoolean(use_pref, true);
