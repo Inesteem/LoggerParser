@@ -14,4 +14,12 @@ public enum Metric {
   public int value() {
     return value;
   }
+
+  public String getPrev() {
+    if(this == Metric.MONTH){return "Year";}
+    if(this == Metric.DAY){return "Month";}
+    if(this == Metric.HOUR){return "Day";}
+    return "?";
+  }
+
 }

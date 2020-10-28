@@ -18,4 +18,7 @@ public class Day extends TimeUnit<Hour> {
     subUnits.get(idx).add_val(val,  cal);
   }
   
+  public String identifier(int id) {
+    return "day " + String.valueOf(id+1); 
+  };
 }

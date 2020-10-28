@@ -44,7 +44,7 @@ extends LogFormat {
   static String impulse_type4[] = {"Date", "Time", "1.Impulses", "[]"};
   
 
-  Double[] impuls_mms = {0.2,0.5,1.0};
+  Double[] impuls_mms = {0.2,0.5,0.8,1.0};
   //num_elements: counts impulses > 0
   //num_measurements: counts all (even 0 values)
   public double mm;

@@ -5,31 +5,31 @@ package timeunits;
 public class TimeRange {
   
  
- int timeunits[] = {0,0,0,0};
+ int timeUnits[] = {0,0,0,0};
  public static final TimeRange ALL= new TimeRange(0xFFFFFFFF);
 
 
  public TimeRange(int arr[]){
-    timeunits=arr;
+    timeUnits=arr;
  }
 
 
  public TimeRange(int val){
-    for (int i = 0; i < timeunits.length; ++i){
-      timeunits[i] = val;
+    for (int i = 0; i < timeUnits.length; ++i){
+      timeUnits[i] = val;
       }
  }
 
  public boolean in_range(Metric m, int idx){
     if(m == Metric.YEAR) return true;
-    return (timeunits[m.value()] & (1 << idx)) != 0;
+    return (timeUnits[m.value()] & (1 << idx)) != 0;
  }
 
  public void unset_idx(Metric m, int idx){
-    timeunits[m.value()] &= ~(1 << idx);
+    timeUnits[m.value()] &= ~(1 << idx);
  }
  public void set_idx(Metric m, int idx){
-    timeunits[m.value()] |= (1 << idx);
+    timeUnits[m.value()] |= (1 << idx);
  }
 
  public void unset_range(Metric m, int from, int to){
@@ -43,7 +43,7 @@ public class TimeRange {
     int mask =  (1 << (to-from)) - 1;
     mask <<= from;
 
-    timeunits[m.value()] &= ~mask;
+    timeUnits[m.value()] &= ~mask;
 
        System.out.println("mask: " + String.format("%32s", 
                    Integer.toBinaryString(~mask)).replaceAll(" ", "0"));
@@ -73,7 +73,7 @@ public class TimeRange {
     int mask =  (1 << (to-from)) -1;
     mask <<= from;
 
-    timeunits[m.value()] |= mask;
+    timeUnits[m.value()] |= mask;
    
        System.out.println("mask: " + String.format("%32s", 
                    Integer.toBinaryString(mask)).replaceAll(" ", "0"));
@@ -81,7 +81,14 @@ public class TimeRange {
  }
 
  public void set_all(Metric m) {
-    timeunits[m.value()] = 0xFFFFFFFF;
+    timeUnits[m.value()] = 0xFFFFFFFF;
  }
 
+ public boolean equals(TimeRange tr){
+    if(this == tr) return true;
+    for(int i = 0; i < timeUnits.length; ++i){
+      if(this.timeUnits[i] != tr.timeUnits[i]) return false;
+    }
+    return true;
+ }
 }

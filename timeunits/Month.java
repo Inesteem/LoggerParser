@@ -18,9 +18,11 @@ public class Month extends TimeUnit<Day> {
     subUnits.get(idx).add_val(val,  cal);
   }
 
-  public String identifier(int id) {
-
+  public static String toString(int id) {
     return ids[id]; 
   };
 
+  public String identifier(int id) {
+    return toString(id); 
+  };
 }

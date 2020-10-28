@@ -6,12 +6,16 @@ import java.util.Vector;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
   protected double minVal[][];
   protected double maxVal[][];
   @SuppressWarnings("unchecked")
     protected Metric metric;
+  public DecimalFormat df;	
 
   public TimeUnit(int num){
       subUnits = new Vector<T>(num);
@@ -20,20 +24,31 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
 
     minVal = new double[Method.SIZE.value()][Metric.SIZE.value()];
     maxVal = new double[Method.SIZE.value()][Metric.SIZE.value()];
-    for(int i = 0; i< minVal.length; ++i){
-      for(int j = 0; j< minVal[0].length; ++j){
+  
+    Locale locale = new Locale("en","UK");
+    df = (DecimalFormat) NumberFormat.getNumberInstance(locale);
+    df.applyPattern("##.##");
+    reset();
+  }
+
+  public void reset(){
+     super.reset();
+     for(int i = 0; i < minVal.length; ++i){
+      for(int j = 0; j < minVal[0].length; ++j){
         minVal[i][j] = Double.NaN;
         maxVal[i][j] = Double.NaN;
       }
     }
-
-    num = 0;
+    for(T unit : subUnits) {
+      if (unit != null) unit.reset();
+    }
+ 
   }
 
   public abstract void add_val(double val, Calendar cal);
 
   protected void calc(TimeRange tr){
-    if( !Double.isNaN(sum)) return;
+//    if( !Double.isNaN(sum)) return;
 
     num = 0;
     sum = 0;
@@ -41,9 +56,10 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
       if (!tr.in_range(this.metric, i)) continue;
       T unit = subUnits.get(i);
       if(unit == null) continue;
-
+      int u_num = unit.get_num(tr);
+      if (u_num == 0) continue;
+      num += u_num;
       sum += unit.get_sum(tr);
-      num += unit.get_num(tr);
       set_extrema(unit.get_sum(tr), Method.SUM);
       set_extrema(unit.get_avg(tr), Method.AVG);
 
@@ -51,37 +67,38 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
 
   }
 
-  public void write_to_file(Metric metric, FileOutputStream ostream, TimeRange tr) throws IOException{
+  public void write_to_file(String prefix, Metric metric, Method method, FileOutputStream ostream, TimeRange tr) throws IOException{
+    if(this.metric == Metric.YEAR) {
+      ostream.write(("Values at " + String.valueOf(metric.getPrev()) + " level:\n\n").getBytes());
+    } else {
+      prefix += " ";
+    }
+    if(metric != this.metric) {
+      for(int idx = 0; idx < subUnits.size(); ++idx){
+        if (!tr.in_range(this.metric, idx)) continue;
+        T unit = subUnits.get(idx);
+        if(unit == null) continue;
 
-    //    if(metric != this.metric) {
-    //      for(int idx = 0; idx < subUnits.length; ++idx){
-    //          if (!tr.in_range(metric, idx)) continue;
-    //          T unit = subUnits.get(idx);
-    //          if(unit == null || !unit.is_valid()) continue;
-    //          ostream.write((identifier(idx) + ":\n").getBytes());
-    //          unit.write_to_file(metric,ostream,tr);
-    //      }
-    //   
-    //      return;
-    //    }
-    //
-    //    ostream.write(" num min max ".getBytes());
-    //    if(Double.isNaN(avg))
-    //      ostream.write("avg\n".getBytes());
-    //    else
-    //      ostream.write("sum\n".getBytes());
-    //
-    //      ostream.write((String.valueOf(get_num()) + " ").getBytes());
-    //      ostream.write((String.valueOf(get_min()) + " ").getBytes());
-    //      ostream.write((String.valueOf(get_max()) + " ").getBytes());
-    //      if(Double.isNaN(avg))
-    //        ostream.write((String.valueOf(get_sum()) + "\n").getBytes());
-    //      else
-    //        ostream.write((String.valueOf(get_avg()) + "\n").getBytes());
-    //
+          ostream.write((prefix + unit.identifier(idx) + ":\n").getBytes());
+          unit.write_to_file(prefix,metric,method,ostream,tr);
+      }
+
+      return;
+    }
+
+    ostream.write((prefix+"num: " +String.valueOf(get_num(tr)) + " ").getBytes());
+    ostream.write((prefix+"min: " +df.format(get_min(method)) + " ").getBytes());
+    ostream.write((prefix+"max: " +df.format(get_max(method)) + " ").getBytes());
+    if(method == Method.SUM)
+      ostream.write((prefix+"val: " +df.format(get_sum(tr)) + "\n").getBytes());
+    else
+      ostream.write((prefix+"val: " +df.format(get_avg(tr)) + "\n").getBytes());
+    ostream.write("\n".getBytes());
   }
-  public void write_to_file(Metric metric, FileOutputStream ostream) throws IOException{
-    write_to_file(metric,ostream,TimeRange.ALL);
+
+
+  public void write_to_file(Metric metric, Method method, FileOutputStream ostream) throws IOException{
+    write_to_file(" ", metric,method, ostream,TimeRange.ALL);
   }
 
   void set_extrema(double val, Method method){
@@ -98,7 +115,6 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
 
     int methodI = method.value();
     int metricI = metric.value();
-    num = 0;
 
     if (Double.isNaN(minVal[methodI][metricI])) {
       minVal[methodI][metricI] = Double.MAX_VALUE;
@@ -123,7 +139,7 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
 
     int methodI = method.value();
     int metricI = metric.value();
-    num = 0;
+
     if (Double.isNaN(maxVal[methodI][metricI])) {
       maxVal[methodI][metricI] = -1;
 

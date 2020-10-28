@@ -16,13 +16,17 @@ public abstract class TimeUnitI<T>{
     sum = Double.NaN;
   }
 
+  public void reset(){
+    num = -1;
+    sum = Double.NaN;
+  }
 
   void set_extrema(double val, Method method){}
 
   protected void calc(TimeRange tr){}
 
   public double get_avg(TimeRange tr){
-    if (Double.isNaN(sum)) calc(tr);
+    if (Double.isNaN(sum) ) calc(tr);
     if(num!=0){
       return sum/num;
     };
@@ -61,6 +65,9 @@ public abstract class TimeUnitI<T>{
 //  public void print() { print(TimeRange.ALL); }
 
   public abstract void add_val(double val, Calendar cal);
-  public abstract void write_to_file(Metric metric, FileOutputStream ostream, TimeRange tr) throws IOException;
+  public abstract void write_to_file(String prefix, Metric metric, Method method, FileOutputStream ostream, TimeRange tr) throws IOException;
+  public void write_to_file(Metric metric, Method method, FileOutputStream ostream, TimeRange tr) throws IOException {
+    write_to_file("",metric,method,ostream,tr);
+  }
 
 }

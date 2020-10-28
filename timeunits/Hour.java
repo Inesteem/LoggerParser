@@ -13,6 +13,7 @@ public class Hour extends TimeUnitI<Double> {
 
 
   public Hour(){
+    super();
     sum = 0;
     min = Double.MAX_VALUE;
     max = 0;
@@ -35,10 +36,11 @@ public class Hour extends TimeUnitI<Double> {
     if(max < val) max = val;
   }
 
-  public void write_to_file(Metric metric, FileOutputStream ostream, TimeRange tr) throws IOException{
+  public void write_to_file(String pfx, Metric metric, Method method, FileOutputStream ostream, TimeRange tr) throws IOException{
     return;
   }
 
+  public void reset() {}
   public void print(TimeRange tr){
     System.out.print(num);
     System.out.print(", ");

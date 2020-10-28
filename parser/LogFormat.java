@@ -61,8 +61,6 @@ public abstract class LogFormat{
 
 
   static DecimalFormat df;	
-  HashMap<Integer, HashMap<String, Month.MonthSum > > summedVals;
-  HashMap<String,Month.MonthSum[]> summedPerMonth;
 
 
   public JFrame frame;
@@ -75,8 +73,6 @@ public abstract class LogFormat{
     val_panels= new ArrayList<ValuePanel>();
     columns= new ArrayList<Column>();
 
-    summedVals = new HashMap<Integer, HashMap<String, Month.MonthSum> >();
-    summedPerMonth = new HashMap<String,Month.MonthSum[]>();
 
     calendar = GregorianCalendar.getInstance();
     date_format = new SimpleDateFormat("dd.MM.yy HH:mm:ss");
@@ -321,51 +317,10 @@ public abstract class LogFormat{
 
   void write_to_file(FileOutputStream ostream) throws IOException{
 
-    String line = "\r\nyear \t month";
-
-    for(int i = 0; i < columns.size();++i) {
-      columns.get(i).collect_values(summedVals,summedPerMonth);
-      line+= " \t days \t min \t max \t " + columns.get(i).key;
-      if(val_panels.get(i).useMeas())
-        line += " \t meas";
+    for(Column col : columns) {
+      ostream.write(("\nData: "+col.key+" \n").getBytes());
+      col.write_to_file(ostream);
     }
-
-    line += "\r\n\r\n";
-    ostream.write(line.getBytes());
-    Iterator it = summedVals.entrySet().iterator();
-
-    while (it.hasNext()) {
-
-      line = "";
-      Map.Entry pair = (Map.Entry) it.next();
-      @SuppressWarnings("unchecked")
-        HashMap<String, Month.MonthSum >  monthMap = (HashMap<String, Month.MonthSum >) pair.getValue();
-
-      int key= (Integer) pair.getKey();
-      int year= key >>4;
-      int  m= key & 0xF;
-      int num_days = YearMonth.of(year, m+1).lengthOfMonth();
-
-      System.out.println(year + " " + m);
-      line += year + " \t " + Parser.getMonth(m).substring(0,3); 
-      for (int i = 0; i < columns.size(); ++i) {
-        Column col = columns.get(i);
-        if (monthMap.containsKey(col.key)) {
-          Month.MonthSum month = monthMap.get(col.key);
-          System.out.println(month.sum);
-          line += " \t " + month.num_days + "/" + num_days + " \t " + df.format(month.sum) + " \t " + df.format(month.min) + " \t " + df.format(month.max);
-          if(col.logMeas()) line += "\t" + Integer.valueOf(month.num);
-        } else {
-          line += " \t - \t - \t -";
-          if(col.logMeas()) line += " \t -";
-        }
-      }
-
-      line += "\r\n\r\n";
-      ostream.write(line.getBytes());
-
-    }
-
   }
 
 }

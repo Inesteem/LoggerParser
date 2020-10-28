@@ -21,7 +21,7 @@ public class YearMap extends TimeUnit<Year> {
     int idx = cal.get(Calendar.YEAR);
     Year year;
     if (!hm.containsKey(idx)) {
-      year = new Year();
+      year = new Year(idx);
       hm.put(idx,year);	
       subUnits.add(year);
     } else {
@@ -30,5 +30,8 @@ public class YearMap extends TimeUnit<Year> {
     year.add_val(val,cal);
   }
 
+  public String identifier(int id) {
+    return ""; 
+  }
 
 }

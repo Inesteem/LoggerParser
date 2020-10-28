@@ -11,8 +11,6 @@ import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Iterator;
 import java.util.Arrays;
 import java.util.ArrayList;
@@ -32,10 +30,12 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
 
+import timeunits.*;
+
 class Column {
 
 
-  HashMap<Integer,Month[]> ValPerYear;
+  YearMap dataMap;
   public double l_thresh,u_thresh;
   int pos;
   public double mul;
@@ -43,7 +43,7 @@ class Column {
   Calendar calendar;
   public String key;
   public boolean log_meas;
-  public boolean average;
+  Method method;
 
   public Column(String key, double l_thresh, double u_thresh, int pos, boolean average, Calendar calendar){
     this.key=key;
@@ -52,13 +52,15 @@ class Column {
     this.pos = pos;
     this.calendar = calendar;
     this.log_meas= true;
-    this.average = average;
     mul = 1.0;
     format = NumberFormat.getInstance(Locale.FRANCE);
-    ValPerYear = new HashMap<Integer,Month[]>();
+    dataMap = new YearMap();
+    if (average) method = Method.AVG;
+    else method = Method.SUM;
   }
 
- public boolean logMeas() {return log_meas; }
+  public boolean logMeas() {return log_meas; }
+
   public boolean set_values(String[] data, Date date){
     if (data.length <= pos){
       return false;
@@ -79,71 +81,46 @@ class Column {
     val *= mul;
     if(l_thresh > val || val > u_thresh) return false;
 
-    calendar.setTime(date);   
-    int year = calendar.get(Calendar.YEAR);
-    int month = calendar.get(Calendar.MONTH);
-    int day = calendar.get(Calendar.DAY_OF_MONTH);
-    int hour = calendar.get(Calendar.HOUR_OF_DAY);
-
-    Month[] months;
-    if (!ValPerYear.containsKey(year)) {
-      months = new Month[12];
-      ValPerYear.put(year, months);	
-    } else {
-      months = ValPerYear.get(year);
-    }
-
-    if(months[month] == null){
-      months[month] = new Month();
-    }
-//    System.out.println("column: parsed " + val);
-    months[month].add_data(day, hour, val);
+    calendar.setTime(date);  
+    dataMap.add_val(val, calendar);
 
     return true;
   }
 
+  public void write_to_file(FileOutputStream ostream) throws IOException{
+//    ostream.write("\n".getBytes());
+//    dataMap.write_to_file(Metric.YEAR,method,ostream);
+    ostream.write("\n".getBytes());
+    dataMap.write_to_file(Metric.MONTH,method,ostream);
+    ostream.write("\n".getBytes());
+    dataMap.write_to_file(Metric.DAY,method,ostream);
+    ostream.write("\n".getBytes());
+    dataMap.write_to_file(Metric.HOUR,method,ostream);
+    ostream.write("\n".getBytes());
 
-  public void collect_values(HashMap<Integer, HashMap<String, Month.MonthSum > > summedVals, HashMap<String,Month.MonthSum[]> summedPerMonth){
-    Iterator it = ValPerYear.entrySet().iterator();
-    while (it.hasNext()) {
-      Map.Entry pair = (Map.Entry)it.next();
-      Month[] months = (Month[]) pair.getValue();
-      int year  = (int) pair.getKey();
-
-      for (int m = 0; m < 12; ++m){
-        if(months[m] == null) { continue; }
-
-        //GET VALUE
-        int num_days = YearMonth.of(year, m+1).lengthOfMonth();
-        Month.MonthSum sum = months[m].get_month_sum();
-        if(average && sum.num != 0) sum.sum /= sum.num;
-
-        //PER YEAR
-        int key = (year << 4) | m;
-        System.out.println(year + " " + m + " " +key + " " + sum.sum);
-        HashMap<String, Month.MonthSum > svs;
-        if (!summedVals.containsKey(key)) {
-          svs = new HashMap<String, Month.MonthSum >();
-          summedVals.put(key,svs);	
-        } else {
-          svs = summedVals.get(key);
-        }
-        svs.put(this.key, sum);
-
-        //PER MONTH
-        if (!summedPerMonth.containsKey(this.key)) {
-          summedPerMonth.put(this.key,new Month.MonthSum[12]);
-
-        }
-        if (summedPerMonth.get(this.key)[m] == null) {
-          summedPerMonth.get(this.key)[m] = new Month.MonthSum();
-        }
-        summedPerMonth.get(this.key)[m].add(sum);
-
+    ostream.write("\n OVERALL MONTHLY AVG: \n".getBytes());
+    TimeRange tr = new TimeRange(0xFFFFFFFF);
+    tr.unset_range(Metric.MONTH,0,13);
+    for(int i = 0; i < 12; ++i){
+      tr.set_idx(Metric.MONTH,i);
+      dataMap.reset(); 
+      ostream.write((Month.toString(i) + ": ").getBytes());
+      if (dataMap.get_num(tr) == 0){
+        ostream.write(( "- \n").getBytes());
+        continue;
       }
-    }
+      ostream.write(("\n num: " +String.valueOf(dataMap.get_num(tr)) + " ").getBytes());
+      ostream.write((" min: " +dataMap.df.format(dataMap.get_min(method)) + " ").getBytes());
+      ostream.write((" max: " +dataMap.df.format(dataMap.get_max(method)) + " ").getBytes());
+      if(method == Method.SUM)
+        ostream.write((" val: " +dataMap.df.format(dataMap.get_sum(tr)) + "\n").getBytes());
+      else
+        ostream.write((" val: " +dataMap.df.format(dataMap.get_avg(tr)) + "\n").getBytes());
+      tr.unset_idx(Metric.MONTH,i);
+    } 
 
   }
+
 
 };
 

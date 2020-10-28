@@ -4,10 +4,11 @@ import java.util.Calendar;
 import java.util.Vector;
 
 public class Year extends TimeUnit<Month> {
-
-  public Year(){
+  int y;
+  public Year(int y){
     super(12);
     metric = Metric.MONTH;
+    this.y = y;
   }
 
    public void add_val(double val,  Calendar cal){
@@ -19,7 +20,9 @@ public class Year extends TimeUnit<Month> {
     subUnits.get(idx).add_val(val,  cal);
   }
 
-
+  public String identifier(int id) {
+    return String.valueOf(y); 
+  };
 
 
 }
