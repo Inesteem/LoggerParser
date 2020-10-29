@@ -29,6 +29,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.Files;
 import parser.*;
+import plotting.*;
+
+import javax.swing.ToolTipManager;
+
+
+
 
 public class LoggerParser {
 
@@ -143,6 +149,10 @@ public class LoggerParser {
 //    i_f.configure("test");
 //    System.exit(0);
     //
+
+    // Show tool tips immediately
+    ToolTipManager.sharedInstance().setInitialDelay(0);
+    ToolTipManager.sharedInstance().setDismissDelay(60000);
     set_frame();
     set_io_files();	
 

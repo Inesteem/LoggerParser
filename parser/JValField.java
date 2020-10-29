@@ -18,11 +18,10 @@ public abstract class JValField<T extends java.lang.Number> extends JTextField{
     });
     setHorizontalAlignment(JTextField.CENTER);
   }
-  public abstract T valueOf(String str);
+  public abstract T valueOf(String str) throws Exception;
   public abstract T errVal();
 
-  public void setValue(){
-    String str_val= getText();
+  public void setValue(String str_val){
     try {
       value = valueOf(str_val);
       setBackground(Color.WHITE);
@@ -33,7 +32,12 @@ public abstract class JValField<T extends java.lang.Number> extends JTextField{
       setBackground(Color.RED);
       setForeground(Color.WHITE);
       setFont(getFont().deriveFont(Font.BOLD, 14f));
+      e.printStackTrace();
     }
+  }
+  public void setValue(){
+    String str_val = getText();
+    setValue(str_val);
   }
 
   public void setValue(T v){

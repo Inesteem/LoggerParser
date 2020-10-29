@@ -304,9 +304,12 @@ public abstract class LogFormat{
     return date;
   }
 
+  abstract void preprocess(String[] data);
+
   public boolean set_values(String[] data){
     //		calendar.setTime(date);   // assigns calendar to given date 
     Date date = get_date(data);
+    preprocess(data);
     for(Column c : columns) {
       // out of bounds (thresholds)
       if(!c.set_values(data, date)){

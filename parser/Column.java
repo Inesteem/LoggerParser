@@ -31,6 +31,7 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 import timeunits.*;
+import plotting.*;
 
 class Column {
 
@@ -44,8 +45,10 @@ class Column {
   public String key;
   Method method;
   Limits limits;
+  PlotData plotData;
 
-  public Column(String key, double l_thresh, double u_thresh, int pos, boolean average, Calendar calendar){
+  public Column(String key, double l_thresh, double u_thresh, int pos, boolean average, Calendar calendar, PlotData pd){
+    this.plotData = pd;
     this.key=key;
     this.l_thresh = l_thresh;
     this.u_thresh = u_thresh;
@@ -132,9 +135,13 @@ class Column {
     }
     if(method == Method.AVG && num != 0) val_avg /= num;
 
-    ostream.write(("\nOVERALL YEARLY VALS:"+dataMap.df.format(val_avg)+" \n").getBytes());
+    ostream.write(("\n overall average: "+dataMap.df.format(val_avg)+" \n").getBytes());
 
+    //TODO
+    PlotWindow pw = new PlotWindow();
+    pw.run(null, plotData, method, dataMap);
 
+    
 
   }
 

@@ -32,6 +32,8 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
 
+
+
 public class Parser {
   static DecimalFormat df;	
 
@@ -171,7 +173,14 @@ public class Parser {
           }
         } 
 
+      
         l_format.set_values(splitted);
+
+//        for(String str : splitted){
+//          System.out.print(str + " ");
+//          }
+//          System.out.println("");
+
         RainPerDate.put(date,splitted);
       }
       //if (dub_lines) {
