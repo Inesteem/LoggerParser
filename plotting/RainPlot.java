@@ -1,33 +1,46 @@
 package plotting;
 
 import java.lang.Runtime.*;
+import java.lang.Process.*;
 
 import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.File;
+import java.nio.file.Paths;
+import java.nio.file.Files;
 import java.io.FileReader;
-
 import java.io.IOException;
 
+
+import org.apache.commons.io.FileUtils;
 import timeunits.*;
 
 public class RainPlot{
 
   public static void execute_pyplot(String file, String title, PlotData pd, Metric metric) {
-      try {
+    try {
 
-        String line = "python3 " + "PlotFiles.py" + " --file "+file+" --title "+title+" --label "+String.valueOf(pd)+" --xTics "+String.valueOf(metric);
-        System.out.println(line);
-        // create a process and execute notepad.exe
-        Process process = Runtime.getRuntime().exec(line);
-
-      } catch (Exception ex) {
-        ex.printStackTrace();
+//      String path = "plotting/PlotFiles.py";
+      File python = new File(System.getProperty("java.io.tmpdir") + "\\PlotFiles.py");
+      System.out.println(python.getAbsolutePath()); // true
+      //FileUtils.copyDirectory(new File(path), python);
+      if (!python.exists()){ // true
+        Files.copy(RainPlot.class.getResourceAsStream("PlotFiles.py"),Paths.get(python.getAbsolutePath()));
       }
 
+      String line = "python3 " + python.getAbsolutePath()+ " --file "+file+" --title "+title+" --label "+String.valueOf(pd)+" --xTics "+String.valueOf(metric);
+      System.out.println(line);
+
+      // create a process and execute notepad.exe
+      Process process = Runtime.getRuntime().exec(line);
+
+    } catch (Exception ex) {
+      ex.printStackTrace();
     }
-  
-  public static void print_month_avg(YearMap dataMap, Method method, Metric metric, String file, String title, PlotData pd, TimeRange tr, int max){
+
+  }
+
+  public static void plot_stats(YearMap dataMap, Method method, Metric metric, String file, String title, PlotData pd, TimeRange tr, int max){
 
     FileOutputStream ostream; 
     try{

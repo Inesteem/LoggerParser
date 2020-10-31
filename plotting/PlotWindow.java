@@ -235,11 +235,11 @@ public class PlotWindow{
 
       if(!finished){
         if(select_range.getSelectedItem().equals("MONTHS"))
-        RainPlot.print_month_avg(dataMap, method, Metric.MONTH, "test.txt", "Monthly-Avg", pd, tr, 12);
+        RainPlot.plot_stats(dataMap, method, Metric.MONTH, "test.txt", "Monthly-Avg", pd, tr, 12);
       else if(!finished && select_range.getSelectedItem().equals("DAYS"))
-        RainPlot.print_month_avg(dataMap, method, Metric.DAY, "test.txt", "Daily-Avg", pd, tr, 31);
+        RainPlot.plot_stats(dataMap, method, Metric.DAY, "test.txt", "Daily-Avg", pd, tr, 31);
       else if(!finished && select_range.getSelectedItem().equals("HOURS"))
-        RainPlot.print_month_avg(dataMap, method, Metric.HOUR, "test.txt", "Hourly-Avg", pd, tr, 24);
+        RainPlot.plot_stats(dataMap, method, Metric.HOUR, "test.txt", "Hourly-Avg", pd, tr, 24);
       }
 
     }
