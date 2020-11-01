@@ -57,11 +57,11 @@ class Column {
     mul = 1.0;
     format = NumberFormat.getInstance(Locale.FRANCE);
     limits = new Limits();
-    dataMap = new YearMap(limits);
-    dataMap.set_limits(limits);
 
     if (average) method = Method.AVG;
     else method = Method.SUM;
+
+    dataMap = Parser.getDataMap(method,pd,limits);
   }
   
   public void set_limits(int minD, int minM){
@@ -96,6 +96,7 @@ class Column {
   }
 
   public void write_to_file(FileOutputStream ostream) throws IOException{
+
     limits.print();
 //    ostream.write("\n".getBytes());
 //    dataMap.write_to_file(Metric.YEAR,method,ostream);
@@ -109,6 +110,7 @@ class Column {
 
     ostream.write("\nOVERALL MONTHLY VALS: \n".getBytes());
     TimeRange tr = new TimeRange(0xFFFFFFFF);
+    dataMap.add_years(tr);
     tr.unset_range(Metric.MONTH,0,13);
     double val_avg = 0;
     double num = 0;
@@ -136,10 +138,6 @@ class Column {
     if(method == Method.AVG && num != 0) val_avg /= num;
 
     ostream.write(("\n overall average: "+dataMap.df.format(val_avg)+" \n").getBytes());
-
-    //TODO
-    PlotWindow pw = new PlotWindow();
-    pw.run(null, plotData, method, dataMap);
 
     
 

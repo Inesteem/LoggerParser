@@ -30,6 +30,12 @@ public class YearMap extends TimeUnit<Year> {
     year.add_val(val,cal);
   }
 
+  public void add_years(TimeRange tr) {
+    for (HashMap.Entry<Integer, Year> entry : hm.entrySet()) {
+       tr.add_year(entry.getKey()); 
+    }
+  }
+
   public String identifier(int id) {
     return ""; 
   }

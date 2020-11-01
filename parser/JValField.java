@@ -5,7 +5,8 @@ import java.awt.event.*;
 import javax.swing.*;
 public abstract class JValField<T extends java.lang.Number> extends JTextField{
   private T value;
-  private Font normal; 
+  private Font normal;
+  protected String default_val = "";
 
   public JValField (int length) {
     super(length);
@@ -25,7 +26,11 @@ public abstract class JValField<T extends java.lang.Number> extends JTextField{
     try {
       value = valueOf(str_val);
       setBackground(Color.WHITE);
-      setForeground(Color.BLACK);
+      if(str_val == default_val)
+        setForeground(Color.GRAY);
+      else
+        setForeground(Color.BLACK);
+      
       setFont(normal);
     } catch (Exception e) {
       value = errVal();
@@ -49,4 +54,5 @@ public abstract class JValField<T extends java.lang.Number> extends JTextField{
     return value;
   }
 
+  public void setDefaultVal(String str) {default_val = str;}
 }

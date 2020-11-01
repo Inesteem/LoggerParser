@@ -3,8 +3,10 @@ package timeunits;
 import java.util.Calendar;
 import java.util.Vector;
 
+
+import java.text.DateFormatSymbols;
+
 public class Month extends TimeUnit<Day> {
-  public static final String ids[] = {"Jan", "Feb", "Mae", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
   public Month(Limits limits){
     super(31,limits);
     metric = Metric.DAY;
@@ -20,7 +22,7 @@ public class Month extends TimeUnit<Day> {
   }
 
   public static String toString(int id) {
-    return ids[id]; 
+    return new DateFormatSymbols().getMonths()[id];
   };
 
   public String identifier(int id) {

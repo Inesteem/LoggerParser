@@ -15,13 +15,14 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import timeunits.*;
 
+
 public class RainPlot{
 
   public static void execute_pyplot(String file, String title, PlotData pd, Metric metric) {
     try {
 
-//      String path = "plotting/PlotFiles.py";
-      File python = new File(System.getProperty("java.io.tmpdir") + "\\PlotFiles.py");
+      String tmpDir = System.getProperty("java.io.tmpdir");
+      File python = new File(tmpDir + "\\PlotFiles.py");
       System.out.println(python.getAbsolutePath()); // true
       //FileUtils.copyDirectory(new File(path), python);
       if (!python.exists()){ // true

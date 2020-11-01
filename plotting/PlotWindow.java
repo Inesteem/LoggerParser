@@ -55,6 +55,7 @@ public class PlotWindow{
   boolean finished = false;
 
   JRangeField rangeFields[];
+  TimeRange tr = new TimeRange(0xFFFFFFFF);
 
   public PlotWindow(){
     lock= new Object();
@@ -63,10 +64,11 @@ public class PlotWindow{
     OKButton = new JButton("Plot");
     SkipButton = new JButton("Continue");
     select_range= new JComboBox<String>(sr_str);
-    rangeFields=new JRangeField[Metric.SIZE.value()-1];
-    for(int i = 0;i< rangeFields.length;++i){
-
-      rangeFields[i] = new JRangeField(20);
+    rangeFields=new JRangeField[Metric.SIZE.value()];
+    for(Metric m : Metric.values()){
+      if(m == Metric.SIZE) continue;
+      int i = m.value();
+      rangeFields[i] = new JRangeField(20,tr,m);
       rangeFields[i].setToolTipText("Valid Ranges, e.g. : ALL 1-31  1,2,5,6  9");
       rangeFields[i].setName("range");
       rangeFields[i].setValue("ALL");
@@ -75,6 +77,7 @@ public class PlotWindow{
 
 
   public void run(JPanel options, PlotData pd, Method method, YearMap dataMap){
+    dataMap.add_years(tr);
     Preferences pref = Preferences.userRoot();
     String pref_metric = pref.get(PREF_METRICS, "MONTHS");
     select_range.setSelectedItem(pref_metric);
@@ -107,7 +110,7 @@ public class PlotWindow{
       range_panel.setLayout(new BoxLayout(range_panel, BoxLayout.X_AXIS));
 
       range_panel.add(Box.createRigidArea(new Dimension(20,0)));
-      range_panel.add(new JLabel(String.format("%1$7s",Metric.values()[i+1])));
+      range_panel.add(new JLabel(String.format("%1$7s",Metric.values()[i])));
       range_panel.add(Box.createRigidArea(new Dimension(10,0)));
       range_panel.add(rangeFields[i]);
       range_panel.add(Box.createRigidArea(new Dimension(20,0)));
@@ -228,18 +231,15 @@ public class PlotWindow{
 
       pref.put(PREF_METRICS,String.valueOf(select_range.getSelectedItem()));
 
-      TimeRange tr = new TimeRange(0xFFFFFFFF);
-      tr.set_val(Metric.MONTH, rangeFields[0].getValue());
-      tr.set_val(Metric.DAY, rangeFields[1].getValue());
-      tr.set_val(Metric.HOUR, rangeFields[2].getValue());
-
+      String tmpDir = System.getProperty("java.io.tmpdir");
+      String file = tmpDir + "\\plot_"+String.valueOf(pd);
       if(!finished){
         if(select_range.getSelectedItem().equals("MONTHS"))
-        RainPlot.plot_stats(dataMap, method, Metric.MONTH, "test.txt", "Monthly-Avg", pd, tr, 12);
+        RainPlot.plot_stats(dataMap, method, Metric.MONTH, file, "Monthly-Avg", pd, tr, 12);
       else if(!finished && select_range.getSelectedItem().equals("DAYS"))
-        RainPlot.plot_stats(dataMap, method, Metric.DAY, "test.txt", "Daily-Avg", pd, tr, 31);
+        RainPlot.plot_stats(dataMap, method, Metric.DAY, file, "Daily-Avg", pd, tr, 31);
       else if(!finished && select_range.getSelectedItem().equals("HOURS"))
-        RainPlot.plot_stats(dataMap, method, Metric.HOUR, "test.txt", "Hourly-Avg", pd, tr, 24);
+        RainPlot.plot_stats(dataMap, method, Metric.HOUR, file, "Hourly-Avg", pd, tr, 24);
       }
 
     }

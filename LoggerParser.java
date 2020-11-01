@@ -151,7 +151,7 @@ public class LoggerParser {
     //
 
     // Show tool tips immediately
-    ToolTipManager.sharedInstance().setInitialDelay(0);
+    ToolTipManager.sharedInstance().setInitialDelay(500);
     ToolTipManager.sharedInstance().setDismissDelay(60000);
     set_frame();
     set_io_files();	
@@ -159,9 +159,13 @@ public class LoggerParser {
     frame.setVisible(true);
     parse_logs(input_paths, output_path.getAbsolutePath());
     frame.setVisible(false);
+    
+    Parser.plot();
+
     iom.asMessage("Finished!");
     iom.getOutputFile(output_path);
 
+    
     System.exit(0);
 
   }

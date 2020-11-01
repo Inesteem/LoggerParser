@@ -24,7 +24,6 @@ import javafx.util.Pair;
 import java.lang.NumberFormatException;
 import java.lang.Number;
 
-import java.text.DateFormatSymbols;
 import javax.swing.JLabel;
 import javax.swing.JFrame;
 
@@ -32,14 +31,12 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
 
+import timeunits.*;
+import plotting.*;
 
 
 public class Parser {
   static DecimalFormat df;	
-
-  public static String getMonth(int month) {
-    return new DateFormatSymbols().getMonths()[month];
-  }
 
 
 //  String moment_vals[]   = {"Date", "Time", "Resistance", "[Ohm]", "Current", "[mA]"};
@@ -47,6 +44,8 @@ public class Parser {
   ParserType p_type;
   LogFormat l_format;	
 	HashMap<Date,String[]> RainPerDate;
+  static YearMap dataMaps[][];
+
 
   public enum ParserType {
     NONE, IMPULS, MOMENT_VALS, REL_HUM, WITH_FOG, OTHER
@@ -55,12 +54,38 @@ public class Parser {
   public Parser(){
     p_type = ParserType.NONE;
 		RainPerDate = new HashMap<Date,String[]>();
+    if (dataMaps == null)
+      dataMaps = new YearMap[Method.SIZE.value()][PlotData.SIZE.value()];
   }
 
   public void setLogFormat(LogFormat lf){
     l_format = lf;
     p_type = lf.get_parser_type();
   }
+  
+  public static YearMap getDataMap(Method m, PlotData pd, Limits limits) {
+    
+    if(dataMaps[m.value()][pd.value()]== null){
+      dataMaps[m.value()][pd.value()] = new YearMap(limits);
+    } else {
+      dataMaps[m.value()][pd.value()].set_limits(limits);
+    }
+    return dataMaps[m.value()][pd.value()];
+  }
+
+  public static void plot(){
+    //TODO
+    for(Method m : Method.values()){
+        int midx = m.value();
+        if(midx >= dataMaps.length) continue;
+      for(PlotData pd : PlotData.values()){
+        int idx = pd.value();
+        if(idx >=dataMaps[midx].length || dataMaps[midx][idx] == null) continue;
+        PlotWindow pw = new PlotWindow();
+        pw.run(null, pd, m, dataMaps[midx][idx]);
+      }
+   }
+ }
 
 
   public void write_log_info(String filename){
