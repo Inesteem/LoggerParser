@@ -151,7 +151,7 @@ public class LoggerParser {
     //
 
     // Show tool tips immediately
-    ToolTipManager.sharedInstance().setInitialDelay(500);
+    ToolTipManager.sharedInstance().setInitialDelay(1000);
     ToolTipManager.sharedInstance().setDismissDelay(60000);
     set_frame();
     set_io_files();	

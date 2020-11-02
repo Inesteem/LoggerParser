@@ -1,0 +1,4 @@
+Manifest-Version: 1.3
+Main-Class: LoggerParser
+Class-Path: lib/org.apache.commons.math.util.jar lib/org.apache.commons.io.jar
+Created-By: Umbrella Corporation
