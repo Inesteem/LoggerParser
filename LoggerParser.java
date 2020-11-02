@@ -1,3 +1,5 @@
+package parser;
+
 // javac -cp "\.;lib\*;" parser/*.java LoggerParser.java
 //	java -cp "\.;lib\*;" LoggerParser
 //	jar -cmvf Manifest.txt LoggerParser.jar *.class .\lib\*
@@ -28,8 +30,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.Files;
-import parser.*;
-import plotting.*;
+
 
 import javax.swing.ToolTipManager;
 

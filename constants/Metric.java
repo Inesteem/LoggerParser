@@ -1,4 +1,4 @@
-package timeunits;
+package parser;
 
 
 public enum Metric {

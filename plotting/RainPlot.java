@@ -1,4 +1,4 @@
-package plotting;
+package parser;
 
 import java.lang.Runtime.*;
 import java.lang.Process.*;
@@ -13,12 +13,11 @@ import java.io.IOException;
 
 
 import org.apache.commons.io.FileUtils;
-import timeunits.*;
 
 
 public class RainPlot{
 
-  public static void execute_pyplot(String file, String title, PlotData pd, Metric metric) {
+  public static void execute_pyplot(String file, String title, Data pd, Metric metric) {
     try {
 
       String tmpDir = System.getProperty("java.io.tmpdir");
@@ -41,7 +40,7 @@ public class RainPlot{
 
   }
 
-  public static void plot_stats(YearMap dataMap, Method method, Metric metric, String file, String title, PlotData pd, TimeRange tr, int max){
+  public static void plot_stats(YearMap dataMap, Method method, Metric metric, String file, String title, Data pd, TimeRange tr, int max){
 
     FileOutputStream ostream; 
     try{

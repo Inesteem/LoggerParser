@@ -1,12 +1,10 @@
-package plotting;
-
-import timeunits.*;
+package parser;
 
 
-public enum PlotData{
+public enum Data{
   TEMP(0),HUM(1),RAIN(2),FOG(3),WIND(4),SIZE(5);
   // constructor
-  private PlotData(final int value) {
+  private Data(final int value) {
     this.value = value;
   }
 

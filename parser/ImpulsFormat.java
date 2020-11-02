@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import plotting.*;
+
 
 public class ImpulsFormat
 extends LogFormat {
@@ -56,7 +56,7 @@ extends LogFormat {
     super(Parser.ParserType.IMPULS, PREF_ALL);
     val_panels.add(new ValuePanel(TITLE_STR, PREF_STR, 10, 0,1000, false));
 
-    columns.add(new Column(IMPULS_KEY, 0, 100 , 2, false, calendar, PlotData.RAIN));
+    columns.add(new Column(IMPULS_KEY, 0, 100 , 2, false, calendar, Data.RAIN));
   }
 
   void preprocess(String[] data){}

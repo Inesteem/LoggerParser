@@ -30,8 +30,8 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-import timeunits.*;
-import plotting.*;
+
+
 
 class Column {
 
@@ -45,10 +45,10 @@ class Column {
   public String key;
   Method method;
   Limits limits;
-  PlotData plotData;
+  Data data;
 
-  public Column(String key, double l_thresh, double u_thresh, int pos, boolean average, Calendar calendar, PlotData pd){
-    this.plotData = pd;
+  public Column(String key, double l_thresh, double u_thresh, int pos, boolean average, Calendar calendar, Data pd){
+    this.data = pd;
     this.key=key;
     this.l_thresh = l_thresh;
     this.u_thresh = u_thresh;

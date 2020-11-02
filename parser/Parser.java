@@ -31,8 +31,8 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-import timeunits.*;
-import plotting.*;
+
+
 
 
 public class Parser {
@@ -55,7 +55,7 @@ public class Parser {
     p_type = ParserType.NONE;
 		RainPerDate = new HashMap<Date,String[]>();
     if (dataMaps == null)
-      dataMaps = new YearMap[Method.SIZE.value()][PlotData.SIZE.value()];
+      dataMaps = new YearMap[Method.SIZE.value()][Data.SIZE.value()];
   }
 
   public void setLogFormat(LogFormat lf){
@@ -63,7 +63,7 @@ public class Parser {
     p_type = lf.get_parser_type();
   }
   
-  public static YearMap getDataMap(Method m, PlotData pd, Limits limits) {
+  public static YearMap getDataMap(Method m, Data pd, Limits limits) {
     
     if(dataMaps[m.value()][pd.value()]== null){
       dataMaps[m.value()][pd.value()] = new YearMap(limits);
@@ -78,7 +78,7 @@ public class Parser {
     for(Method m : Method.values()){
         int midx = m.value();
         if(midx >= dataMaps.length) continue;
-      for(PlotData pd : PlotData.values()){
+      for(Data pd : Data.values()){
         int idx = pd.value();
         if(idx >=dataMaps[midx].length || dataMaps[midx][idx] == null) continue;
         PlotWindow pw = new PlotWindow();

@@ -1,5 +1,4 @@
-
-package timeunits;
+package parser;
 
 import java.util.HashMap;
 import java.util.Calendar;

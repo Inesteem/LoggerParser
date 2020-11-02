@@ -1,8 +1,7 @@
-package plotting;
+package parser;
 
 import java.util.ArrayList;
-import timeunits.*;
-import parser.*;
+
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;

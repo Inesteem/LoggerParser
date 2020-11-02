@@ -18,7 +18,7 @@ import javafx.util.Pair;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import plotting.*;
+
 
 public class TempRelHumFormat
 extends LogFormat {
@@ -37,8 +37,8 @@ extends LogFormat {
     val_panels.add(new ValuePanel("Temperature", PREF_STR+"_TEMP", 10, 0, 100, true));
     val_panels.add(new ValuePanel("Relative Humidity", PREF_STR+"_RH", 10, 0, 42, true));
 
-    columns.add(new Column(TEMP_KEY, 0, 100 , 2, true, calendar, PlotData.TEMP));
-    columns.add(new Column(RHUM_KEY, 0, 100 , 3, true, calendar, PlotData.HUM));
+    columns.add(new Column(TEMP_KEY, 0, 100 , 2, true, calendar, Data.TEMP));
+    columns.add(new Column(RHUM_KEY, 0, 100 , 3, true, calendar, Data.HUM));
   }
 
   void preprocess(String[] data){}

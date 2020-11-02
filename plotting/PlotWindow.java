@@ -1,7 +1,5 @@
-package plotting;
+package parser;
 
-import parser.*;
-import timeunits.*;
 
 import java.util.Locale;
 import java.text.DecimalFormat;
@@ -76,7 +74,7 @@ public class PlotWindow{
   }
 
 
-  public void run(JPanel options, PlotData pd, Method method, YearMap dataMap){
+  public void run(JPanel options, Data pd, Method method, YearMap dataMap){
     dataMap.add_years(tr);
     Preferences pref = Preferences.userRoot();
     String pref_metric = pref.get(PREF_METRICS, "MONTHS");
