@@ -1,1 +1,1 @@
-jar -cmvf Manifest.txt LoggerParser.jar *.class .\timeunits\*.class .\plotting\*.py .\parser\*.class .\plotting\*.class constants\*.class swing\*.class .\lib\*
+jar -cmvf Manifest.txt LoggerParser.jar *.class .\parser\*.class .\parser\*.py .\lib\*

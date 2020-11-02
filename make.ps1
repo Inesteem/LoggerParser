@@ -4,10 +4,10 @@ $DEST= "../parser";
 
 javac -Xlint:unchecked -cp "/.;lib/*;" src/parser/*.java src/timeunits/*.java src/plotting/*.java src/constants/*.java  src/swing/*.java src/LoggerParser.java  
 
-mv src/LoggerParser.class ./
-
 mkdir -f parser;
 
+cp src/LoggerParser.class ./
+cp src/plotting/PlotFiles.py parser/;
 
 cd src;
 
