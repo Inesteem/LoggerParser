@@ -1,5 +1,3 @@
-package parser;
-
 // javac -cp "\.;lib\*;" parser/*.java LoggerParser.java
 //	java -cp "\.;lib\*;" LoggerParser
 //	jar -cmvf Manifest.txt LoggerParser.jar *.class .\lib\*
@@ -34,7 +32,7 @@ import java.nio.file.Files;
 
 import javax.swing.ToolTipManager;
 
-
+import parser.*;
 
 
 public class LoggerParser {

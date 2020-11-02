@@ -5,47 +5,25 @@ import java.io.FileOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.Date;
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Iterator;
 import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Collections;
-import java.time.YearMonth;
-import javafx.util.Pair;
-
-import java.lang.NumberFormatException;
-import java.lang.Number;
 
 import javax.swing.JLabel;
 import javax.swing.JFrame;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.Locale;
-
-
-
-
 
 public class Parser {
-  static DecimalFormat df;	
 
 
-//  String moment_vals[]   = {"Date", "Time", "Resistance", "[Ohm]", "Current", "[mA]"};
   String[] options = {"keep key", "override old key", "always keep", "always override","abort operation"};
   ParserType p_type;
   LogFormat l_format;	
-	HashMap<Date,String[]> RainPerDate;
+  
+  //recognize duplicated entries
+	HashMap<Date,String> RainPerDate;
   static YearMap dataMaps[][];
-
 
   public enum ParserType {
     NONE, IMPULS, MOMENT_VALS, REL_HUM, WITH_FOG, OTHER
@@ -53,7 +31,7 @@ public class Parser {
 
   public Parser(){
     p_type = ParserType.NONE;
-		RainPerDate = new HashMap<Date,String[]>();
+		RainPerDate = new HashMap<Date,String>();
     if (dataMaps == null)
       dataMaps = new YearMap[Method.SIZE.value()][Data.SIZE.value()];
   }
@@ -74,7 +52,6 @@ public class Parser {
   }
 
   public static void plot(){
-    //TODO
     for(Method m : Method.values()){
         int midx = m.value();
         if(midx >= dataMaps.length) continue;
@@ -100,8 +77,8 @@ public class Parser {
     } catch(IOException e) {
       e.printStackTrace();
     }
-
   }
+
   public boolean parse(File file, JLabel label, JFrame frame){
 
     IOManager iom = IOManager.getInstance();
@@ -153,21 +130,16 @@ public class Parser {
       boolean dub_lines = false;
 
       while ((line = bufferedReader.readLine()) != null) {
+
         String splitted[] = line.split("\\s+");
 //        System.out.println("trying to parse: " + splitted[0] + " " + splitted[1] + " with val " + line);
 
-        //long key = calendar.getTimeInMillis();
-
-
         Date date = l_format.get_date(splitted);
-        String key_str = l_format.date_format.format(date);
-  //      System.out.println("date: " + date + " " + key_str);
-        label.setText("<html><b><center>Parsing Line:<center/><b/><br/>"+line+"</html>");
 
         if (RainPerDate.containsKey(date) && !override_all) {
-          String old_val[] = RainPerDate.get(date);
+          String old_val = RainPerDate.get(date);
 
-          if(Arrays.equals(old_val, splitted)){
+          if(line.equals(old_val)){
             System.out.println("dublicated line: " + line);
             dub_lines = true;
             continue;
@@ -177,9 +149,10 @@ public class Parser {
             continue;
           }
 
+          String key_str = l_format.date_format.format(date);
 
           int opt = iom.askNOptions("entry already exists", options,
-              "date:\n "+key_str+"\nold:\n "+Arrays.toString(old_val)+"\nnew:\n "+line);
+              "date:\n "+key_str+"\nold:\n "+old_val+"\nnew:\n "+line);
           //int opt = iom.askTwoOptions("test1", "keep new key", "override old key", 
           //"the entry with date >" +key +"< already exists; exit dialog to abort");
           if(opt == 0){
@@ -197,16 +170,11 @@ public class Parser {
             System.exit(0);
           }
         } 
-
       
+  //      System.out.println("date: " + date + " " + key_str);
+        label.setText("<html><b><center>Parsing Line:<center/><b/><br/>"+line+"</html>");
         l_format.set_values(splitted);
-
-//        for(String str : splitted){
-//          System.out.print(str + " ");
-//          }
-//          System.out.println("");
-
-        RainPerDate.put(date,splitted);
+        RainPerDate.put(date,line);
       }
       //if (dub_lines) {
       //	iom.asWarning("some or all lines you've tried to add were already in the choosen append file");

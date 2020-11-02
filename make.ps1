@@ -1,1 +1,23 @@
-javac -Xlint:unchecked -cp "/.;lib/*;" parser/*.java timeunits/*.java plotting/*.java constants/*.java  LoggerParser.java  
+$Dirs =  "parser/", "timeunits/", "plotting/", "constants/", "swing/"
+
+$DEST= "../parser";
+
+javac -Xlint:unchecked -cp "/.;lib/*;" src/parser/*.java src/timeunits/*.java src/plotting/*.java src/constants/*.java  src/swing/*.java src/LoggerParser.java  
+
+mv src/LoggerParser.class ./
+
+mkdir -f parser;
+
+
+cd src;
+
+Foreach ($d in $Dirs) {
+  Foreach ($f in $(ls $d | grep .class)) {
+    $splitted = $($f -split '(\s+)',5);
+    $file=$(echo $splitted[8]);
+    echo "copy $d$file";
+    cp $d$file $DEST;
+
+  }
+}
+cd ..;
