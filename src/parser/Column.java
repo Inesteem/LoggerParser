@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
 import java.time.YearMonth;
-import javafx.util.Pair;
 
 import java.lang.NumberFormatException;
 import java.lang.Number;

@@ -13,7 +13,6 @@ import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.List;
 import java.util.ArrayList;
-import javafx.util.Pair;
 
 import java.io.FileOutputStream;
 import java.io.IOException;

@@ -13,7 +13,6 @@ import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.List;
 import java.util.ArrayList;
-import javafx.util.Pair;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -25,7 +24,7 @@ extends LogFormat {
   public static final String PREF_ALL = "LP_PREF_TRH_ALL";
   public static final String PREF_STR = "LP_PREF_TRH";
 
-  static String rel_hum1[]       = {"Datum", "Zeit", "1.Temperatur", "[°C]", "2.rel.Feuchte", "[%]"};	
+  static String rel_hum1[]       = {"Datum", "Zeit", "1.Temperatur", "[ï¿½C]", "2.rel.Feuchte", "[%]"};	
   static String rel_hum2[]       = {"Date", "Time", "1.Temperature", "[DegC]", "2.rel.Humidity", "[%]"};	
 
 
