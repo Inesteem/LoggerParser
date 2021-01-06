@@ -1,32 +1,9 @@
 package parser;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.text.ParseException;
-import java.lang.NumberFormatException;
-import java.lang.Number;
-
-
-import java.util.prefs.Preferences;
-
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.Locale;
-import java.util.List;
-import java.util.ArrayList;
-
-import java.io.FileOutputStream;
-import java.io.IOException;
-
-
 
 public class TempRelHumFormat
 extends LogFormat {
   public static final String PREF_ALL = "LP_PREF_TRH_ALL";
   public static final String PREF_STR = "LP_PREF_TRH";
-
-  static String rel_hum1[]       = {"Datum", "Zeit", "1.Temperatur", "[�C]", "2.rel.Feuchte", "[%]"};	
-  static String rel_hum2[]       = {"Date", "Time", "1.Temperature", "[DegC]", "2.rel.Humidity", "[%]"};	
-
 
   static String TEMP_KEY = "temp";
   static String RHUM_KEY = "rhum";
@@ -46,10 +23,10 @@ extends LogFormat {
   }
 
   public static boolean matches(String[] line){
-    if(Arrays.equals(rel_hum1,line) || Arrays.equals(rel_hum2,line)){
-      return true;
-    }
-    return false;
+    if(line.length != 6) return false;
+    if(!line[2].contains("Temperatur")) return false;
+    if(!line[4].contains("rel.Humidity") && !line[4].contains("rel.Feuchte")) return false;
+    return true;
   }
 
   public String get_value_header() {

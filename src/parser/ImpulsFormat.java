@@ -39,12 +39,6 @@ extends LogFormat {
   public static final String TITLE_STR= "Millimeter";
   public static final String IMPULS_KEY = "mms";
 
-  static String impulse_type1[] = {"Date", "Time", "Impulses", "[]"};
-  static String impulse_type2[] = {"Datum", "Zeit", "Impulse", "[]"};
-  static String impulse_type3[] = {"Datum", "Zeit", "1.Impulse", "[]"};
-  static String impulse_type4[] = {"Date", "Time", "1.Impulses", "[]"};
-  
-
   Double[] impuls_mms = {0.2,0.5,0.8,1.0};
   //num_elements: counts impulses > 0
   //num_measurements: counts all (even 0 values)
@@ -82,13 +76,9 @@ extends LogFormat {
   } 
 
   public static boolean matches(String[] line){
-    if(Arrays.equals(impulse_type1,line) || Arrays.equals(impulse_type2,line)){
-      return true;
-    }
-    if(Arrays.equals(impulse_type3,line) || Arrays.equals(impulse_type4,line)){
-      return true;
-    }
-    return false;
+    if(line.length != 4) return false;
+    if(!line[2].contains("Impuls")) return false;
+    return true;
   }
 
   public String get_value_header() {

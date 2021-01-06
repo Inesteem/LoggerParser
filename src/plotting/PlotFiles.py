@@ -17,26 +17,28 @@ figuresize = (
 )
 
 
-labelMap={
-  'WIND':'Wind (in TODO)',
-  'FOG':'Fog (in TODO)',
-  'RAIN':'Rain (in mms)',
-  'TEMP':'Temperature (in DegC)',
-  'HUM':'Humidity (in %)',
-  'MONTH':'Months',
-  'HOUR':'Hours',
-  'DAY':'Days',
-  'YEAR':'Years',
-  'NOK' : 'No Data'
+labelMap = {
+  'WIND'  : 'Wind (in TODO)',
+  'FOG'   : 'Fog (in TODO)',
+  'RAIN'  : 'Rain (in mms)',
+  'TEMP'  : 'Temperature (in DegC)',
+  'HUM'   : 'Humidity (in %)',
+  'MONTH' : 'Months',
+  'HOUR'  : 'Hours',
+  'DAY'   : 'Days',
+  'YEAR'  : 'Years',
+  'VOLT'  : 'Voltage',
+  'NOK'   : 'No Data'
 }
 
-colorMap={
-  'WIND':'#76d1e3',
-  'FOG':'#9da7b0',
-  'RAIN':'#042f66',
-  'TEMP':'#980598',
-  'HUM':'#77c7df',
-  'NOK' : '#e71109'
+colorMap = {
+  'WIND' : '#76d1e3',
+  'FOG'  : '#9da7b0',
+  'RAIN' : '#042f66',
+  'TEMP' : '#980598',
+  'HUM'  : '#77c7df',
+  'VOLT' : '#993366',
+  'NOK'  : '#e71109'
 }
 
 xTicsMap= {
@@ -168,11 +170,11 @@ def  plot_graph(xs, ys, labels, plot_type , title, ylab, xlab,xtics,colormap):
 
 if __name__ == "__main__":
  parser = argparse.ArgumentParser()
- parser.add_argument('--file', help='file name', type=str, required=True)
+ parser.add_argument('--file',      help='file name', type=str, required=True)
  parser.add_argument('--title',     help='plot title', type=str, required=True)
  parser.add_argument('--xTics',     help='Kind of x-axis (e.g MONTHS)', type=str, required=True)
 # parser.add_argument("--labelList",help="list of labels", required=True, nargs='+')
- parser.add_argument("--label",help="graph label", required=True, type=str)
+ parser.add_argument("--label",     help="graph label", required=True, type=str)
 
  args = parser.parse_args()
  with open(args.file) as f:

@@ -126,7 +126,7 @@ public class TimeRange {
   public void set_range(Metric m, int from, int to){
     //avoid long time iterations over insane year ranges (wouldn't be so nice, though)
     if(m == Metric.YEAR){
-      if(from < 1990 && to > current_year) return;
+      if(from < 1900 && to > current_year) return;
       for(int year = from; year < to; ++year){
         int idx = get_year_idx(year);
         System.out.println(String.valueOf(year) + " " + String.valueOf(idx));
@@ -159,6 +159,9 @@ public class TimeRange {
   public void set_all(Metric m) {
     timeUnits[m.value()] = 0xFFFFFFFF;
   }
+  public void unset_all(Metric m) {
+    timeUnits[m.value()] = 0x00000000;
+  }
 
   public boolean equals(TimeRange tr){
     if(this == tr) return true;
@@ -174,5 +177,10 @@ public class TimeRange {
 
   public int get_val(Metric m) {
     return timeUnits[m.value()];
+  }
+
+  public void print(Metric m) {
+         System.out.println("mask: " + String.format("%32s",
+               Integer.toBinaryString(timeUnits[m.value()])).replaceAll(" ", "0"));
   }
 }

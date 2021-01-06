@@ -12,11 +12,6 @@ import javax.swing.Action;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileSystemView;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.text.DefaultEditorKit;
-
-
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -29,20 +24,15 @@ import java.io.File;
 
 import java.util.List;
 import java.util.prefs.Preferences;
-import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.FileUtils;
-
-import java.awt.event.FocusListener;
-import java.awt.event.FocusEvent;
 
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.text.*;
 
-import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 

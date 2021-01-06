@@ -7,9 +7,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Arrays;
-
 import javax.swing.JLabel;
 import javax.swing.JFrame;
 
@@ -26,7 +23,7 @@ public class Parser {
   static YearMap dataMaps[][];
 
   public enum ParserType {
-    NONE, IMPULS, MOMENT_VALS, REL_HUM, WITH_FOG, OTHER
+    NONE, IMPULS, MOMENT_VALS, REL_HUM, REL_HUM_VOLT, WITH_FOG, OTHER
   }
 
   public Parser(){
@@ -93,29 +90,29 @@ public class Parser {
       while ((line = bufferedReader.readLine()) != null) {
         String splitted[] = line.split("\\s+");
         if(ImpulsFormat.matches(splitted)){
+          setLogFormat((LogFormat) new ImpulsFormat());
           type = ParserType.IMPULS;
           break;
         } else if(TempRelHumFormat.matches(splitted)){
+          setLogFormat((LogFormat) new TempRelHumFormat());
           type = ParserType.REL_HUM;
           break;
         } else if(WithFogFormat.matches(splitted)){
+          setLogFormat((LogFormat) new WithFogFormat());
           type = ParserType.WITH_FOG;
+          break;
+        } else if(TempRelHumVoltageFormat.matches(splitted)){
+          setLogFormat((LogFormat) new TempRelHumVoltageFormat()  );
+          type = ParserType.REL_HUM_VOLT;
           break;
         }
       }
-
+      if ( type == ParserType.NONE) {
+        iom.asError("logger format unsupported : " + file.getAbsolutePath());
+      }
       //file append support; check if file types match
       if(p_type == ParserType.NONE){
         p_type = type;
-        if ( p_type == ParserType.REL_HUM) {
-          setLogFormat((LogFormat) new TempRelHumFormat());
-        } else if ( p_type == ParserType.IMPULS) {
-          setLogFormat((LogFormat) new ImpulsFormat());
-        } else if ( p_type == ParserType.WITH_FOG) {
-          setLogFormat((LogFormat) new WithFogFormat());
-        } else {
-          iom.asError("logger format unsupported : " + file.getAbsolutePath());
-        }
       } else if(p_type != type) {
         System.out.println("File types do not match! Aborting.");
         iom.asWarning("File types do not match! Aborting.");
@@ -136,6 +133,7 @@ public class Parser {
 
         Date date = l_format.get_date(splitted);
 
+        //Dublicated Entry Handling
         if (RainPerDate.containsKey(date) && !override_all) {
           String old_val = RainPerDate.get(date);
 

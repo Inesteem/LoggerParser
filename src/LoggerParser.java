@@ -2,38 +2,16 @@
 //	java -cp "\.;lib\*;" LoggerParser
 //	jar -cmvf Manifest.txt LoggerParser.jar *.class .\lib\*
 //	jar -cmvf Manifest.txt LoggerParser.jar *.class .\parser\*.class .\lib\*
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Font;
-import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.Dimension;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-//from w  w w  . j ava2  s.co  m
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
-import javax.swing.SwingConstants;
-
-import java.beans.*;
-import java.io.IOException;
 import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.Files;
-
-
 import javax.swing.ToolTipManager;
 
 import parser.*;
-
 
 public class LoggerParser {
 
@@ -44,12 +22,8 @@ public class LoggerParser {
 
   public static final String PREF_INPUT_PATH_FILE = "LP_PREF_INPUT_PATH";
   public static final String PREF_OUTPUT_PATH_FILE = "LP_PREF_OUTPUT_PATH";
-  public static final String PREF_TIMEZONE = "LP_PREF_TIMEZONE";
 
-
-
-
-  static JFrame frame = new JFrame("Parse Log-Files"); 
+  static JFrame frame = new JFrame("Parse Log-Files");
   static JLabel content = new JLabel("stuff");
 
   static Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();

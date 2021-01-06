@@ -57,6 +57,11 @@ public class PlotWindow{
   public PlotWindow(){
     lock= new Object();
     String sr_str[] ={"MONTHS", "DAYS","HOURS"};
+    String tt_str[] = {  "Valid Ranges, e.g. : ALL 1900-2022  2000,2001,2002  2000"
+                        ,"Valid Ranges, e.g. : ALL 1-13  1,2,3,4 5 "
+                        ,"Valid Ranges, e.g. : ALL 1-32  1,2,3,4 5"
+                        ,"Valid Ranges, e.g. : ALL 0-24, 0,1,2,3 4"};
+
     frame = new JFrame("Wanna plot?");
     OKButton = new JButton("Plot");
     SkipButton = new JButton("Continue");
@@ -66,7 +71,7 @@ public class PlotWindow{
       if(m == Metric.SIZE) continue;
       int i = m.value();
       rangeFields[i] = new JRangeField(20,tr,m);
-      rangeFields[i].setToolTipText("Valid Ranges, e.g. : ALL 1-31  1,2,5,6  9");
+      rangeFields[i].setToolTipText(tt_str[i]);
       rangeFields[i].setName("range");
       rangeFields[i].setValue("ALL");
     }
@@ -230,13 +235,22 @@ public class PlotWindow{
 
       String tmpDir = System.getProperty("java.io.tmpdir");
       String file = tmpDir + "\\plot_"+String.valueOf(pd);
+
+      /*
+      * Resets the TimeRange;
+      * If the same plot is repeated multiple times just changing different metrics
+      * the value for the last plotted metric is not resetted as the range fields
+      * only set the value when their field is updated by the user
+      * */
+      for (int i = 0; i < rangeFields.length; ++i) rangeFields[i].setValue();
+
       if(!finished){
         if(select_range.getSelectedItem().equals("MONTHS"))
-        RainPlot.plot_stats(dataMap, method, Metric.MONTH, file, "Monthly-Avg", pd, tr, 12);
+        RainPlot.plot_stats(dataMap, method, Metric.MONTH, file, "Monthly-Avg", pd, tr, 0, 12);
       else if(!finished && select_range.getSelectedItem().equals("DAYS"))
-        RainPlot.plot_stats(dataMap, method, Metric.DAY, file, "Daily-Avg", pd, tr, 31);
+        RainPlot.plot_stats(dataMap, method, Metric.DAY, file, "Daily-Avg", pd, tr, 0, 31);
       else if(!finished && select_range.getSelectedItem().equals("HOURS"))
-        RainPlot.plot_stats(dataMap, method, Metric.HOUR, file, "Hourly-Avg", pd, tr, 24);
+        RainPlot.plot_stats(dataMap, method, Metric.HOUR, file, "Hourly-Avg", pd, tr, 0, 24);
       }
 
     }
