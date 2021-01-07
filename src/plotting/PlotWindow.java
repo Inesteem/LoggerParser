@@ -1,5 +1,5 @@
 package parser;
-
+import parser.*;
 
 import java.util.Locale;
 import java.text.DecimalFormat;
@@ -48,10 +48,10 @@ public class PlotWindow{
   public JButton OKButton;
   public JButton SkipButton;
   protected JComboBox<String> select_range;
-  protected Object lock;
+  protected final Object lock;
   boolean finished = false;
 
-  JRangeField rangeFields[];
+  JRangeField[] rangeFields;
   TimeRange tr = new TimeRange(0xFFFFFFFF);
 
   public PlotWindow(){
@@ -233,24 +233,13 @@ public class PlotWindow{
 
       pref.put(PREF_METRICS,String.valueOf(select_range.getSelectedItem()));
 
-      String tmpDir = System.getProperty("java.io.tmpdir");
-      String file = tmpDir + "\\plot_"+String.valueOf(pd);
-
-      /*
-      * Resets the TimeRange;
-      * If the same plot is repeated multiple times just changing different metrics
-      * the value for the last plotted metric is not resetted as the range fields
-      * only set the value when their field is updated by the user
-      * */
-      for (int i = 0; i < rangeFields.length; ++i) rangeFields[i].setValue();
-
       if(!finished){
         if(select_range.getSelectedItem().equals("MONTHS"))
-        RainPlot.plot_stats(dataMap, method, Metric.MONTH, file, "Monthly-Avg", pd, tr, 0, 12);
+        RainPlot.plot_stats(dataMap, method, Metric.MONTH, "Monthly-Avg", pd, tr);
       else if(!finished && select_range.getSelectedItem().equals("DAYS"))
-        RainPlot.plot_stats(dataMap, method, Metric.DAY, file, "Daily-Avg", pd, tr, 0, 31);
+        RainPlot.plot_stats(dataMap, method, Metric.DAY, "Daily-Avg", pd, tr);
       else if(!finished && select_range.getSelectedItem().equals("HOURS"))
-        RainPlot.plot_stats(dataMap, method, Metric.HOUR, file, "Hourly-Avg", pd, tr, 0, 24);
+        RainPlot.plot_stats(dataMap, method, Metric.HOUR, "Hourly-Avg", pd, tr);
       }
 
     }

@@ -1,4 +1,10 @@
 package parser;
+import parser.IOManager;
+import parser.Data;
+import parser.Metric;
+import parser.Method;
+import parser.TimeRange;
+import parser.YearMap;
 
 import java.io.FileOutputStream;
 import java.io.File;
@@ -13,84 +19,94 @@ public class RainPlot{
     String tmpDir = System.getProperty("java.io.tmpdir");
     File python = new File(tmpDir + "\\PlotFiles.py");
     if (python.exists()) { // true
-
+      python.delete();
     }
   }
-
-  public static void execute_pyplot(String file, String title, Data pd, Metric metric) {
+  public static String copy_pyscript() {
+    String tmpDir = System.getProperty("java.io.tmpdir");
+    String newFileName = tmpDir + "\\PlotFiles.py";
+    String pyFileName = "\\src\\plotting\\PlotFiles.py";
+    File newFile = new File(newFileName);
+    String classPath = new File(RainPlot.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getAbsolutePath();
     try {
-
-      String tmpDir = System.getProperty("java.io.tmpdir");
-      File python = new File(tmpDir + "\\PlotFiles.py");
-      System.out.println(python.getAbsolutePath()); // true
-      //FileUtils.copyDirectory(new File(path), python);
-      if (!python.exists()){ // true
-        String path = new File(RainPlot.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getAbsolutePath();
-        path += "\\src\\plotting\\PlotFiles.py";
-        System.out.println("new path: " + path);
-    //    path="C:\\Users\\bt121073\\IdeaProjects\\LoggerParser\\out\\production\\LoggerParser\\src\\plotting\\PlotFiles.py";
-        //System.out.println(RainPlot.class.getResourceAsStream());
-        Files.copy(Paths.get(path),Paths.get(python.getAbsolutePath()));
+      if (!newFile.exists()){
+        if (!IOManager.extractZippedFile(classPath, pyFileName, newFileName)){
+            Files.copy(Paths.get(classPath+pyFileName), Paths.get(newFile.getAbsolutePath()));
+        }
       }
 
-      String line = "python " + python.getAbsolutePath()+ " --file "+file+" --title "+title+" --label "+String.valueOf(pd)+" --xTics "+String.valueOf(metric);
-      System.out.println(line);
+    } catch (Exception ex) {
+      IOManager.asWarning(ex.getMessage());
+      ex.printStackTrace();
+      return "";
+    }
+    return newFileName;
+  }
+  public static void execute_pyplot(String title, Data plotData, Metric metric, String fileName) {
+    String path = copy_pyscript();
+    if (path.equals("")) {
+      IOManager.asWarning("Plotting not possible; The python file is not accessible.");
+      return;
+    }
 
+    String line = "python " + path + " --file "+fileName+"\\PlotFile.txt" + " --title "+title+" --label "+String.valueOf(plotData)+" --xTics "+String.valueOf(metric);
+    System.out.println(line);
+    try{
       // create a process and execute notepad.exe
       Runtime.getRuntime().exec(line);
 
     } catch (Exception ex) {
+      IOManager.asWarning(ex.getMessage());
       ex.printStackTrace();
     }
-
   }
 
-  public static void plot_stats(YearMap dataMap, Method method, Metric metric, String file, String title, Data pd, TimeRange tr, int min, int max){
+  /** Combines and plots the logged data for a specific metric and with respect to time ranges defined in timeRange
+   * @param dataMap contains the logged data
+   * @param method data is either retrieved AVeraGed or SUMmed from the dataMap
+   * @param metric data is either plotted averaged over HOURs, DAYs or MONTHs
+   * @param title the title of the plotted data graph
+   * @param plotData the plotted data type (RAIN, WIND, ...)
+   * @param timeRange the timeRange set by the user via the GUI restricting certain time ranges
+   */
+  public static void plot_stats(YearMap dataMap, Method method, Metric metric, String title, Data plotData, TimeRange tr){
 
-    FileOutputStream ostream; 
+    String fileName = System.getProperty("java.io.tmpdir") + "\\plot_"+String.valueOf(plotData);
+    int min = metric.getMinIncl();
+    int max = metric.getMaxExcl();
+    //do not change the submitted TimeRange
+    TimeRange timeRange = new TimeRange(tr);
     try{
-      ostream = new FileOutputStream(file);
+      FileOutputStream plotFile = new FileOutputStream(fileName);
+      long userSetTimeRange = timeRange.get_val(metric);
+      timeRange.unset_all(metric);
 
-      tr.unset_all(metric);
-      double val_avg = 0;
-      double num = 0;
       for(int i = min; i < max; ++i){
-
-        tr.set_idx(metric,i);
-
-        System.out.println("");
-        tr.print(Metric.YEAR);
-        tr.print(Metric.MONTH);
-        tr.print(Metric.DAY);
-        tr.print(Metric.HOUR);
-
+        timeRange.set_idx(metric,i-min);
+        timeRange.and_val(metric,userSetTimeRange);
 
         dataMap.reset();
-        ostream.write(String.valueOf(i).getBytes());
-        if (dataMap.get_num(tr) == 0){
-          ostream.write(( " - \n").getBytes());
-          tr.unset_idx(metric,i);
+        plotFile.write((String.valueOf(i)).getBytes());
+        if (dataMap.get_num(timeRange) == 0){
+          plotFile.write(( " - \n").getBytes());
+          timeRange.unset_idx(metric,i-min);
           continue;
         }
-        ++num;
 
         double val;
-        if(method == Method.SUM) val = dataMap.get_sum(tr);
-        else val = dataMap.get_avg(tr);
-        val_avg+=val;
+        if(method == Method.SUM) val = dataMap.get_sum(timeRange);
+        else val = dataMap.get_avg(timeRange);
 
-        System.out.println(String.valueOf(i) + " " + String.valueOf(val) );
-        ostream.write((" " + String.valueOf(val) + "\n").getBytes());
-        tr.unset_idx(metric,i);
+        plotFile.write((" " + val + "\n").getBytes());
+        timeRange.unset_idx(metric,i-min);
       }
-      if(method == Method.AVG && num != 0) val_avg /= num;
-
-      ostream.close();
+      plotFile.close();
     } catch(IOException e) {
       e.printStackTrace();
+      IOManager.asWarning(e.getMessage());
+      return;
     }
-    execute_pyplot(file, title, pd, metric); 
-
+    execute_pyplot(title, plotData, metric, fileName);
   }
 
   

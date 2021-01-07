@@ -42,7 +42,7 @@ colorMap = {
 }
 
 xTicsMap= {
-  'MONTH' : ['Jan','Feb','Mae','Apr','Mai','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+  'MONTH' : ['UNKNOWN','Jan','Feb','Mae','Apr','Mai','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 }
 
 

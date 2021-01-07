@@ -122,7 +122,9 @@ public class LoggerParser {
 //    i_f.configure("test");
 //    System.exit(0);
     //
-
+    RainPlot.delete_pyscript();
+//    RainPlot.copy_pyscript();
+//    if(true) return;
     // Show tool tips immediately
     ToolTipManager.sharedInstance().setInitialDelay(1000);
     ToolTipManager.sharedInstance().setDismissDelay(60000);

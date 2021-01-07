@@ -1,33 +1,33 @@
 package parser;
+import parser.JValField;
+import parser.Metric;
+import parser.TimeRange;
 
-import java.util.ArrayList;
-
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-public class JRangeField extends JValField<Integer>{
-
-  TimeRange tr;
-  Metric m;
+public class JRangeField extends JValField<Long>{
+  TimeRange timeRange;
+  Metric metric;
 
   public JRangeField (int length, TimeRange tr, Metric m) {
     super(length);
-    this.m = m;
-    this.tr = tr;
-    setText("ALL");
-    default_val = "ALL";
-    tr.set_val(m,0xFFFFFFFF);
+    this.metric = m;
+    this.timeRange = tr;
+    default_val = String.valueOf(m.getMinIncl()) + "-" + String.valueOf(m.getMaxIncl());
+    setText(default_val);
+    tr.set_all(m);
   }
 
-  public Integer valueOf(String str) throws Exception{
-    tr.print_years();
-    if(str.length()== 0 || str.toUpperCase().equals("ALL")){ 
-      tr.set_val(m,0xFFFFFFFF);
-      return 0xFFFFFFFF;
+  public Long valueOf(String str) throws Exception{
+    int min = metric.getMinIncl();
+    //Non-informaticians find max inclusive ranges more intuitive
+    int max = metric.getMaxIncl();
+
+    if(str.length()== 0 || str.toUpperCase().equals("ALL")){
+      timeRange.set_all(metric);
+      return 0xFFFFFFFFFFFFFFFFl;
     }
     
     String splitted[] = str.split("\\s+");
-    tr.set_val(m,0);
+    timeRange.set_val(metric,0);
     
 
     for(String part : splitted) {
@@ -36,24 +36,23 @@ public class JRangeField extends JValField<Integer>{
       else if(partS.length == 2) {
             int from = Integer.valueOf(partS[0]);
             int to = Integer.valueOf(partS[1]);
-            if(from > to) throw new Exception("from > to");
-            tr.set_range(m,from,to+1);
+            if(from > to || from < min || to > max) throw new Exception("from > to");
+            timeRange.set_range(metric,from-min,to+1-min);
         //TODO
       } else {
         partS = part.split(",");
         for(String n : partS) {
             int num = Integer.valueOf(n);
-            tr.set_idx(m,num);
+          if(num < min || num > max) throw new Exception("not in range");
+          timeRange.set_idx(metric,num-min);
         }
       }
         
     }
-       System.out.println("mask: " + String.format("%32s", 
-                   Integer.toBinaryString(tr.get_val(m))).replaceAll(" ", "0"));
 
-    return tr.get_val(m); 
+    return timeRange.get_val(metric);
   }
 
 
-  public Integer errVal() {return -1;}
+  public Long errVal() {return -1l;}
 }

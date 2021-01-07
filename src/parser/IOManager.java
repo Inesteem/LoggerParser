@@ -35,6 +35,9 @@ import javax.swing.text.*;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Paths;
 
 public class IOManager {
 
@@ -46,7 +49,41 @@ public class IOManager {
 
   public static IOManager getInstance() {
     return OBJ;
-  } 
+  }
+
+  /** Extracts a file embedded in a Zip archive.
+   * @param zipFileRoot a jar archive's path ending with .jar
+   * @param zipFile a file inside the zipFileRoot starting with \\
+   * @param outputFile an arbitrary file; will be created if it not exists
+   * return true if the extracting was successful and false on error
+   * (e.g. inputFileRoot is not a zip)
+   */
+  public static boolean extractZippedFile(String zipFileRoot, String zipFile, String outputFile) {
+    // Wrap the file system in a try-with-resources statement
+    // to auto-close it when finished and prevent a memory leak
+    if(!zipFileRoot.endsWith(".jar")) return false;
+    try (FileSystem fileSystem = FileSystems.newFileSystem(Paths.get(zipFileRoot), java.util.Collections.emptyMap())) {
+      Path fileToExtract = fileSystem.getPath(zipFile);
+      Files.copy(fileToExtract, Paths.get(outputFile));
+      return true;
+    } catch (IOException x) {
+      return false;
+    }
+  }
+
+  /** Extracts a file embedded in a Zip archive.
+   * @param inputFile a file's path containing .jar
+   * @param outputFile an arbitrary file; will be created if it not exists
+   * return true if the extracting was successful and false on error
+   * (e.g. inputFile is not inside a zip)
+   */
+  public static boolean extractZippedFile(String inputFile, String outputFile) throws IOException {
+      String[] result = inputFile.split("[.]jar");
+      if (result.length != 2) {
+        return false;
+      }
+      return extractZippedFile(result[0] + ".jar", result[1], outputFile);
+    }
 
   static class SelectAll extends TextAction
   {

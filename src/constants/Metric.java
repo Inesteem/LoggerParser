@@ -7,7 +7,8 @@ public enum Metric {
   private Metric(final int value) {
     this.value = value;
   }
-
+  static final Integer[] minVals = {0,1,1,0};
+  static final Integer[] maxVals = {0,12,31,24};
   // internal state
   private int value;
 
@@ -22,4 +23,15 @@ public enum Metric {
     return "Summary";
   }
 
+  public int getMinIncl() {
+    return minVals[value];
+  }
+
+  public int getMaxIncl() {
+    return maxVals[value];
+  }
+
+  public int getMaxExcl() {
+    return maxVals[value] + 1;
+  }
 }
