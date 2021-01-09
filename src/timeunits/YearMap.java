@@ -3,16 +3,12 @@ package parser;
 import java.util.Calendar;
 import java.util.HashMap;
 
-
-import java.io.FileOutputStream;
-import java.io.IOException;
-
 public class YearMap extends TimeUnit<Year> {
   protected HashMap<Integer,Year> hm;
 
   public YearMap(Limits limits){
     super(0,limits);
-    hm =new HashMap<Integer,Year>();
+    hm = new HashMap<Integer,Year>();
     metric = Metric.YEAR;
   }
 
@@ -32,8 +28,14 @@ public class YearMap extends TimeUnit<Year> {
 
   public void add_years(TimeRange tr) {
     for (HashMap.Entry<Integer, Year> entry : hm.entrySet()) {
-       tr.add_year(entry.getKey()); 
+       int idx = tr.add_year(entry.getKey());
+       //TODO: check if idx == -1 really needed here ?
+       tr.set_idx(Metric.YEAR, idx);
     }
+  }
+
+  public int get_idx(int i){
+    return subUnits.get(i).y;
   }
 
   public String identifier(int id) {

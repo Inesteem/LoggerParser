@@ -51,11 +51,10 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
 
   protected void calc(TimeRange tr){
     //    if( !Double.isNaN(sum)) return;
-
     num = 0;
     sum = 0;
     for(int i = 0; i < subUnits.size(); ++i){
-      if (!tr.in_range(this.metric, i)) continue;
+      if (!tr.in_range(this.metric,this.get_idx(i))) continue;
       T unit = subUnits.get(i);
       if(unit == null) continue;
       int u_num = unit.get_num(tr);
@@ -78,7 +77,7 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
     }
     if(metric != this.metric) {
       for(int idx = 0; idx < subUnits.size(); ++idx){
-        if (!tr.in_range(this.metric, idx)) continue;
+        if (!tr.in_range(this.metric,this.get_idx(idx))) continue;
         T unit = subUnits.get(idx);
         if(unit == null || (unit.get_num(tr) < 0 || !unit.is_valid())) continue;
 
@@ -124,7 +123,7 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
 
 
       for(int i = 0; i < subUnits.size(); ++i){
-        if (!tr.in_range(this.metric, i)) continue; 
+        if (!tr.in_range(this.metric,this.get_idx(i))) continue;
         T unit = subUnits.get(i);
         if(unit == null) continue;
 
@@ -149,7 +148,7 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
       maxVal[methodI][metricI] = -1;
 
       for(int i = 0; i < subUnits.size(); ++i){
-        if (!tr.in_range(this.metric, i)) continue; 
+        if (!tr.in_range(this.metric,this.get_idx(i))) continue;
         T unit = subUnits.get(i);
         if(unit == null) continue;
 
@@ -178,7 +177,7 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
   public void print(TimeRange tr){
 
     for(int i = 0; i < subUnits.size(); ++i){
-      if (!tr.in_range(this.metric, i)) continue;
+      if (!tr.in_range(this.metric,this.get_idx(i))) continue;
       T unit = subUnits.get(i);
       if(unit != null && unit.is_valid()) unit.print(tr);
 

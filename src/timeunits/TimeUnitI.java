@@ -56,6 +56,16 @@ public abstract class TimeUnitI<T>{
     if (Double.isNaN(sum)) calc(tr);
     return num;
   }
+
+  /**
+   * Returns the valid index
+   * TimeRange objects expect the real year not an index into subUnits
+   * @param i belongs to the ith subUnit
+   * @return the index needed by a TimeRange object (which is i for all but the metric.YEAR)
+   */
+  public int get_idx(int i){
+    return i;
+  }
 //
 //  public int get_num(){
 //    return get_num(TimeRange.ALL);

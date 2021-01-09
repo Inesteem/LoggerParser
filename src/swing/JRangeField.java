@@ -37,14 +37,20 @@ public class JRangeField extends JValField<Long>{
             int from = Integer.valueOf(partS[0]);
             int to = Integer.valueOf(partS[1]);
             if(from > to || from < min || to > max) throw new Exception("from > to");
-            timeRange.set_range(metric,from-min,to+1-min);
+            if (metric == Metric.YEAR)
+              timeRange.set_range(metric,from,to+1);
+            else
+              timeRange.set_range(metric,from-min,to+1-min);
         //TODO
       } else {
         partS = part.split(",");
         for(String n : partS) {
             int num = Integer.valueOf(n);
           if(num < min || num > max) throw new Exception("not in range");
-          timeRange.set_idx(metric,num-min);
+          if (metric == Metric.YEAR)
+            timeRange.set_idx(metric,num);
+          else
+            timeRange.set_idx(metric,num-min);
         }
       }
         

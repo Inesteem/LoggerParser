@@ -129,21 +129,11 @@ def format_basepower(x, pos):
 
 
 def  plot_graph(xs, ys, labels, plot_type , title, ylab, xlab,xtics,colormap):
-#    f = open(filename, "r")
-#    x, y, y2 = np.loadtxt(f, unpack=True, usecols=(0, 1, 2))
-#    f.close()
-
-
- # x_max = max(x)
- # x_min = min(x)
- # y_min = 0    
- # y_max = np.max(ys)
   plots = []
   fig, ax = plt.subplots()
   ax.set_ylabel(labelMap[ylab],fontsize=16,labelpad=10)
   ax.set_xlabel(labelMap[xlab],fontsize=16,labelpad=10)
 #  ax.grid(color='gray', alpha=0.5, linestyle='solid')
-  
   ax.minorticks_on()
 
   # Customize the major grid
@@ -153,16 +143,14 @@ def  plot_graph(xs, ys, labels, plot_type , title, ylab, xlab,xtics,colormap):
   if xtics!= None:
     plt.xticks(np.arange(len(xtics)), xtics, rotation=45)
   
-#ax.xlim(x_min,x_max)
-#ax.ylim(y_min,y_max)
-#    plt.title('Paper first submissions of the last 2 decades')
   plt.title(title)
-  for i,(x,y,label,ls) in enumerate(zip(xs,ys,labels,['solid','none'])):
-    if plot_type=='bars':
-      p = plt.bar(x, y, align='center', label=label, color=colormap[i], zorder=i)
-    else:
-      p = plt.plot(x, y, marker='o', linestyle=ls,linewidth=2, markersize=2.5, color=colormap[i], label=label)
-    plots.append(p)
+  for i,(xl,yl,label,ls) in enumerate(zip(xs,ys,labels,['solid','none'])):
+    for x,y in zip(xl,yl):
+      if plot_type=='bars':
+        p = plt.bar(x, y, align='center', label=label, color=colormap[i], zorder=i)
+      else:
+        p = plt.plot(x, y, marker='o', linestyle=ls,linewidth=2, markersize=2.5, color=colormap[i], label=label)
+      plots.append(p)
 
 #  plt.legend(loc='upper left',fontsize=13)
   plt.tight_layout()
@@ -184,14 +172,25 @@ if __name__ == "__main__":
  x_nok = []
  y_ok = []
  y_nok = []
+ last = -1
+ ok = 0
+ nok = 1
  for line in lines:
     spl=line.split()
     if(spl[1] == '-'):
-      y_nok.append(0.0)
-      x_nok.append(float(spl[0]))
+      if last != nok:
+          x_nok.append([])
+          y_nok.append([])
+          last = nok
+      y_nok[-1].append(0.0)
+      x_nok[-1].append(float(spl[0]))
     else:
-      y_ok.append(float(spl[1]))
-      x_ok.append(float(spl[0]))
+      if last != ok:
+            x_ok.append([])
+            y_ok.append([])
+            last = ok
+      y_ok[-1].append(float(spl[1]))
+      x_ok[-1].append(float(spl[0]))
 
  xtics = None 
  if args.xTics in xTicsMap:

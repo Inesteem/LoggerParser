@@ -111,14 +111,14 @@ public class Parser {
         iom.asError("logger format unsupported : " + file.getAbsolutePath());
       }
       //file append support; check if file types match
+      //TODO: support merging of different formats?
       if(p_type == ParserType.NONE){
         p_type = type;
       } else if(p_type != type) {
         System.out.println("File types do not match! Aborting.");
         iom.asWarning("File types do not match! Aborting.");
         return false;
-
-      } 
+      }
 
       l_format.configure(file.getName());
 

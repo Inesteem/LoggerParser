@@ -1,9 +1,6 @@
 package parser;
 
 import java.util.Calendar;
-import java.util.ArrayList;
-
-
 import java.io.FileOutputStream;
 import java.io.IOException;
 

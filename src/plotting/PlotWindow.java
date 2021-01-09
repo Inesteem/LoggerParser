@@ -56,7 +56,7 @@ public class PlotWindow{
 
   public PlotWindow(){
     lock= new Object();
-    String sr_str[] ={"MONTHS", "DAYS","HOURS"};
+    String sr_str[] ={"YEARS", "MONTHS", "DAYS","HOURS"};
     String tt_str[] = {  "Valid Ranges, e.g. : ALL 1900-2022  2000,2001,2002  2000"
                         ,"Valid Ranges, e.g. : ALL 1-13  1,2,3,4 5 "
                         ,"Valid Ranges, e.g. : ALL 1-32  1,2,3,4 5"
@@ -73,7 +73,7 @@ public class PlotWindow{
       rangeFields[i] = new JRangeField(20,tr,m);
       rangeFields[i].setToolTipText(tt_str[i]);
       rangeFields[i].setName("range");
-      rangeFields[i].setValue("ALL");
+    //  rangeFields[i].setValue("ALL");
     }
   }
 
@@ -233,14 +233,16 @@ public class PlotWindow{
 
       pref.put(PREF_METRICS,String.valueOf(select_range.getSelectedItem()));
 
-      if(!finished){
-        if(select_range.getSelectedItem().equals("MONTHS"))
-        RainPlot.plot_stats(dataMap, method, Metric.MONTH, "Monthly-Avg", pd, tr);
-      else if(!finished && select_range.getSelectedItem().equals("DAYS"))
-        RainPlot.plot_stats(dataMap, method, Metric.DAY, "Daily-Avg", pd, tr);
-      else if(!finished && select_range.getSelectedItem().equals("HOURS"))
-        RainPlot.plot_stats(dataMap, method, Metric.HOUR, "Hourly-Avg", pd, tr);
-      }
+        if(!finished){
+            if(select_range.getSelectedItem().equals("YEARS"))
+                RainPlot.plot_stats(dataMap, method, Metric.YEAR, "Yearly-Avg", pd, tr);
+            else if(select_range.getSelectedItem().equals("MONTHS"))
+                RainPlot.plot_stats(dataMap, method, Metric.MONTH, "Monthly-Avg", pd, tr);
+            else if(!finished && select_range.getSelectedItem().equals("DAYS"))
+                RainPlot.plot_stats(dataMap, method, Metric.DAY, "Daily-Avg", pd, tr);
+            else if(!finished && select_range.getSelectedItem().equals("HOURS"))
+                RainPlot.plot_stats(dataMap, method, Metric.HOUR, "Hourly-Avg", pd, tr);
+        }
 
     }
   } 

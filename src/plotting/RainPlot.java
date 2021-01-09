@@ -49,7 +49,7 @@ public class RainPlot{
       return;
     }
 
-    String line = "python " + path + " --file "+fileName+"\\PlotFile.txt" + " --title "+title+" --label "+String.valueOf(plotData)+" --xTics "+String.valueOf(metric);
+    String line = "python " + path + " --file "+fileName + " --title "+title+" --label "+String.valueOf(plotData)+" --xTics "+String.valueOf(metric);
     System.out.println(line);
     try{
       // create a process and execute notepad.exe
@@ -74,22 +74,34 @@ public class RainPlot{
     String fileName = System.getProperty("java.io.tmpdir") + "\\plot_"+String.valueOf(plotData);
     int min = metric.getMinIncl();
     int max = metric.getMaxExcl();
-    //do not change the submitted TimeRange
+    if (metric == Metric.YEAR) {
+      min = tr.getMinYear();
+      max = tr.getMaxYear()+1;
+    }
+      //do not change the submitted TimeRange
+    tr.print(metric);
     TimeRange timeRange = new TimeRange(tr);
-    try{
+    try {
       FileOutputStream plotFile = new FileOutputStream(fileName);
       long userSetTimeRange = timeRange.get_val(metric);
       timeRange.unset_all(metric);
 
-      for(int i = min; i < max; ++i){
-        timeRange.set_idx(metric,i-min);
+      for(int idx = min; idx < max; ++idx){
+        plotFile.write((String.valueOf(idx)).getBytes());
+        if (metric == Metric.YEAR) min = 0;
+        if(!timeRange.set_idx(metric,idx-min)) {
+          plotFile.write(( " - \n").getBytes());
+          continue;
+        }
+        timeRange.print(metric);
         timeRange.and_val(metric,userSetTimeRange);
+        timeRange.print(metric);
+        System.out.println(idx + " " + (idx-min));
 
         dataMap.reset();
-        plotFile.write((String.valueOf(i)).getBytes());
         if (dataMap.get_num(timeRange) == 0){
           plotFile.write(( " - \n").getBytes());
-          timeRange.unset_idx(metric,i-min);
+          timeRange.unset_idx(metric,idx-min);
           continue;
         }
 
@@ -98,7 +110,7 @@ public class RainPlot{
         else val = dataMap.get_avg(timeRange);
 
         plotFile.write((" " + val + "\n").getBytes());
-        timeRange.unset_idx(metric,i-min);
+        timeRange.unset_idx(metric,idx-min);
       }
       plotFile.close();
     } catch(IOException e) {
