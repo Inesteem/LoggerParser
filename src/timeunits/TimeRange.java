@@ -254,13 +254,7 @@ public class TimeRange {
     timeUnits[m.value()] = 0l;
   }
 
-  public boolean equals(TimeRange tr){
-    if(this == tr) return true;
-    for(int i = 0; i < timeUnits.length; ++i){
-      if(this.timeUnits[i] != tr.timeUnits[i]) return false;
-    }
-    return true;
-  }
+
   public void or_val(Metric m, long val){
     timeUnits[m.value()] |= val;
   }
@@ -273,15 +267,22 @@ public class TimeRange {
   public void set_val(Metric m, long val){
     timeUnits[m.value()] = val;
   }
-
   public long get_val(Metric m) {
     return timeUnits[m.value()];
   }
 
+  /**
+   * Get the smallest year mapped
+   * @return -1 if yearRange is empty and the min year else
+   */
   public int getMinYear() {
     if (yearRange.isEmpty()) return -1;
     return java.util.Collections.min(yearRange.keySet());
   }
+  /**
+   * Get the largest year mapped
+   * @return -1 if yearRange is empty and the max year else
+   */
   public int getMaxYear() {
     if (yearRange.isEmpty()) return -1;
     return java.util.Collections.max(yearRange.keySet());
