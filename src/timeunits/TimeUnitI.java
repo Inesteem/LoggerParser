@@ -52,6 +52,7 @@ public abstract class TimeUnitI<T>{
     return sum;
   }
 
+
   public int get_num(TimeRange tr){
     if (Double.isNaN(sum)) calc(tr);
     return num;
@@ -66,19 +67,6 @@ public abstract class TimeUnitI<T>{
   public int get_idx(int i){
     return i;
   }
-//
-//  public int get_num(){
-//    return get_num(TimeRange.ALL);
-//  }
-//
-//  public double get_avg(){
-//    return get_avg(TimeRange.ALL);
-//  }
-//
-//  public double get_sum(){
-//    return get_sum(TimeRange.ALL);
-//  }
-
   public abstract double get_max(Method method, TimeRange tr, Metric metric);
   public abstract double get_min(Method method, TimeRange tr, Metric metric);
 
@@ -92,5 +80,6 @@ public abstract class TimeUnitI<T>{
   public void write_to_file(Metric metric, Method method, FileOutputStream ostream, TimeRange tr) throws IOException {
     write_to_file("",metric,method,ostream,tr);
   }
-  public boolean is_valid(){return true;}  
+  public boolean is_valid(){return true;}
+
 }

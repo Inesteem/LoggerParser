@@ -11,19 +11,19 @@ public class JRangeField extends JValField<Long>{
     super(length);
     this.metric = m;
     this.timeRange = tr;
-    default_val = String.valueOf(m.getMinIncl()) + "-" + String.valueOf(m.getMaxIncl());
+    default_val = String.valueOf(m.getUserMinIncl()) + "-" + String.valueOf(m.getUserMaxIncl());
     setText(default_val);
     tr.set_all(m);
   }
 
   public Long valueOf(String str) throws Exception{
     int min = metric.getMinIncl();
-    //Non-informaticians find max inclusive ranges more intuitive
-    int max = metric.getMaxIncl();
+    //Normal people prefer max inclusive ranges
+    int max = metric.getUserMaxIncl();
 
     if(str.length()== 0 || str.toUpperCase().equals("ALL")){
       timeRange.set_all(metric);
-      return 0xFFFFFFFFFFFFFFFFl;
+      return ~0l;
     }
     
     String splitted[] = str.split("\\s+");

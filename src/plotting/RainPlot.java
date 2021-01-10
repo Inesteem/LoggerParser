@@ -72,8 +72,8 @@ public class RainPlot{
   public static void plot_stats(YearMap dataMap, Method method, Metric metric, String title, Data plotData, TimeRange tr){
 
     String fileName = System.getProperty("java.io.tmpdir") + "\\plot_"+String.valueOf(plotData);
-    int min = metric.getMinIncl();
-    int max = metric.getMaxExcl();
+    int min = metric.getUserMinIncl();
+    int max = metric.getUserMaxExcl();
     if (metric == Metric.YEAR) {
       min = tr.getMinYear();
       max = tr.getMaxYear()+1;
