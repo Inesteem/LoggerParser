@@ -1,4 +1,5 @@
-package parser;
+package src.datatree;
+import src.types.*;
 
 import java.util.Calendar;
 import java.util.Vector;
@@ -52,6 +53,10 @@ public abstract class TimeUnitI<T>{
     return sum;
   }
 
+  public double get_sum_2(TimeRange tr){
+    if (Double.isNaN(sum)) return -1;
+    return sum;
+  }
 
   public int get_num(TimeRange tr){
     if (Double.isNaN(sum)) calc(tr);

@@ -1,6 +1,5 @@
-package src.timeunits;
+package src.tests;
 
-import java.sql.Time;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -8,17 +7,16 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 import org.junit.jupiter.api.BeforeEach;
-import parser.*;
-import static parser.Metric.*;
-import static parser.Method.*;
-import static parser.TimeRange.ALL;
+import static src.types.Metric.*;
+import static src.types.Method.*;
+import static src.datatree.TimeRange.ALL;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
-import parser.Limits;
-import parser.Metric;
-import parser.TimeRange;
-import parser.YearMap;
+import src.datatree.Limits;
+import src.datatree.TimeRange;
+import src.datatree.TreePrinter;
+import src.datatree.YearMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,8 +27,8 @@ class YearMapTest {
     public static YearMap yearMap2;
 
     final static String[] dates2 = {
-            "01.01.10","02.01.10","03.02.10", "04.02.10",
-            "07.08.11", "08.06.11", "04.02.11", "04.02.11",
+            "01.01.10", "02.01.10", "03.02.10", "04.02.10",
+            "04.02.11", "05.02.11", "08.06.11", "07.08.11",
             "01.01.20", "02.01.20", "09.06.20", "10.06.20"
     };
     final static String[][] times2 = {
@@ -129,67 +127,117 @@ class YearMapTest {
 
     @Test
     void test_stats() {
-        TimeRange tr = new TimeRange(~0l);
-        yearMap.configure(tr);
+        yearMap.configure(ALL);
         int num = data.length;
         double sum = java.util.stream.DoubleStream.of(data).sum();
-        assertEquals(num, yearMap.get_num(tr));
-        assertEquals(sum, yearMap.get_sum(tr));
-        assertEquals(sum/(double)num, yearMap.get_avg(tr));
+        assertEquals(num, yearMap.get_num(ALL));
+        assertEquals(sum, yearMap.get_sum(ALL));
+        assertEquals(sum/(double)num, yearMap.get_avg(ALL));
 
-        yearMap2.configure(tr);
+        yearMap2.configure(ALL);
         num = data2.length;
         sum = java.util.stream.DoubleStream.of(data2).sum();
-        assertEquals(num, yearMap2.get_num(tr));
-        assertEquals(sum, yearMap2.get_sum(tr));
-        assertEquals(sum/(double)num, yearMap2.get_avg(tr));
+        assertEquals(num, yearMap2.get_num(ALL));
+        assertEquals(sum, yearMap2.get_sum(ALL));
+        assertEquals(sum/(double)num, yearMap2.get_avg(ALL));
 
+//        TreePrinter tp = new TreePrinter();
+//        yearMap.accept(tp,null);
     }
 
     @Test
     void test_hours() {
         yearMap.configure(ALL);
 
-        //min tick
+        //min hour avg
         assertEquals(2,yearMap.get_min(SUM, ALL, HOUR));
         assertEquals(2,yearMap.get_min(AVG, ALL, HOUR));
-        //max tick
+        //max hour avg
         assertEquals(8,yearMap.get_max(SUM, ALL, HOUR));
         assertEquals(7,yearMap.get_max(AVG, ALL, HOUR));
+
+
+        yearMap2.configure(ALL);
+
+        TreePrinter tp = new TreePrinter();
+        yearMap2.accept(tp,null);
+        //min hour avg
+        assertEquals(0,yearMap2.get_min(SUM, ALL, HOUR));
+        assertEquals(0,yearMap2.get_min(AVG, ALL, HOUR));
+        //max hour avg
+        assertEquals(27,yearMap2.get_max(SUM, ALL, HOUR));
+        assertEquals(27,yearMap2.get_max(AVG, ALL, HOUR));
     }
     @Test
     void test_days() {
         yearMap.configure(ALL);
 
-        //min tick
+        //min day avg
         assertEquals(2,yearMap.get_min(SUM, ALL, DAY));
         assertEquals(2,yearMap.get_min(AVG, ALL, DAY));
-        //max tick
+        //max day avg
         assertEquals(11,yearMap.get_max(SUM, ALL, DAY));
         assertEquals(6,yearMap.get_max(AVG, ALL, DAY));
+
+
+        yearMap2.configure(ALL);
+
+        //min day avg
+        assertEquals(0,yearMap2.get_min(SUM, ALL, DAY));
+        assertEquals(0,yearMap2.get_min(AVG, ALL, DAY));
+        //max day avg
+        assertEquals(35,yearMap2.get_max(SUM, ALL, DAY));
+        assertEquals(8.25,yearMap2.get_max(AVG, ALL, DAY));
     }
 
     @Test
     void test_months() {
         yearMap.configure(ALL);
-        //min tick
+        //min month avg
         assertEquals(5,yearMap.get_min(SUM, ALL, MONTH));
         assertEquals(7.0/3.0,yearMap.get_min(AVG, ALL, MONTH));
-        //max tick
+        //max month avg
         assertEquals(20,yearMap.get_max(SUM, ALL, MONTH));
         assertEquals(5.0,yearMap.get_max(AVG, ALL, MONTH));
+
+        yearMap2.configure(ALL);
+        TreePrinter tp = new TreePrinter();
+        yearMap2.accept(tp,null);
+
+        //min month avg
+        assertEquals(5,yearMap2.get_min(SUM, ALL, MONTH));
+        assertEquals(1.25,yearMap2.get_min(AVG,ALL, MONTH));
+        //max month avg
+        assertEquals(50,yearMap2.get_max(SUM, ALL, MONTH));
+        assertEquals(5,yearMap2.get_max(AVG, ALL, MONTH));
+
+
+
     }
 
 
     @Test
     void test_years() {
         yearMap.configure(ALL);
-        //min tick
+        //min year avg
         assertEquals(12,yearMap.get_min(SUM, ALL, YEAR));
         assertEquals(3.0,yearMap.get_min(AVG, ALL, YEAR));
-        //max tick
+        //max year avg
         assertEquals(20,yearMap.get_max(SUM, ALL, YEAR));
         assertEquals(5.0,yearMap.get_max(AVG, ALL, YEAR));
+
+
+        yearMap2.configure(ALL);
+        TreePrinter tp = new TreePrinter();
+        yearMap2.accept(tp,null);
+
+        //min year avg
+        assertEquals(29,yearMap2.get_min(SUM, ALL, YEAR));
+        assertEquals(2.9,yearMap2.get_min(AVG, ALL, YEAR));
+        //max year avg
+        assertEquals(99,yearMap2.get_max(SUM, ALL, YEAR));
+        assertEquals(99./20.,yearMap2.get_max(AVG, ALL, YEAR));
+
     }
 
 }

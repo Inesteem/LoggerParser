@@ -1,46 +1,16 @@
-package parser;
-import parser.*;
-
-import java.util.Locale;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.lang.NumberFormatException;
-import java.lang.Number;
+package src.gui;
+import static src.types.Metric.*;
+import src.types.*;
+import src.datatree.YearMap;
+import src.datatree.TimeRange;
 
 import java.lang.Thread;
 import java.lang.InterruptedException;
 
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-
-
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Iterator;
-
-import java.time.YearMonth;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.Date;
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
-
-
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.Locale;
-
 import java.util.prefs.Preferences;
-
-
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 public class PlotWindow{
   public static final String PREF_METRICS = "LP_PLOTWINDOW_METRICS";
@@ -235,13 +205,13 @@ public class PlotWindow{
 
         if(!finished){
             if(select_range.getSelectedItem().equals("YEARS"))
-                RainPlot.plot_stats(dataMap, method, Metric.YEAR, "Yearly-Avg", pd, tr);
+                RainPlot.plot_stats(dataMap, method, YEAR, "Yearly-Avg", pd, tr);
             else if(select_range.getSelectedItem().equals("MONTHS"))
-                RainPlot.plot_stats(dataMap, method, Metric.MONTH, "Monthly-Avg", pd, tr);
+                RainPlot.plot_stats(dataMap, method, MONTH, "Monthly-Avg", pd, tr);
             else if(!finished && select_range.getSelectedItem().equals("DAYS"))
-                RainPlot.plot_stats(dataMap, method, Metric.DAY, "Daily-Avg", pd, tr);
+                RainPlot.plot_stats(dataMap, method, DAY, "Daily-Avg", pd, tr);
             else if(!finished && select_range.getSelectedItem().equals("HOURS"))
-                RainPlot.plot_stats(dataMap, method, Metric.HOUR, "Hourly-Avg", pd, tr);
+                RainPlot.plot_stats(dataMap, method, HOUR, "Hourly-Avg", pd, tr);
         }
 
     }

@@ -1,5 +1,5 @@
-package parser;
-
+package src.datatree;
+import src.types.*;
 /**
  * The Limits class restricts the elements in a TimeUnit object
  * that are used to calculate the average or sum.

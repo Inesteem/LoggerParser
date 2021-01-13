@@ -1,6 +1,6 @@
-package parser;
+package src.datatree;
+import src.types.*;
 
-import parser.*;
 import java.util.HashMap;
 
 public class TimeRange {

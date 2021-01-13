@@ -1,39 +1,28 @@
-package parser;
+package src.gui;
+import src.datatree.YearMap;
+import src.datatree.TimeRange;
+import src.datatree.Limits;
+import src.datatree.Month;
+import src.gui.IOManager;
+import src.parser.Parser;
+import src.types.*;
 
-import java.io.BufferedReader;
+
 import java.io.FileOutputStream;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.text.ParseException;
-import java.util.Date;
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.Iterator;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Collections;
-import java.time.YearMonth;
 
-import java.lang.NumberFormatException;
 import java.lang.Number;
+import java.lang.NumberFormatException;
 
-import java.text.DateFormatSymbols;
-import javax.swing.JLabel;
-import javax.swing.JFrame;
-
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.ParseException;
+
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
-
-
-
-class Column {
-
+public class Column {
 
   YearMap dataMap;
   public double l_thresh,u_thresh;

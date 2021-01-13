@@ -1,7 +1,6 @@
-package parser;
-import parser.JValField;
-import parser.Metric;
-import parser.TimeRange;
+package src.gui;
+import src.types.Metric;
+import src.datatree.TimeRange;
 
 public class JRangeField extends JValField<Long>{
   TimeRange timeRange;

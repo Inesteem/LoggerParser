@@ -1,4 +1,5 @@
-package parser;
+package src.datatree;
+import src.types.*;
 
 import java.util.Calendar;
 import java.util.HashMap;
@@ -47,4 +48,7 @@ public class YearMap extends TimeUnit<Year> {
     return ""; 
   }
 
+  public <T> void accept(TreeVisitor<T> visitor, Metric m){
+    visitor.visit(this,m);
+  }
 }

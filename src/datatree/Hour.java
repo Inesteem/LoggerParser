@@ -1,4 +1,5 @@
-package parser;
+package src.datatree;
+import src.types.*;
 
 import java.util.Calendar;
 import java.io.FileOutputStream;
@@ -52,4 +53,5 @@ public class Hour extends TimeUnitI<Double> {
     //System.out.print(max);
     //System.out.print("    ");
   }
+
 }

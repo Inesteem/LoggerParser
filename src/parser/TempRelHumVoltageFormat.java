@@ -1,5 +1,6 @@
-package parser;
-import parser.*;
+package src.parser;
+import src.gui.Column;
+import src.types.*;
 
 public class TempRelHumVoltageFormat
 extends LogFormat {

@@ -1,7 +1,7 @@
-package parser;
+package src.datatree;
+import src.types.*;
 
 import java.util.Calendar;
-import java.util.Vector;
 
 public class Day extends TimeUnit<Hour> {
 

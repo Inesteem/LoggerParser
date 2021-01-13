@@ -1,4 +1,7 @@
-package parser;
+package src.parser;
+
+import src.types.*;
+import src.gui.*;
 
 public class TempRelHumFormat
 extends LogFormat {

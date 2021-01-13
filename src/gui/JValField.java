@@ -1,8 +1,9 @@
-package parser;
+package src.gui;
 
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+
 public abstract class JValField<T extends java.lang.Number> extends JTextField{
   private T value;
   private Font normal;

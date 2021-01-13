@@ -1,34 +1,9 @@
-package parser;
-import java.util.Arrays;
-import java.lang.NumberFormatException;
-import java.lang.Number;
-
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.Locale;
-import java.util.List;
-import java.util.ArrayList;
-
-import java.lang.Thread;
+package src.parser;
+import src.gui.Column;
+import src.types.*;
 
 import java.util.prefs.Preferences;
-
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-
-import java.lang.InterruptedException;
-import java.util.Date;
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-
-import java.util.HashMap;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
-
 
 public class ImpulsFormat
 extends LogFormat {

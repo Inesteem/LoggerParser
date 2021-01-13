@@ -1,10 +1,7 @@
-package parser;
-import parser.IOManager;
-import parser.Data;
-import parser.Metric;
-import parser.Method;
-import parser.TimeRange;
-import parser.YearMap;
+package src.gui;
+import src.datatree.TimeRange;
+import src.datatree.YearMap;
+import src.types.*;
 
 import java.io.FileOutputStream;
 import java.io.File;

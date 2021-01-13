@@ -1,8 +1,9 @@
-package parser;
+package src.parser;
+import src.gui.*;
+
 import java.util.prefs.Preferences;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 
 
 

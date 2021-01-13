@@ -11,7 +11,8 @@ import javax.swing.JLabel;
 import java.io.File;
 import javax.swing.ToolTipManager;
 
-import parser.*;
+import src.parser.*;
+import src.gui.*;
 
 public class LoggerParser {
 

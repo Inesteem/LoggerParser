@@ -1,15 +1,9 @@
-package parser;
+package src.gui;
 
-import java.awt.FileDialog;
-import java.awt.Frame;
 import java.awt.Desktop;
 
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPopupMenu;
-import javax.swing.JPanel;
 import javax.swing.Action;
-import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.JFileChooser;
 
@@ -37,7 +31,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
-import java.nio.file.Paths;
 
 public class IOManager {
 

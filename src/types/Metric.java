@@ -1,4 +1,4 @@
-package parser;
+package src.types;
 
 import java.util.Calendar;
 

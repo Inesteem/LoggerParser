@@ -1,4 +1,8 @@
-package parser;
+package src.parser;
+import src.datatree.*;
+import src.types.*;
+import src.gui.*;
+
 
 import java.io.BufferedReader;
 import java.io.FileOutputStream;

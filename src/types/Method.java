@@ -1,10 +1,10 @@
-package parser;
+package src.types;
 
 
-public enum Data{
-  TEMP(0),HUM(1),RAIN(2),FOG(3),WIND(4),VOLT(5),SIZE(6);
+public enum Method {
+  AVG(0),SUM(1),SIZE(2);
   // constructor
-  private Data(final int value) {
+  private Method(final int value) {
     this.value = value;
   }
 
@@ -14,5 +14,4 @@ public enum Data{
   public int value() {
     return value;
   }
-
 }
