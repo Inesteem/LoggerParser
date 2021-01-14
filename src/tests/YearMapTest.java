@@ -1,3 +1,5 @@
+
+
 package src.tests;
 
 import java.text.DateFormat;
@@ -17,6 +19,7 @@ import src.datatree.Limits;
 import src.datatree.TimeRange;
 import src.datatree.TreePrinter;
 import src.datatree.YearMap;
+import src.types.Metric;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -146,21 +149,20 @@ class YearMapTest {
     }
 
     @Test
-    void test_hours() {
+    void test_hours_ym1() {
         yearMap.configure(ALL);
-
         //min hour avg
-        assertEquals(2,yearMap.get_min(SUM, ALL, HOUR));
-        assertEquals(2,yearMap.get_min(AVG, ALL, HOUR));
+        assertEquals(2, yearMap.get_min(SUM, ALL, HOUR));
+        assertEquals(2, yearMap.get_min(AVG, ALL, HOUR));
         //max hour avg
-        assertEquals(8,yearMap.get_max(SUM, ALL, HOUR));
-        assertEquals(7,yearMap.get_max(AVG, ALL, HOUR));
+        assertEquals(8, yearMap.get_max(SUM, ALL, HOUR));
+        assertEquals(7, yearMap.get_max(AVG, ALL, HOUR));
 
+    }
 
+    @Test
+    void test_hours_ym2() {
         yearMap2.configure(ALL);
-
-        TreePrinter tp = new TreePrinter();
-        yearMap2.accept(tp,null);
         //min hour avg
         assertEquals(0,yearMap2.get_min(SUM, ALL, HOUR));
         assertEquals(0,yearMap2.get_min(AVG, ALL, HOUR));
@@ -168,17 +170,20 @@ class YearMapTest {
         assertEquals(27,yearMap2.get_max(SUM, ALL, HOUR));
         assertEquals(27,yearMap2.get_max(AVG, ALL, HOUR));
     }
+
     @Test
-    void test_days() {
+    void test_days_ym1() {
         yearMap.configure(ALL);
 
         //min day avg
-        assertEquals(2,yearMap.get_min(SUM, ALL, DAY));
-        assertEquals(2,yearMap.get_min(AVG, ALL, DAY));
+        assertEquals(2, yearMap.get_min(SUM, ALL, DAY));
+        assertEquals(2, yearMap.get_min(AVG, ALL, DAY));
         //max day avg
-        assertEquals(11,yearMap.get_max(SUM, ALL, DAY));
-        assertEquals(6,yearMap.get_max(AVG, ALL, DAY));
-
+        assertEquals(11, yearMap.get_max(SUM, ALL, DAY));
+        assertEquals(6, yearMap.get_max(AVG, ALL, DAY));
+    }
+    @Test
+    void test_days_ym2() {
 
         yearMap2.configure(ALL);
 
@@ -191,19 +196,18 @@ class YearMapTest {
     }
 
     @Test
-    void test_months() {
+    void test_months_ym1() {
         yearMap.configure(ALL);
         //min month avg
-        assertEquals(5,yearMap.get_min(SUM, ALL, MONTH));
-        assertEquals(7.0/3.0,yearMap.get_min(AVG, ALL, MONTH));
+        assertEquals(5, yearMap.get_min(SUM, ALL, MONTH));
+        assertEquals(7.0 / 3.0, yearMap.get_min(AVG, ALL, MONTH));
         //max month avg
-        assertEquals(20,yearMap.get_max(SUM, ALL, MONTH));
-        assertEquals(5.0,yearMap.get_max(AVG, ALL, MONTH));
-
+        assertEquals(20, yearMap.get_max(SUM, ALL, MONTH));
+        assertEquals(5.0, yearMap.get_max(AVG, ALL, MONTH));
+    }
+    @Test
+    void test_months_ym2() {
         yearMap2.configure(ALL);
-        TreePrinter tp = new TreePrinter();
-        yearMap2.accept(tp,null);
-
         //min month avg
         assertEquals(5,yearMap2.get_min(SUM, ALL, MONTH));
         assertEquals(1.25,yearMap2.get_min(AVG,ALL, MONTH));
@@ -217,19 +221,20 @@ class YearMapTest {
 
 
     @Test
-    void test_years() {
+    void test_years_ym1() {
         yearMap.configure(ALL);
         //min year avg
-        assertEquals(12,yearMap.get_min(SUM, ALL, YEAR));
-        assertEquals(3.0,yearMap.get_min(AVG, ALL, YEAR));
+        assertEquals(12, yearMap.get_min(SUM, ALL, YEAR));
+        assertEquals(3.0, yearMap.get_min(AVG, ALL, YEAR));
         //max year avg
-        assertEquals(20,yearMap.get_max(SUM, ALL, YEAR));
-        assertEquals(5.0,yearMap.get_max(AVG, ALL, YEAR));
+        assertEquals(20, yearMap.get_max(SUM, ALL, YEAR));
+        assertEquals(5.0, yearMap.get_max(AVG, ALL, YEAR));
 
+    }
 
+    @Test
+    void test_years_ym2() {
         yearMap2.configure(ALL);
-        TreePrinter tp = new TreePrinter();
-        yearMap2.accept(tp,null);
 
         //min year avg
         assertEquals(29,yearMap2.get_min(SUM, ALL, YEAR));
@@ -239,5 +244,170 @@ class YearMapTest {
         assertEquals(99./20.,yearMap2.get_max(AVG, ALL, YEAR));
 
     }
+
+    @Test
+    void test_hours_with_constrained_time_range_ym1() {//2 2 8 7
+        TimeRange tr = new TimeRange(~0l);
+        tr.unset_idx(HOUR, 15);
+        yearMap.configure(tr);
+
+        TreePrinter tp = new TreePrinter(tr);
+        yearMap.accept(tp,null);
+        //min hour avg
+        assertEquals(3,yearMap.get_min(SUM, tr, HOUR));
+        assertEquals(2.5,yearMap.get_min(AVG, tr, HOUR));
+
+        //max hour avg
+        assertEquals(8,yearMap.get_max(SUM, tr, HOUR));
+        assertEquals(7,yearMap.get_max(AVG, tr, HOUR));
+    }
+
+    @Test
+    void test_hours_with_constrained_time_range_ym2() {//2 2 8 7
+
+        TimeRange tr = new TimeRange(~0l);
+        tr.unset_idx(HOUR, 18);
+        tr.unset_range(HOUR, 12,16);
+        yearMap2.configure(tr);
+        TreePrinter tp = new TreePrinter(tr);
+        yearMap2.accept(tp,null);
+        //min hour avg
+        assertEquals(1,yearMap2.get_min(SUM, tr, HOUR));
+        assertEquals(1,yearMap2.get_min(AVG, tr, HOUR));
+
+        //max hour avg
+        assertEquals(17,yearMap2.get_max(SUM, tr, HOUR));
+        assertEquals(8.5,yearMap2.get_max(AVG, tr, HOUR));
+    }
+
+    @Test
+    void test_days_with_constrained_time_range_ym1() {
+        TimeRange tr = new TimeRange(~0l);
+        tr.unset_idx(DAY, 26);
+        tr.unset_idx(DAY, 27);
+        tr.unset_idx(DAY, 2);
+        tr.unset_idx(DAY, 7);
+        yearMap.configure(tr);
+
+        TreePrinter tp = new TreePrinter(tr);
+        yearMap.accept(tp,null);
+
+        assertEquals(3,yearMap.get_min(SUM, tr, DAY));
+        assertEquals(2.5,yearMap.get_min(AVG, tr, DAY));
+
+        assertEquals(6,yearMap.get_max(SUM, tr, DAY));
+        assertEquals(6,yearMap.get_max(AVG, tr, DAY));
+    }
+
+    @Test
+    void test_days_with_constrained_time_range_ym2() {
+        TimeRange tr = new TimeRange(~0l);
+        tr.unset_idx(DAY, 8);
+        tr.unset_idx(DAY, 2);
+        tr.unset_idx(DAY, 1);
+        //tr.unset_idx(DAY, 27);
+        //tr.unset_idx(DAY, 28);
+        //tr.unset_idx(DAY, 3);
+        yearMap2.configure(tr);
+
+        TreePrinter tp = new TreePrinter(tr);
+        yearMap2.accept(tp,null);
+
+        assertEquals(5,yearMap2.get_min(SUM, tr, DAY));
+        assertEquals(2.5,yearMap2.get_min(AVG, tr, DAY));
+
+        assertEquals(33,yearMap2.get_max(SUM, tr, DAY));
+        assertEquals(8.25,yearMap2.get_max(AVG, tr, DAY));
+    }
+
+
+    @Test
+    void test_months_with_constrained_time_range_ym1() {
+        TimeRange tr = new TimeRange(~0l);
+        tr.unset_idx(MONTH, 0);
+        tr.unset_idx(MONTH, 8);
+        yearMap.configure(tr);
+
+        TreePrinter tp = new TreePrinter(tr);
+        yearMap.accept(tp,null);
+
+        assertEquals(5,yearMap.get_min(SUM, tr, MONTH));
+        assertEquals(13./4.,yearMap.get_min(AVG, tr, MONTH));
+
+        assertEquals(13,yearMap.get_max(SUM, tr, MONTH));
+        assertEquals(5,yearMap.get_max(AVG, tr, MONTH));
+    }
+
+    @Test
+    void test_months_with_constrained_time_range_ym2() {
+        TimeRange tr = new TimeRange(~0l);
+        tr.unset_range(MONTH, 0, 2);
+        yearMap2.configure(tr);
+
+        TreePrinter tp = new TreePrinter(tr);
+        yearMap2.accept(tp,null);
+
+        assertEquals(5,yearMap2.get_min(SUM, tr, MONTH));
+        assertEquals(5./4.,yearMap2.get_min(AVG, tr, MONTH));
+
+        assertEquals(9,yearMap2.get_max(SUM, tr, MONTH));
+        assertEquals(4.5,yearMap2.get_max(AVG, tr, MONTH));
+    }
+
+
+    @Test
+    void test_years_with_constrained_time_range_ym1() {
+        TimeRange tr = new TimeRange(~0l);
+        yearMap.add_years(tr);
+        tr.unset_idx(YEAR, 2020);
+        yearMap.calc(tr);
+
+        TreePrinter tp = new TreePrinter(tr);
+        yearMap.accept(tp,null);
+
+        assertEquals(12,yearMap.get_min(SUM, tr, YEAR));
+        assertEquals(3.,yearMap.get_min(AVG, tr, YEAR));
+
+        assertEquals(13,yearMap.get_max(SUM, tr, YEAR));
+        assertEquals(13./4.,yearMap.get_max(AVG, tr, YEAR));
+    }
+
+
+    @Test
+    void test_years_with_constrained_time_range_ym2() {
+        TimeRange tr = new TimeRange(~0l);
+        yearMap2.add_years(tr);
+        tr.unset_idx(YEAR, 2010);
+        yearMap2.calc(tr);
+
+        TreePrinter tp = new TreePrinter(tr);
+        yearMap2.accept(tp,null);
+
+        assertEquals(29,yearMap2.get_min(SUM, tr, YEAR));
+        assertEquals(29./10.,yearMap2.get_min(AVG, tr, YEAR));
+
+        assertEquals(29.,yearMap2.get_max(SUM, tr, YEAR));
+        assertEquals(29./8.,yearMap2.get_max(AVG, tr, YEAR));
+    }
+
+
+    @Test
+    void test_hours_with_limits_ym1() {
+        Limits limits = new Limits();
+        limits.set_limit(HOUR, 2);
+        yearMap.set_limits(limits);
+        yearMap.configure(ALL);
+
+        TreePrinter tp = new TreePrinter(ALL, limits);
+        yearMap.accept(tp, null);
+        //min hour avg
+        assertEquals(5, yearMap.get_min(SUM, ALL, HOUR));
+        assertEquals(2.5, yearMap.get_min(AVG, ALL, HOUR));
+        //max hour avg
+        assertEquals(8, yearMap.get_max(SUM, ALL, HOUR));
+        assertEquals(4, yearMap.get_max(AVG, ALL, HOUR));
+
+    }
+
 
 }

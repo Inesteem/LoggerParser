@@ -39,7 +39,7 @@ public class Hour extends TimeUnitI<Double> {
   }
 
   public int get_num_subUnits(){
-    return num;
+   return num;
   }
   public void invalidate(Limits lim){}
   public void reset() {}
@@ -53,5 +53,4 @@ public class Hour extends TimeUnitI<Double> {
     //System.out.print(max);
     //System.out.print("    ");
   }
-
 }

@@ -12,7 +12,7 @@ public abstract class TimeUnitI<T>{
   protected double sum;
   protected int num;
   protected Limits limits;
-  int numSubUnits;
+  long numSubUnits;
 
   public TimeUnitI(Limits limits){
     num = -1;
@@ -21,9 +21,6 @@ public abstract class TimeUnitI<T>{
     numSubUnits = 0;
   }
 
-  public int get_num_subUnits(){ 
-      return java.lang.Integer.bitCount(numSubUnits);
-  }
 
   public void set_limits(Limits lim){
     limits = lim;
@@ -37,7 +34,7 @@ public abstract class TimeUnitI<T>{
 
   void set_extrema(double val, Method method){}
 
-  protected void calc(TimeRange tr){}
+  public void calc(TimeRange tr){}
 
   public double get_avg(TimeRange tr){
     if (Double.isNaN(sum) ) calc(tr);
@@ -75,6 +72,8 @@ public abstract class TimeUnitI<T>{
   public abstract double get_max(Method method, TimeRange tr, Metric metric);
   public abstract double get_min(Method method, TimeRange tr, Metric metric);
 
+  public abstract int get_num_subUnits();
+
   public String identifier(int idx) {return String.valueOf(idx);}
 
   public abstract void print(TimeRange tr);
@@ -85,6 +84,9 @@ public abstract class TimeUnitI<T>{
   public void write_to_file(Metric metric, Method method, FileOutputStream ostream, TimeRange tr) throws IOException {
     write_to_file("",metric,method,ostream,tr);
   }
-  public boolean is_valid(){return true;}
+  //public boolean is_valid(){return true;}
+  public boolean is_valid(Metric metric){
+    return limits.valid(metric, get_num_subUnits());
+  }
 
 }
