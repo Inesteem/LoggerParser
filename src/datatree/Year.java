@@ -13,7 +13,6 @@ public class Year extends TimeUnit<Month> {
 
    public void add_val(double val,  Calendar cal){
     int idx =  cal.get(Calendar.MONTH);
-    numSubUnits |= 1l << idx;
 
     if(subUnits.get(idx) == null){
       subUnits.set(idx,new Month(limits));

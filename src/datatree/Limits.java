@@ -14,7 +14,7 @@ public class Limits {
 
   public Limits(){
     limits = new int[Metric.SIZE.value()];
-    for(int i = 0; i < limits.length; ++i) limits[i] = 0; 
+    for(int i = 0; i < limits.length; ++i) limits[i] = 1;
   }
 
   /**

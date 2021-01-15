@@ -13,11 +13,6 @@ public class YearMap extends TimeUnit<Year> {
     metric = Metric.YEAR;
   }
 
-  public void configure(TimeRange tr){
-    add_years(tr);
-    calc(tr);
-  }
-
   public void add_val(double val,  Calendar cal){
     int idx = cal.get(Calendar.YEAR);
     Year year;

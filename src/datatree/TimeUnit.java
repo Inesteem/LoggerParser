@@ -4,10 +4,10 @@
  * After the tree is filled up with data, you need to specify limits (which asserts for example that
  * hours are only valid if they contain more than n measurements). This is done by set_limits and checked
  * by is_valid. Than a TimeRange needs to be applied. Since the TimeRange does not know which years are contained
- * inside the datatree (in contrast to the number of hours, days or months) they need to be added first before they
+ * inside the data tree (in contrast to the number of hours, days or months) they need to be added first before they
  * can be constrained. So the data tree function add_years is called upon the TimeRange object. After that, the used
  * years can be constrained for example by using set_idx. SET_IDX WILL NOT WORK BEFORE THE YEARS ARE ADDED! Brilliant.
- * Why didn't I just assume that no more than 64 years ending with the current year are valid? I mean nobody whants to add
+ * Why didn't I just assume that no more than 64 years ending with the current year are valid? I mean nobody wants to add
  * 1950 log data, not using this program anyways. Yes, I guess that holds true. But I wanted the program to be more general.
  * I traded usability for better generalization.
  * For hours, days and months this is no problem by the way, since there are always max 31 days and so on. I could just hard-
@@ -23,14 +23,14 @@
  *
  * So, a valid usage would be
  * YearMap ym = ...//fill the tree
- * TimeRange tr = new TimeRange(~1l); //allow all hours, days, months and years
+ * TimeRange tr = new TimeRange(~0l); //allow all hours, days, months and years
  * ym.add_years(tr);
  * tr.unset_idx(YEAR,2020); //unset 2020. Nobody likes 2020. Fuck you, Corona.
  * ym.calc(tr);
  * //use the tree by, e.g. getting the min (get_min(tr)), etc...
  *
  * tr.reset()
- * tr.unset_idx(YEAR,2021); //unset 2021 will suck probably too, so lets unset it
+ * tr.unset_idx(YEAR,2021); //unset 2021. It will probably suck, too.
  * ym.calc(tr);
  *
  * */
@@ -52,8 +52,7 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
   protected double minVal[][];
   protected double maxVal[][];
   public Metric metric;
-  public DecimalFormat df;	
-  
+  public DecimalFormat df;
 
   public TimeUnit(int num, Limits limits){
     super(limits);
@@ -100,6 +99,7 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
       if (u_num <= 0) continue;
       num += u_num;
       sum += unit.get_sum(tr);
+      // System.out.println(this.metric + "\t " + this.get_idx(i) + " " + unit.get_sum(tr) + " " + u_num + " " + unit.get_avg(tr));
       set_extrema(unit.get_sum(tr), Method.SUM);
       set_extrema(unit.get_avg(tr), Method.AVG);
 
@@ -146,7 +146,7 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
     if(minVal[methodI][metricI] > val)
       minVal[methodI][metricI] = val;
     if(maxVal[methodI][metricI] < val)
-      maxVal[methodI][metricI] = val; 
+      maxVal[methodI][metricI] = val;
   }
   // GETTER METHODS
 
@@ -170,7 +170,6 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
     }
     return minVal[methodI][metricI];
   }
-
 
   public double get_max(Method method, TimeRange tr, Metric metric){
 
@@ -202,7 +201,6 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
     return minVal[method.value()][metric.value()];
   }
 
-
   public double get_max(Method method){
     return maxVal[method.value()][metric.value()];
   }
@@ -224,7 +222,25 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
     }
   }
 
-  public int get_num_subUnits(){
-      return java.lang.Long.bitCount(numSubUnits);
+  /**
+   * Checks if TimeUnit is valid with regard to the limits object
+   * @param metric for Hour its HOUR, for Day its DAY, ...
+   * @return true if the TimeUnit contains enough valid subUnits to be valid
+   */
+  public boolean is_valid(Metric metric){
+
+    int num = 0;
+    for(T unit : subUnits) {
+      if (unit != null) {
+        if (unit.is_valid(this.metric)) ++num;
+      }
+    }
+    return limits.valid(metric, num);
   }
+
+  public int get_num(TimeRange tr){
+    if (Double.isNaN(sum)) calc(tr);
+    return num;
+  }
+
 }

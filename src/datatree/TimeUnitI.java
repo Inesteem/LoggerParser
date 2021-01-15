@@ -12,16 +12,12 @@ public abstract class TimeUnitI<T>{
   protected double sum;
   protected int num;
   protected Limits limits;
-  long numSubUnits;
 
   public TimeUnitI(Limits limits){
     num = -1;
     sum = Double.NaN;
     this.limits = limits;
-    numSubUnits = 0;
   }
-
-
   public void set_limits(Limits lim){
     limits = lim;
   } 
@@ -29,7 +25,6 @@ public abstract class TimeUnitI<T>{
   public void reset(){
     num = -1;
     sum = Double.NaN;
-    numSubUnits = 0;
   }
 
   void set_extrema(double val, Method method){}
@@ -41,7 +36,6 @@ public abstract class TimeUnitI<T>{
     if(num!=0){
       return sum/num;
     };
-
     return 0;
   }
 
@@ -50,15 +44,7 @@ public abstract class TimeUnitI<T>{
     return sum;
   }
 
-  public double get_sum_2(TimeRange tr){
-    if (Double.isNaN(sum)) return -1;
-    return sum;
-  }
-
-  public int get_num(TimeRange tr){
-    if (Double.isNaN(sum)) calc(tr);
-    return num;
-  }
+  public abstract int get_num(TimeRange tr);
 
   /**
    * Returns the valid index
@@ -72,21 +58,19 @@ public abstract class TimeUnitI<T>{
   public abstract double get_max(Method method, TimeRange tr, Metric metric);
   public abstract double get_min(Method method, TimeRange tr, Metric metric);
 
-  public abstract int get_num_subUnits();
-
   public String identifier(int idx) {return String.valueOf(idx);}
-
   public abstract void print(TimeRange tr);
-//  public void print() { print(TimeRange.ALL); }
-
   public abstract void add_val(double val, Calendar cal);
   public abstract void write_to_file(String prefix, Metric metric, Method method, FileOutputStream ostream, TimeRange tr) throws IOException;
   public void write_to_file(Metric metric, Method method, FileOutputStream ostream, TimeRange tr) throws IOException {
     write_to_file("",metric,method,ostream,tr);
   }
-  //public boolean is_valid(){return true;}
-  public boolean is_valid(Metric metric){
-    return limits.valid(metric, get_num_subUnits());
-  }
+
+  /**
+   * Checks if the object implementing TimeUnitI is valid with regard to the limits object
+   * @param metric for which to check for
+   * @return true if the object contains enough valid subUnits to be valid
+   */
+  public abstract boolean is_valid(Metric metric);
 
 }

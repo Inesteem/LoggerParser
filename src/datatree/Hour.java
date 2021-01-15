@@ -5,6 +5,8 @@ import java.util.Calendar;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import static src.types.Metric.HOUR;
+
 public class Hour extends TimeUnitI<Double> {
   double min;
   double max;
@@ -38,8 +40,17 @@ public class Hour extends TimeUnitI<Double> {
     return;
   }
 
-  public int get_num_subUnits(){
-   return num;
+  public int get_num(TimeRange tr) {
+    return num;
+  }
+
+  /**
+   * Checks if the Hour object is valid with regard to the limits object
+   * @param metric not used here since it clearly is HOUR
+   * @return true if the object contains enough valid subUnits to be valid
+   */
+  public boolean is_valid(Metric metric) {
+    return limits.valid(HOUR, num);
   }
   public void invalidate(Limits lim){}
   public void reset() {}
