@@ -1,26 +1,38 @@
 package src.datatree;
+import src.types.Method;
 import src.types.Metric;
+
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Locale;
+
 import static src.types.Metric.*;
 public class TreePrinter implements TreeVisitor<Void> {
-    TimeRange timeRange;
-    Limits limits;
+    Limits limits = null;
+    TimeRange timeRange = null;
+    Method method = null;
+    DecimalFormat df;
 
-    public  TreePrinter(TimeRange timeRange, Limits limits) {
-        this.timeRange = timeRange;
-        this.limits = limits;
+    public  TreePrinter() {
+        Locale locale = new Locale("en","UK");
+        df = (DecimalFormat) NumberFormat.getNumberInstance(locale);
+        df.applyPattern("##.##");
     }
-    public  TreePrinter(Limits limits) {
-        this.timeRange = TimeRange.ALL;
-        this.limits = limits;
+
+
+
+    @Override
+    public void set_limits(Limits l){ this.limits = l;}
+
+    @Override
+    public void set_timeRange(TimeRange tr){ this.timeRange = tr;}
+
+    @Override
+    public void set_method(Method m) {
+        this.method = m;
     }
-    public  TreePrinter(TimeRange tr){
-        this.timeRange = tr;
-        this.limits = new Limits();
-    }
-    public  TreePrinter(){
-        this.timeRange = TimeRange.ALL;
-        this.limits = new Limits();
-    }
+
+
     @Override
     public Void visit(YearMap ym, Metric metric) {
         System.out.println("");

@@ -16,11 +16,12 @@ public class JRangeField extends JValField<Long>{
   }
 
   public Long valueOf(String str) throws Exception{
-    int min = metric.getMinIncl();
-    //Normal people prefer max inclusive ranges
+    int min = metric.getUserMinIncl();
     int max = metric.getUserMaxIncl();
+    System.out.println(metric.toString() + " " + min + " " + max);
 
     if(str.length()== 0 || str.toUpperCase().equals("ALL")){
+      setText(default_val);
       timeRange.set_all(metric);
       return ~0l;
     }

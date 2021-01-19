@@ -46,13 +46,13 @@ public class ValuePanel extends JPanel{
     max_field.setValue(val_max);
     max_field.setToolTipText("max. allowed value for a single valid measurement point (incl.)");
 
-    int val_minD = pref.getInt(minD_pref, 0);
+    int val_minD = pref.getInt(minD_pref, 1);
     minD_field = new JIntField(len);
     minD_field.setName(title + "_minD");
     minD_field.setValue(val_minD);
     minD_field.setToolTipText("min. num of hours required for a valid day");
 
-    int val_minM = pref.getInt(minM_pref, 0);
+    int val_minM = pref.getInt(minM_pref, 1);
     minM_field = new JIntField(len);
     minM_field.setName(title + "_minM");
     minM_field.setValue(val_minM);

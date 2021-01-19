@@ -2,6 +2,7 @@
 //	java -cp "\.;lib\*;" LoggerParser
 //	jar -cmvf Manifest.txt LoggerParser.jar *.class .\lib\*
 //	jar -cmvf Manifest.txt LoggerParser.jar *.class .\parser\*.class .\lib\*
+package src;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.Toolkit;
@@ -9,6 +10,7 @@ import java.awt.Dimension;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import java.io.File;
+import java.util.Objects;
 import javax.swing.ToolTipManager;
 
 import src.parser.*;
@@ -40,13 +42,6 @@ public class LoggerParser {
     frame.add(content);
     frame.setBounds(20,20,600,100);
     frame.setLocation(dim.width/2-frame.getSize().width/2, dim.height/2-frame.getSize().height*2);
-//    frame.addComponentListener(new ComponentAdapter() {
-//        @Override
-//        public void componentResized(ComponentEvent e) {
-//        status.setText(frame.getWidth() + "x" + frame.getHeight());
-//        content.setText(frame.getWidth() + "x" + frame.getHeight());
-//        }
-//        });
   }
 
 
@@ -68,9 +63,9 @@ public class LoggerParser {
       } else if ( fileEntry.isDirectory() ){
         new_output_path = output_path + "\\" + fileEntry.getName();
         iom.createDir(new_output_path);
-        parse_logs(fileEntry.listFiles(), new_output_path);
+        parse_logs(Objects.requireNonNull(fileEntry.listFiles()), new_output_path);
       } else {
-        iom.asWarning("Skipping strange file: " + fileEntry.getAbsolutePath());
+        IOManager.asWarning("Skipping strange file: " + fileEntry.getAbsolutePath());
       }
 
     }
@@ -93,25 +88,25 @@ public class LoggerParser {
     try { 
       input_paths = iom.getFileList(PREF_INPUT_PATH_FILE, "Define input file(s)/dir(s).", IOManager.FileType.ALL);
       if(input_paths == null || input_paths.length == 0){
-        iom.asError("No valid input specified!");
+        IOManager.asError("No valid input specified!");
         System.exit(-1);
       } 
 
       output_path = iom.getFile(PREF_OUTPUT_PATH_FILE,"Select an output file/dir.", IOManager.FileType.ALL);
       if(output_path == null){
-        iom.asError("No valid output specified!");
+        IOManager.asError("No valid output specified!");
         System.exit(-1);
       }
 
 
     } catch (java.lang.NoClassDefFoundError e){
-      iom.asError("jar file missing: check if there is a 'lib' dir containing a file named 'org.apache.commons.io.FilenameUtils.jar'");
+      IOManager.asError("jar file missing: check if there is a 'lib' dir containing a file named 'org.apache.commons.io.FilenameUtils.jar'");
       System.exit(-1);
     }
     //DEBUG
     System.out.println("INPUTs:");
-    for(int i = 0; i < input_paths.length; ++i){
-      System.out.println(input_paths[i].getAbsolutePath());	
+    for (File input_path : input_paths) {
+      System.out.println(input_path.getAbsolutePath());
     }
     System.out.println("\nOUTPUT: " + output_path.getAbsolutePath());
 
@@ -123,7 +118,7 @@ public class LoggerParser {
 //    i_f.configure("test");
 //    System.exit(0);
     //
-    RainPlot.delete_pyscript();
+//    RainPlot.delete_pyscript();
 //    RainPlot.copy_pyscript();
 //    if(true) return;
     // Show tool tips immediately
@@ -138,7 +133,7 @@ public class LoggerParser {
     
     Parser.plot();
 
-    iom.asMessage("Finished!");
+    IOManager.asMessage("Finished!");
     iom.getOutputFile(output_path);
 
     

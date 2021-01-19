@@ -26,7 +26,7 @@ import java.util.prefs.Preferences;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public abstract class LogFormat{
+public abstract class LogFormat {
 
   private Parser.ParserType type;
   protected boolean for_all = false;

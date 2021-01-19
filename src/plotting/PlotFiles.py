@@ -1,14 +1,7 @@
 ﻿import matplotlib.pyplot as plt
 import numpy as np
-from copy import copy
-import sys,os
 import argparse
-
-import matplotlib.ticker as mtick
-from matplotlib.lines import Line2D
-from matplotlib.pyplot import hist
-from matplotlib.scale import LogScale
-
+import math
 
 figuresize = (
     (10.0, 2.6),
@@ -16,33 +9,34 @@ figuresize = (
     (5.0, 3.0),
 )
 
-
 labelMap = {
-  'WIND'  : 'Wind (in TODO)',
-  'FOG'   : 'Fog (in TODO)',
-  'RAIN'  : 'Rain (in mms)',
-  'TEMP'  : 'Temperature (in DegC)',
-  'HUM'   : 'Humidity (in %)',
-  'MONTH' : 'Months',
-  'HOUR'  : 'Hours',
-  'DAY'   : 'Days',
-  'YEAR'  : 'Years',
-  'VOLT'  : 'Voltage',
-  'NOK'   : 'No Data'
+    'WIND_DIR'  : 'Wind Direction (in degree)',
+    'WIND_VEL'  : 'Wind Velocity (in m/s)',
+    'FOG'   : 'Fog (in TODO)',
+    'RAIN'  : 'Rain (in mms)',
+    'TEMP'  : 'Temperature (in DegC)',
+    'HUM'   : 'Humidity (in %)',
+    'MONTH' : 'Months',
+    'HOUR'  : 'Hours',
+    'DAY'   : 'Days',
+    'YEAR'  : 'Years',
+    'VOLT'  : 'Voltage (in mV)',
+    'NOK'   : 'No Data'
 }
 
 colorMap = {
-  'WIND' : '#76d1e3',
-  'FOG'  : '#9da7b0',
-  'RAIN' : '#042f66',
-  'TEMP' : '#980598',
-  'HUM'  : '#77c7df',
-  'VOLT' : '#993366',
-  'NOK'  : '#e71109'
+    'WIND_DIR' : '#76d1e3',
+    'WIND_VEL' : '#76d1e3',
+    'FOG'  : '#9da7b0',
+    'RAIN' : '#042f66',
+    'TEMP' : '#980598',
+    'HUM'  : '#77c7df',
+    'VOLT' : '#993366',
+    'NOK'  : '#e71109'
 }
 
 xTicsMap= {
-  'MONTH' : ['UNKNOWN','Jan','Feb','Mae','Apr','Mai','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+    'MONTH' : ['UNKNOWN','Jan','Feb','Mae','Apr','Mai','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 }
 
 
@@ -144,15 +138,23 @@ def  plot_graph(xs, ys, labels, plot_type , title, ylab, xlab,xtics,colormap):
     plt.xticks(np.arange(len(xtics)), xtics, rotation=45)
   
   plt.title(title)
+  xtics_labels = []
   for i,(xl,yl,label,ls) in enumerate(zip(xs,ys,labels,['solid','none'])):
     for x,y in zip(xl,yl):
-      if plot_type=='bars':
+      xtics_labels += x
+      if plot_type == 'bars':
         p = plt.bar(x, y, align='center', label=label, color=colormap[i], zorder=i)
       else:
         p = plt.plot(x, y, marker='o', linestyle=ls,linewidth=2, markersize=2.5, color=colormap[i], label=label)
       plots.append(p)
 
-#  plt.legend(loc='upper left',fontsize=13)
+  xint = [x for x in range(min(xtics_labels), math.ceil(max(xtics_labels))+1)]
+  if args.xTics == 'YEAR':
+      plt.xticks(xint,xint, rotation=45)
+  if args.xTics == 'YEAR':
+      plt.xticks(xint, xint)
+
+
   plt.tight_layout()
   plt.show()
 
@@ -167,7 +169,21 @@ if __name__ == "__main__":
  args = parser.parse_args()
  with open(args.file) as f:
       lines = [line.rstrip() for line in f]
-  
+
+ #if args.xTics == 'YEAR':
+     #for line in lines:
+         #spl=line.split()
+         #if spl[1] == '-':
+             #line = '#'
+         #else:
+             #break
+
+     #for i in range(len(lines)-1, -1, -1):
+        #spl=lines[i].split()
+        #if spl[1] == '-':
+            #lines[i] = '#'
+        #else:
+            #break
  x_ok = []
  x_nok = []
  y_ok = []
@@ -177,20 +193,22 @@ if __name__ == "__main__":
  nok = 1
  for line in lines:
     spl=line.split()
+    if(spl[0] == '#'):
+        continue
     if(spl[1] == '-'):
       if last != nok:
           x_nok.append([])
           y_nok.append([])
           last = nok
       y_nok[-1].append(0.0)
-      x_nok[-1].append(float(spl[0]))
+      x_nok[-1].append(int(spl[0]))
     else:
       if last != ok:
             x_ok.append([])
             y_ok.append([])
             last = ok
       y_ok[-1].append(float(spl[1]))
-      x_ok[-1].append(float(spl[0]))
+      x_ok[-1].append(int(spl[0]))
 
  xtics = None 
  if args.xTics in xTicsMap:

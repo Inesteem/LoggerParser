@@ -59,5 +59,4 @@ public enum Metric {
     return maxValsUser[value] + 1;
   }
 
-
 }

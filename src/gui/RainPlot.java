@@ -64,11 +64,11 @@ public class RainPlot{
    * @param metric data is either plotted averaged over HOURs, DAYs or MONTHs
    * @param title the title of the plotted data graph
    * @param plotData the plotted data type (RAIN, WIND, ...)
-   * @param timeRange the timeRange set by the user via the GUI restricting certain time ranges
+   * @param tr the timeRange set by the user via the GUI restricting certain time ranges
    */
   public static void plot_stats(YearMap dataMap, Method method, Metric metric, String title, Data plotData, TimeRange tr){
 
-    String fileName = System.getProperty("java.io.tmpdir") + "\\plot_"+String.valueOf(plotData);
+    String fileName = System.getProperty("java.io.tmpdir") + "\\plot_"+ plotData;
     int min = metric.getUserMinIncl();
     int max = metric.getUserMaxExcl();
     if (metric == Metric.YEAR) {
@@ -76,7 +76,7 @@ public class RainPlot{
       max = tr.getMaxYear()+1;
     }
       //do not change the submitted TimeRange
-    tr.print(metric);
+    //tr.print(metric);
     TimeRange timeRange = new TimeRange(tr);
     try {
       FileOutputStream plotFile = new FileOutputStream(fileName);
@@ -93,7 +93,7 @@ public class RainPlot{
         timeRange.print(metric);
         timeRange.and_val(metric,userSetTimeRange);
         timeRange.print(metric);
-        System.out.println(idx + " " + (idx-min));
+        System.out.println(idx + " " + (idx-min) + " " + dataMap.get_sum(timeRange));
 
         dataMap.reset();
         if (dataMap.get_num(timeRange) == 0){

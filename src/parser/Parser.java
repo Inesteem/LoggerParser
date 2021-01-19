@@ -27,19 +27,19 @@ public class Parser {
   static YearMap dataMaps[][];
 
   public enum ParserType {
-    NONE, IMPULS, MOMENT_VALS, REL_HUM, REL_HUM_VOLT, WITH_FOG, OTHER
+    NONE, IMPULS, MOMENT_VALS, REL_HUM, REL_HUM_VOLT, WITH_FOG, REL_HUM_WIND, OTHER
   }
 
   public Parser(){
     p_type = ParserType.NONE;
-		RainPerDate = new HashMap<Date,String>();
+    RainPerDate = new HashMap<Date,String>();
     if (dataMaps == null)
       dataMaps = new YearMap[Method.SIZE.value()][Data.SIZE.value()];
   }
 
   public void setLogFormat(LogFormat lf){
     l_format = lf;
-    p_type = lf.get_parser_type();
+    //p_type = lf.get_parser_type();
   }
   
   public static YearMap getDataMap(Method m, Data pd, Limits limits) {
@@ -108,6 +108,10 @@ public class Parser {
         } else if(TempRelHumVoltageFormat.matches(splitted)){
           setLogFormat((LogFormat) new TempRelHumVoltageFormat()  );
           type = ParserType.REL_HUM_VOLT;
+          break;
+        } else if(TempRelHumWindFormat.matches(splitted)){
+          setLogFormat((LogFormat) new TempRelHumWindFormat());
+          type = ParserType.REL_HUM_WIND;
           break;
         }
       }

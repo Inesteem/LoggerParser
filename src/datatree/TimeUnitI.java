@@ -1,11 +1,10 @@
 package src.datatree;
 import src.types.*;
+import static src.types.Method.*;
 
 import java.util.Calendar;
 import java.util.Vector;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 public abstract class TimeUnitI<T>{
   protected Vector<T> subUnits;
@@ -31,20 +30,46 @@ public abstract class TimeUnitI<T>{
 
   public void calc(TimeRange tr){}
 
-  public double get_avg(TimeRange tr){
-    if (Double.isNaN(sum) ) calc(tr);
+  /**
+   * Get the overall avg of all measurements contained in this subtree
+   * @param timeRange the TimeRange object defining valid TimeUnits
+   * @return the average of all measurements (NOT the average over all subUnits)
+   */
+  public double get_avg(TimeRange timeRange){
+    if (Double.isNaN(sum) ) calc(timeRange);
     if(num!=0){
       return sum/num;
     };
     return 0;
   }
 
-  public double get_sum(TimeRange tr){
-    if (Double.isNaN(sum)) calc(tr);
+  /**
+   * Get sum of all measurements contained in this subtree
+   * @param timeRange the TimeRange object defining valid TimeUnits
+   * @return the sum of measurements
+   */
+  public double get_sum(TimeRange timeRange){
+    if (Double.isNaN(sum)) calc(timeRange);
     return sum;
   }
 
-  public abstract int get_num(TimeRange tr);
+  /**
+   * Get the combined value with respect to a given method of all measurements contained in this subtree
+   * @param timeRange the TimeRange object defining valid TimeUnits
+   * @param method the method by which to combine the measurements
+   * @return the combined measurements
+   */
+  public double get_val(TimeRange timeRange, Method method){
+    if (method == SUM) return get_sum(timeRange);
+    return get_avg(timeRange);
+  }
+
+  /**
+   * Get number of measurements contained in this subtree
+   * @param timeRange the TimeRange object defining valid TimeUnits
+   * @return number of measurements contained by the unit and/or the subUnits
+   */
+  public abstract int get_num(TimeRange timeRange);
 
   /**
    * Returns the valid index
@@ -55,16 +80,20 @@ public abstract class TimeUnitI<T>{
   public int get_idx(int i){
     return i;
   }
+
+  /**
+   * Get number of valid subUnits contained in this subtree
+   * @param timeRange the TimeRange object defining valid TimeUnits
+   * @return number of valid subUnits
+   */
+  public int get_num_valid_subUnits(TimeRange timeRange) { return num;}
+
   public abstract double get_max(Method method, TimeRange tr, Metric metric);
   public abstract double get_min(Method method, TimeRange tr, Metric metric);
 
   public String identifier(int idx) {return String.valueOf(idx);}
   public abstract void print(TimeRange tr);
   public abstract void add_val(double val, Calendar cal);
-  public abstract void write_to_file(String prefix, Metric metric, Method method, FileOutputStream ostream, TimeRange tr) throws IOException;
-  public void write_to_file(Metric metric, Method method, FileOutputStream ostream, TimeRange tr) throws IOException {
-    write_to_file("",metric,method,ostream,tr);
-  }
 
   /**
    * Checks if the object implementing TimeUnitI is valid with regard to the limits object

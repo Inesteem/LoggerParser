@@ -11,6 +11,7 @@ import src.types.*;
 
 public class Limits {
   private int limits[];
+  public static final Limits NO = new Limits();
 
   public Limits(){
     limits = new int[Metric.SIZE.value()];

@@ -1,12 +1,8 @@
 package src.gui;
-import src.datatree.YearMap;
-import src.datatree.TimeRange;
-import src.datatree.Limits;
-import src.datatree.Month;
-import src.gui.IOManager;
+import src.datatree.*;
 import src.parser.Parser;
 import src.types.*;
-
+import static src.types.Metric.*;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -84,7 +80,12 @@ public class Column {
   }
 
   public void write_to_file(FileOutputStream ostream) throws IOException{
-
+    TreeWriter tw = new TreeWriter(ostream,method);
+    TimeRange timeRange = new TimeRange(~0l);
+    dataMap.add_years(timeRange);
+    dataMap.accept(tw,DAY, timeRange);
+    return;
+    /*
     limits.print();
 //    ostream.write("\n".getBytes());
 //    dataMap.write_to_file(Metric.YEAR,method,ostream);
@@ -97,37 +98,35 @@ public class Column {
     ostream.write("\n".getBytes());
 
     ostream.write("\nOVERALL MONTHLY VALS: \n".getBytes());
-    TimeRange tr = new TimeRange(0xFFFFFFFF);
-    dataMap.add_years(tr);
-    tr.unset_range(Metric.MONTH,0,13);
+    timeRange.unset_range(Metric.MONTH,0,13);
     double val_avg = 0;
     double num = 0;
     for(int i = 0; i < 12; ++i){
-      tr.set_idx(Metric.MONTH,i);
+      timeRange.set_idx(Metric.MONTH,i);
       dataMap.reset(); 
       ostream.write((Month.toString(i) + ": ").getBytes());
-      if (dataMap.get_num(tr) == 0){
+      if (dataMap.get_num(timeRange) == 0){
         ostream.write(( "- \n").getBytes());
         continue;
       }
       ++num;
-      ostream.write(("\n num: " +String.valueOf(dataMap.get_num(tr)) + " ").getBytes());
+      ostream.write(("\n num: " +String.valueOf(dataMap.get_num(timeRange)) + " ").getBytes());
       ostream.write((" min: " +dataMap.df.format(dataMap.get_min(method)) + " ").getBytes());
       ostream.write((" max: " +dataMap.df.format(dataMap.get_max(method)) + " ").getBytes());
 
       double val;
-      if(method == Method.SUM) val = dataMap.get_sum(tr);
-      else val = dataMap.get_avg(tr);
+      if(method == Method.SUM) val = dataMap.get_sum(timeRange);
+      else val = dataMap.get_avg(timeRange);
       val_avg+=val;
 
       ostream.write((" val: " +dataMap.df.format(val) + "\n").getBytes());
-      tr.unset_idx(Metric.MONTH,i);
+      timeRange.unset_idx(Metric.MONTH,i);
     }
     if(method == Method.AVG && num != 0) val_avg /= num;
 
     ostream.write(("\n overall average: "+dataMap.df.format(val_avg)+" \n").getBytes());
 
-    
+  */
 
   }
 
