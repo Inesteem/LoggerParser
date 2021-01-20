@@ -165,7 +165,7 @@ public class TimeRange {
    * @return true if idx is valid and mapped
    */
   public boolean set_idx(Metric m, int idx){
-    System.out.println(m.toString() + ": " + idx);
+    //System.out.println(m.toString() + ": " + idx);
     if(!m.inRange(idx)) return false;
     if(m == Metric.YEAR){
       idx = get_year_idx(idx);

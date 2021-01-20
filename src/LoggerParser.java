@@ -3,22 +3,17 @@
 //	jar -cmvf Manifest.txt LoggerParser.jar *.class .\lib\*
 //	jar -cmvf Manifest.txt LoggerParser.jar *.class .\parser\*.class .\lib\*
 package src;
-import java.awt.BorderLayout;
-import java.awt.Font;
-import java.awt.Toolkit;
-import java.awt.Dimension;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
+import java.awt.*;
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.Objects;
-import javax.swing.ToolTipManager;
 
 import src.parser.*;
 import src.gui.*;
 
 public class LoggerParser {
-
-  static IOManager iom = IOManager.getInstance();
 
   static File[] input_paths= null;
   static File output_path= null;
@@ -26,24 +21,122 @@ public class LoggerParser {
   public static final String PREF_INPUT_PATH_FILE = "LP_PREF_INPUT_PATH";
   public static final String PREF_OUTPUT_PATH_FILE = "LP_PREF_OUTPUT_PATH";
 
-  static JFrame frame = new JFrame("Parse Log-Files");
-  static JLabel content = new JLabel("stuff");
-
   static Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-  static void set_frame(){ 
 
-    Font f = content.getFont();
-    content.setFont(f.deriveFont(f.getStyle() | Font.BOLD));
-    content.setHorizontalAlignment(JLabel.CENTER);
+private static class MainMenu extends JFrame {
 
+  JButton plotButton = new JButton("Plot Data");
+  JButton inputButton = new JButton("Input Path");
+  JButton outputButton = new JButton("Output File");
+  JButton parseButton = new JButton("Parse Input");
+  JButton limitButton = new JButton("Limit Data");
+  JButton saveButton= new JButton("Save Data");
 
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setLayout(new BorderLayout());
-    frame.add(content);
-    frame.setBounds(20,20,600,100);
-    frame.setLocation(dim.width/2-frame.getSize().width/2, dim.height/2-frame.getSize().height*2);
+  MainMenu() {
+    setSize(300, 200);
+    setTitle("Logger Parser");
+    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    setLocation(dim.width/2-getSize().width/2, dim.height/2-getSize().height*2);
+    setLayout(new GridLayout(6,1));
+
+    add(inputButton);
+    add(outputButton);
+    add(parseButton);
+    add(plotButton);
+    add(limitButton);
+    add(saveButton);
+
+    parseButton.setEnabled(false);
+    plotButton.setEnabled(false);
+    limitButton.setEnabled(false);
+    saveButton.setEnabled(false);
+
+    ImageIcon appIcon = IOManager.loadLGIcon();
+    if(appIcon != null) {
+      setIconImage(appIcon.getImage());
+    }
+
+    final MainMenu main_frame = this;
+
+    //button event press
+    inputButton.addActionListener(new ActionListener() {
+
+      public void actionPerformed(ActionEvent e){
+        try {
+          input_paths = IOManager.getFileList(main_frame, PREF_INPUT_PATH_FILE, "Define input file(s)/dir(s).", IOManager.FileType.ALL);
+          if(input_paths == null || input_paths.length == 0){
+            IOManager.asError("No valid input specified!");
+            System.exit(-1);
+          }
+          if (output_path != null ) parseButton.setEnabled(true);
+
+          inputButton.setBackground(Color.GREEN);
+
+        } catch (java.lang.NoClassDefFoundError e2){
+          IOManager.asError("jar file missing: check if there is a 'lib' dir containing a file named 'org.apache.commons.io.FilenameUtils.jar'");
+          System.exit(-1);
+        }
+      }
+    });
+
+    //button event press
+    outputButton.addActionListener(new ActionListener() {
+
+      public void actionPerformed(ActionEvent e){
+        try {
+
+          output_path = IOManager.getFile(main_frame, PREF_OUTPUT_PATH_FILE,"Select an output file/dir.", IOManager.FileType.ALL);
+          if(output_path == null){
+            IOManager.asError("No valid output specified!");
+            System.exit(-1);
+          }
+          if (input_paths != null ) parseButton.setEnabled(true);
+
+          outputButton.setBackground(Color.GREEN);
+
+        } catch (java.lang.NoClassDefFoundError e2){
+          IOManager.asError("jar file missing: check if there is a 'lib' dir containing a file named 'org.apache.commons.io.FilenameUtils.jar'");
+          System.exit(-1);
+        }
+      }
+    });
+
+    parseButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e){
+        parse_logs(input_paths, output_path.getAbsolutePath());
+        plotButton.setEnabled(true);
+        saveButton.setEnabled(true);
+        limitButton.setEnabled(true);
+      }
+    });
+
+    plotButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e){
+        Parser.plot();
+      }
+    });
+
+    plotButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e){
+        IOManager.asWarning("not implemented");
+      }
+    });
+
+    limitButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e){
+        IOManager.asWarning("not implemented");
+      }
+    });
+    setVisible(true);
+
+    synchronized (this) {
+      try {
+        this.wait();
+      } catch (InterruptedException ex) {
+      }
+    }
   }
-
+}
 
   static void parse_logs(File[] input_paths, String output_path){
     Parser parser = new Parser();
@@ -52,17 +145,13 @@ public class LoggerParser {
 
     for (final File fileEntry : input_paths) {
   
-
-      content.setText("<html><b><center>Parsing File:<center/><b/><br/>"+fileEntry.getName()+"</html>");
-
-      //frame.pack();
-      if (fileEntry.isFile()){		
+      if (fileEntry.isFile()){
         System.out.println("parsing file " + fileEntry.getName());
-        parser.parse(fileEntry, content,frame);
+        parser.parse(fileEntry);
         ++cnt;
       } else if ( fileEntry.isDirectory() ){
         new_output_path = output_path + "\\" + fileEntry.getName();
-        iom.createDir(new_output_path);
+        IOManager.createDir(new_output_path);
         parse_logs(Objects.requireNonNull(fileEntry.listFiles()), new_output_path);
       } else {
         IOManager.asWarning("Skipping strange file: " + fileEntry.getAbsolutePath());
@@ -73,42 +162,13 @@ public class LoggerParser {
       if(new File(output_path).isDirectory()){
         new_output_path = output_path + "\\" + "log.txt";
       }
-      iom.createFile(new_output_path);
+      IOManager.createFile(new_output_path);
 
       System.out.println("parsed " + cnt + " files for " + new_output_path);
       //parser.print_log_info();
       parser.write_log_info(new_output_path);
     }
 
-
-  }
-
-
-  static void set_io_files(){
-    try { 
-      input_paths = iom.getFileList(PREF_INPUT_PATH_FILE, "Define input file(s)/dir(s).", IOManager.FileType.ALL);
-      if(input_paths == null || input_paths.length == 0){
-        IOManager.asError("No valid input specified!");
-        System.exit(-1);
-      } 
-
-      output_path = iom.getFile(PREF_OUTPUT_PATH_FILE,"Select an output file/dir.", IOManager.FileType.ALL);
-      if(output_path == null){
-        IOManager.asError("No valid output specified!");
-        System.exit(-1);
-      }
-
-
-    } catch (java.lang.NoClassDefFoundError e){
-      IOManager.asError("jar file missing: check if there is a 'lib' dir containing a file named 'org.apache.commons.io.FilenameUtils.jar'");
-      System.exit(-1);
-    }
-    //DEBUG
-    System.out.println("INPUTs:");
-    for (File input_path : input_paths) {
-      System.out.println(input_path.getAbsolutePath());
-    }
-    System.out.println("\nOUTPUT: " + output_path.getAbsolutePath());
 
   }
 
@@ -124,20 +184,10 @@ public class LoggerParser {
     // Show tool tips immediately
     ToolTipManager.sharedInstance().setInitialDelay(1000);
     ToolTipManager.sharedInstance().setDismissDelay(60000);
-    set_frame();
-    set_io_files();	
+    new MainMenu();
 
-    frame.setVisible(true);
-    parse_logs(input_paths, output_path.getAbsolutePath());
-    frame.setVisible(false);
-    
-    Parser.plot();
-
+    //TODO: das noch einbauen; wird übersprungen im Moment
     IOManager.asMessage("Finished!");
-    iom.getOutputFile(output_path);
-
-    
-    System.exit(0);
-
+    IOManager.getOutputFile(output_path);
   }
 }

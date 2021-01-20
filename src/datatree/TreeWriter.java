@@ -39,11 +39,47 @@ public class TreeWriter implements TreeVisitor<Void> {
         df.applyPattern("##.##");
     }
 
+    public void monthly_overview(YearMap yearMap) {
+        long valid_month_range = timeRange.get_val(MONTH);
+        try {
+            ostream.write("\nOVERALL MONTHLY VALS (num of meas, min, max, val: \n".getBytes());
+            timeRange.unset_range(MONTH,0,12);
+            for(int i = 0; i < 12; ++i){
+                yearMap.reset();
+                timeRange.set_idx(Metric.MONTH,i);
+                yearMap.reset();
+                ostream.write((Month.toString(i) + ": ").getBytes());
+                if (yearMap.get_num(timeRange) == 0){
+                    ostream.write(( "- \n").getBytes());
+                    continue;
+                }
+                ostream.write(("\t " +String.valueOf(yearMap.get_num(timeRange)) + " ").getBytes());
+                ostream.write(("\t " + df.format(yearMap.get_min(method, timeRange, MONTH)) + " ").getBytes());
+                ostream.write(("\t " + df.format(yearMap.get_max(method, timeRange, MONTH)) + " ").getBytes());
+
+                double val;
+                if(method == Method.SUM) val = yearMap.get_sum(timeRange);
+                else val = yearMap.get_avg(timeRange);
+
+                ostream.write(("\t " + df.format(val) + "\n").getBytes());
+                timeRange.unset_idx(Metric.MONTH,i);
+                yearMap.reset();
+            }
+            ostream.write(("\n").getBytes());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            IOManager.asError("yearmap write failed");
+        }
+        timeRange.set_val(MONTH, valid_month_range);
+        yearMap.reset();
+
+    }
     @Override
     public Void visit(YearMap ym, Metric metric){
-
+        int valid_subunits =  Math.max(1,ym.get_num_valid_subUnits(timeRange));
         try {
-            ostream.write(("avg years: " + df.format(ym.get_val(timeRange, method)/ym.get_num_valid_subUnits(timeRange)) + " - ").getBytes());
+            ostream.write(("avg years: " + df.format(ym.get_val(timeRange, method)/valid_subunits) + " - ").getBytes());
             ostream.write(("min year: " + df.format(ym.get_min(method, timeRange, YEAR)) + " - ").getBytes());
             ostream.write(("max year: " + df.format(ym.get_max(method, timeRange, YEAR)) + ":\n\n").getBytes());
             for(int i = 0; i < ym.subUnits.size(); ++i){
@@ -74,7 +110,7 @@ public class TreeWriter implements TreeVisitor<Void> {
                 if (!timeRange.in_range(MONTH,y.get_idx(i))) continue;
                 Month month = y.subUnits.get(i);
                 if (month != null  && month.is_valid(MONTH)) {
-                    ostream.write((" Month " + Month.toString(i) + ": ").getBytes());
+                    ostream.write(("   Month " + Month.toString(i) + ": ").getBytes());
                     visit(month, metric);
                 }
             }
@@ -99,7 +135,7 @@ public class TreeWriter implements TreeVisitor<Void> {
                 Day day = m.subUnits.get(i);
 
                 if (day != null  && day.is_valid(DAY)) {
-                    ostream.write(("  Day " + (i+1) + ": ").getBytes());
+                    ostream.write(("      Day " + (i+1) + ": ").getBytes());
                     visit(day, metric);
                 }
             }
@@ -123,7 +159,7 @@ public class TreeWriter implements TreeVisitor<Void> {
                 if (!timeRange.in_range(HOUR,d.get_idx(i))) continue;
                 Hour hour = d.subUnits.get(i);
                 if (hour != null && hour.is_valid(HOUR)) {
-                    ostream.write(("   Hour " + i + ": ").getBytes());
+                    ostream.write(("         Hour " + i + ": ").getBytes());
                     visit(hour, metric);
                 }
             }

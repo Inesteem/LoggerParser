@@ -83,6 +83,8 @@ public class Column {
     TreeWriter tw = new TreeWriter(ostream,method);
     TimeRange timeRange = new TimeRange(~0l);
     dataMap.add_years(timeRange);
+    tw.set_timeRange(timeRange);
+    tw.monthly_overview(dataMap);
     dataMap.accept(tw,DAY, timeRange);
     return;
     /*

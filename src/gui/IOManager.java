@@ -102,69 +102,10 @@ public class IOManager {
     FILE, DIR, ALL
   }
 
-  public double getImpulsMM(String pref_str) throws java.lang.NoClassDefFoundError {
-    Object[] impuls_mms = {"0.2","0.5","1.0"};
-    Preferences pref = Preferences.userRoot();
-    String pref_mm = pref.get(pref_str, "");
 
-    JFrame frame = new JFrame("Choose milli-meter per impuls:");
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    String s = (String)JOptionPane.showInputDialog(
-        frame,
-        "Choose milli-meter per impuls:",
-        "mm",
-        JOptionPane.PLAIN_MESSAGE,
-        null,
-        impuls_mms, pref_mm);
+  public static File[] getFileFromUser(JFrame frame, String default_path, String message, FileType f_type, boolean multiple_files) throws java.lang.NoClassDefFoundError {
 
 
-    frame.pack();
-    frame.setVisible(true);		
-    if ((s != null) && (s.length() > 0)) {
-
-      pref.put(pref_str, s);
-      return Double.parseDouble(s);
-    }
-    asError("wrong mm return value");
-    return 0;
-
-
-  }
-
-  public String getAfricanTimezone(String pref_str) throws java.lang.NoClassDefFoundError {
-
-    Object[] timezones = {"Africa/Abidjan", "Africa/Accra", "Africa/Addis_Ababa", "Africa/Algiers", "Africa/Asmara", "Africa/Asmera", "Africa/Bamako", "Africa/Bangui", "Africa/Banjul", "Africa/Bissau", "Africa/Blantyre", "Africa/Brazzaville", "Africa/Bujumbura", "Africa/Cairo", "Africa/Casablanca", "Africa/Ceuta", "Africa/Conakry", "Africa/Dakar", "Africa/Dar_es_Salaam", "Africa/Djibouti", "Africa/Douala", "Africa/El_Aaiun", "Africa/Freetown", "Africa/Gaborone", "Africa/Harare", "Africa/Johannesburg", "Africa/Juba", "Africa/Kampala", "Africa/Khartoum", "Africa/Kigali", "Africa/Kinshasa", "Africa/Lagos", "Africa/Libreville", "Africa/Lome", "Africa/Luanda", "Africa/Lubumbashi", "Africa/Lusaka", "Africa/Malabo", "Africa/Maputo", "Africa/Maseru", "Africa/Mbabane", "Africa/Mogadishu", "Africa/Monrovia", "Africa/Nairobi", "Africa/Ndjamena", "Africa/Niamey", "Africa/Nouakchott", "Africa/Ouagadougou", "Africa/Porto-Novo", "Africa/Sao_Tome", "Africa/Timbuktu", "Africa/Tripoli", "Africa/Tunis", "Africa/Windhoek","UTC", "UTC+1", "UTC+2", "UTC+3", "GMT", "GMT+1", "GMT+2", "GMT+3"};
-    //	Object[] timezones = {"UTC", "UTC+1", "UTC+2", "UTC+3", "GMT", "GMT+1", "GMT+2", "GMT+3"};
-    Preferences pref = Preferences.userRoot();
-    // Retrieve the selected path or use
-    // an empty string if no path has
-    // previously been selected
-    String pref_zone = pref.get(pref_str, "Africa/Nairobi");
-
-    JFrame frame = new JFrame("Choose a timezone");
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    String s = (String)JOptionPane.showInputDialog(
-        frame,
-        "Choose a timezone",
-        "Choose a timezone",
-        JOptionPane.PLAIN_MESSAGE,
-        null,
-        timezones, pref_zone);
-
-
-    frame.pack();
-    frame.setVisible(true);		
-    if ((s != null) && (s.length() > 0)) {
-
-      pref.put(pref_str, s);
-      return s;
-    }
-    asError("wrong timezone return value");
-    return "";
-  }
-
-
-  public File[] getFileFromUser(String default_path, String message, FileType f_type, boolean multiple_files) throws java.lang.NoClassDefFoundError {
     //set preferred start path
     Preferences pref = Preferences.userRoot();
     String pref_paths= pref.get(default_path, "");
@@ -173,8 +114,8 @@ public class IOManager {
     for (int i = 0; i < sfs_str.length; ++i){
       sfs[i] = new File(sfs_str[i]);
     }
-
     JFileChooser jfc = new JFileChooser();
+
 
     //restrict selection
     if (f_type == FileType.DIR) {
@@ -192,6 +133,7 @@ public class IOManager {
 
 
     if(sfs.length>0){
+      System.out.println(sfs[0]);
       //      if (sf.isDirectory()) {
       //        jfc.setCurrentDirectory(sf);
       //      } else {
@@ -201,7 +143,8 @@ public class IOManager {
     }
 
 
-    int returnValue = jfc.showOpenDialog(null);
+
+    int returnValue = jfc.showOpenDialog(frame);
     if(returnValue != JFileChooser.APPROVE_OPTION) { return null ;} //CANCEL_OPTION
 
     File[] selectedFiles = null;
@@ -231,18 +174,18 @@ public class IOManager {
     return selectedFiles;
   }
 
-  public File[] getFileList(String default_path, String message, FileType f_type) throws java.lang.NoClassDefFoundError {
-    return getFileFromUser(default_path,message,f_type,true);
+  public static File[] getFileList(JFrame frame, String default_path, String message, FileType f_type) throws java.lang.NoClassDefFoundError {
+    return getFileFromUser(frame, default_path,message,f_type,true);
   }
 
-  public File getFile(String default_path, String message, FileType f_type) throws java.lang.NoClassDefFoundError {
-    File[] file =  getFileFromUser(default_path,message,f_type,false);
+  public static File getFile(JFrame frame, String default_path, String message, FileType f_type) throws java.lang.NoClassDefFoundError {
+    File[] file =  getFileFromUser(frame, default_path,message,f_type,false);
     if (file == null || file.length == 0) return null;
     return file[0];
 
   }
 
-  public void createDir(String filepath){		
+  public static void createDir(String filepath){
     try {
       Path pathToFile = Paths.get(filepath);
       Files.createDirectories(pathToFile);	
@@ -252,7 +195,7 @@ public class IOManager {
     }
   }
 
-  public void createFile(File filepath){		
+  public static void createFile(File filepath){
     try {
       filepath.createNewFile(); // if file already exists will do nothing 
     } catch (IOException e) {
@@ -260,31 +203,11 @@ public class IOManager {
       System.exit(-1);
     }
   }
-  public void createFile(String filepath){		
+  public static void createFile(String filepath){
     createFile(new File(filepath));
   }
-  public boolean writeData(List<String> lines, String outputFile, boolean app){
-    if(outputFile == null){
-      return false;
-    }
-    Path file = Paths.get(outputFile);
 
-    try {
-      if(app || append){  
-        Files.write(file, lines, Charset.forName("UTF-8"), StandardOpenOption.APPEND);
-      } else { 
-        Files.write(file, lines, Charset.forName("UTF-8"));
-      }
-    } catch (IOException e) {
-      JOptionPane.showMessageDialog(null, "Could not write to file: " + e.getMessage() + "...exiting!", "IO Error", JOptionPane.ERROR_MESSAGE);
-      System.exit(-1);
-    }
-    return true;
-  }
-
-
-
-  public File getOutputFile(File file){	
+  public static File getOutputFile(File file){
     try {
       if(file.exists()){ 
         if (System.getProperty("os.name").toLowerCase().contains("windows")) {
@@ -368,7 +291,7 @@ public class IOManager {
     return askTwoOptions(header, op1, op2, dialogstr,"DEFAULT_OPTION_TWO");
   }
 
-  public int askNOptions(String header, String[] options, String dialogstr){
+  public static int askNOptions(String header, String[] options, String dialogstr){
 
     int confirmed = JOptionPane.showOptionDialog(null, dialogstr, 
         header, 
@@ -404,6 +327,13 @@ public class IOManager {
     return true;
 
   }
+
+  /**
+   * Creates a temporary copy of a file in the tmp dir.
+   * @param src file path
+   * @param calendar a calendar object
+   * @return true on success
+   */
   public boolean create_temp_copy(String src, Calendar calendar){
     String tmp_dir = System.getProperty("java.io.tmpdir");
     String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(calendar.getTime());
@@ -416,6 +346,14 @@ public class IOManager {
     }
     return success;
   }
+
+    public static ImageIcon loadLGIcon() {
+    String str = new File(IOManager.class.getProtectionDomain()
+            .getCodeSource().getLocation().getPath()).getAbsolutePath() + "\\src\\img\\icon.png";
+    ImageIcon imgIcon = new ImageIcon(str);
+    return imgIcon;
+  }
+
+
+
 }
-
-

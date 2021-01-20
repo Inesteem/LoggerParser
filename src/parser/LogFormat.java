@@ -28,7 +28,7 @@ import java.io.IOException;
 
 public abstract class LogFormat {
 
-  private Parser.ParserType type;
+  private final Parser.ParserType type;
   protected boolean for_all = false;
   protected ArrayList<ValuePanel> val_panels;
   protected ArrayList<Column> columns;
@@ -36,7 +36,7 @@ public abstract class LogFormat {
   private final String pref_all_str;
   public static final String PREF_TIMEZONE = "LP_PREF_TIMEZONE";
 
-  private Object lock = new Object();
+  private final Object lock = new Object();
   protected String frame_title = "Configure Parser";
   protected Calendar calendar;
   public SimpleDateFormat date_format;
@@ -73,6 +73,10 @@ public abstract class LogFormat {
 
 
     frame = new JFrame(frame_title);
+
+    ImageIcon appIcon = IOManager.loadLGIcon();
+    if(appIcon != null)
+      frame.setIconImage(appIcon.getImage());
     OKButton = new JButton("Only this File");
     OKAllButton = new JButton("All Files");
   }
@@ -84,10 +88,6 @@ public abstract class LogFormat {
 
   public Parser.ParserType get_parser_type() { return type;}
   public static boolean matches(String[] line){return false;}
-
-
-  //	public Pair<Integer, double[]> get_month_avg(Month m);
-
 
   public abstract String get_value_header();
 

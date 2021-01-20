@@ -4,6 +4,7 @@ import src.types.*;
 import src.gui.*;
 
 
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.File;
@@ -11,12 +12,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
-import javax.swing.JLabel;
-import javax.swing.JFrame;
+import javax.swing.*;
 
 
-public class Parser {
+public class Parser extends JFrame {
 
+  static JLabel content = new JLabel("stuff");
+  static Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 
   String[] options = {"keep key", "override old key", "always keep", "always override","abort operation"};
   ParserType p_type;
@@ -31,10 +33,28 @@ public class Parser {
   }
 
   public Parser(){
+    setTitle("Parse Log-Files");
+    setVisible(true);
     p_type = ParserType.NONE;
     RainPerDate = new HashMap<Date,String>();
     if (dataMaps == null)
       dataMaps = new YearMap[Method.SIZE.value()][Data.SIZE.value()];
+
+    Font f = content.getFont();
+    content.setFont(f.deriveFont(f.getStyle() | Font.BOLD));
+    content.setHorizontalAlignment(JLabel.CENTER);
+
+    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    setLayout(new BorderLayout());
+    add(content);
+    setBounds(20,20,600,100);
+    setLocation(dim.width/2-getSize().width/2, dim.height/2-getSize().height*2);
+
+    ImageIcon appIcon = IOManager.loadLGIcon();
+    if(appIcon != null) {
+      setIconImage(appIcon.getImage());
+    }
+
   }
 
   public void setLogFormat(LogFormat lf){
@@ -80,10 +100,9 @@ public class Parser {
     }
   }
 
-  public boolean parse(File file, JLabel label, JFrame frame){
-
-    IOManager iom = IOManager.getInstance();
-
+  public boolean parse(File file){
+    setVisible(true);
+    content.setText("<html><b><center>Parsing File:<center/><b/><br/>"+file.getName()+"</html>");
     String line="";
 
     try {
@@ -116,7 +135,7 @@ public class Parser {
         }
       }
       if ( type == ParserType.NONE) {
-        iom.asError("logger format unsupported : " + file.getAbsolutePath());
+        IOManager.asError("logger format unsupported : " + file.getAbsolutePath());
       }
       //file append support; check if file types match
       //TODO: support merging of different formats?
@@ -124,7 +143,7 @@ public class Parser {
         p_type = type;
       } else if(p_type != type) {
         System.out.println("File types do not match! Aborting.");
-        iom.asWarning("File types do not match! Aborting.");
+        IOManager.asWarning("File types do not match! Aborting.");
         return false;
       }
 
@@ -157,7 +176,7 @@ public class Parser {
 
           String key_str = l_format.date_format.format(date);
 
-          int opt = iom.askNOptions("entry already exists", options,
+          int opt = IOManager.askNOptions("entry already exists", options,
               "date:\n "+key_str+"\nold:\n "+old_val+"\nnew:\n "+line);
           //int opt = iom.askTwoOptions("test1", "keep new key", "override old key", 
           //"the entry with date >" +key +"< already exists; exit dialog to abort");
@@ -178,7 +197,7 @@ public class Parser {
         } 
       
   //      System.out.println("date: " + date + " " + key_str);
-        label.setText("<html><b><center>Parsing Line:<center/><b/><br/>"+line+"</html>");
+        content.setText("<html><b><center>Parsing Line:<center/><b/><br/>"+line+"</html>");
         l_format.set_values(splitted);
         RainPerDate.put(date,line);
       }
@@ -187,9 +206,11 @@ public class Parser {
       //}
       fileReader.close();
     } catch (IOException e) {
+      setVisible(false);
       e.printStackTrace();
       return false;
-    } 
+    }
+    setVisible(false);
     return true;
   }
 
