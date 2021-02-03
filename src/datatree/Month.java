@@ -19,7 +19,7 @@ public class Month extends TimeUnit<Day> {
   }
 
   public static String toString(int id) {
-    return new DateFormatSymbols().getMonths()[id];
+    return new DateFormatSymbols().getShortMonths()[id];
   };
 
   public String identifier(int id) {

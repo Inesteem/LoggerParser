@@ -6,7 +6,6 @@ import static src.types.Metric.*;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-
 import java.lang.Number;
 import java.lang.NumberFormatException;
 
@@ -20,7 +19,7 @@ import java.util.Locale;
 
 public class Column {
 
-  YearMap dataMap;
+  YearMap dataTree;
   public double l_thresh,u_thresh;
   int pos;
   public double mul;
@@ -45,9 +44,20 @@ public class Column {
     if (average) method = Method.AVG;
     else method = Method.SUM;
 
-    dataMap = Parser.getDataMap(method,pd,limits);
+    dataTree = Parser.getDataMap(method,pd,limits);
   }
-  
+  public Data get_data() {
+    return data;
+  }
+
+  public Method get_method() {
+    return method;
+  }
+
+  public YearMap get_data_tree() {
+    return dataTree;
+
+  }
   public void set_limits(int minD, int minM){
     limits.set_limit(Metric.HOUR, minD);
     limits.set_limit(Metric.DAY, minM);
@@ -74,18 +84,18 @@ public class Column {
     if(l_thresh > val || val > u_thresh) return false;
 
     calendar.setTime(date);  
-    dataMap.add_val(val, calendar);
+    dataTree.add_val(val, calendar);
 
     return true;
   }
 
-  public void write_to_file(FileOutputStream ostream) throws IOException{
+  public void write_to_file(FileOutputStream ostream) throws IOException {
     TreeWriter tw = new TreeWriter(ostream,method);
     TimeRange timeRange = new TimeRange(~0l);
-    dataMap.add_years(timeRange);
+    dataTree.add_years(timeRange);
     tw.set_timeRange(timeRange);
-    tw.monthly_overview(dataMap);
-    dataMap.accept(tw,DAY, timeRange);
+    tw.monthly_overview(dataTree);
+    dataTree.accept(tw,DAY, timeRange);
     return;
     /*
     limits.print();

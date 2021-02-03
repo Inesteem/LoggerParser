@@ -61,8 +61,6 @@ public class PlotWindow{
 
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-    //configure components
-
     //configure panels
     JPanel panelHeader= new JPanel();
     JLabel title_l = new JLabel(String.valueOf(pd)+" - Define valid ranges:");
@@ -205,13 +203,13 @@ public class PlotWindow{
 
         if(!finished){
             if(select_range.getSelectedItem().equals("YEARS"))
-                RainPlot.plot_stats(dataMap, method, YEAR, "Yearly-Avg", pd, tr);
+                PlotHelper.plot_stats(dataMap, method, YEAR, "Yearly-Avg", pd, tr);
             else if(select_range.getSelectedItem().equals("MONTHS"))
-                RainPlot.plot_stats(dataMap, method, MONTH, "Monthly-Avg", pd, tr);
+                PlotHelper.plot_stats(dataMap, method, MONTH, "Monthly-Avg", pd, tr);
             else if(!finished && select_range.getSelectedItem().equals("DAYS"))
-                RainPlot.plot_stats(dataMap, method, DAY, "Daily-Avg", pd, tr);
+                PlotHelper.plot_stats(dataMap, method, DAY, "Daily-Avg", pd, tr);
             else if(!finished && select_range.getSelectedItem().equals("HOURS"))
-                RainPlot.plot_stats(dataMap, method, HOUR, "Hourly-Avg", pd, tr);
+                PlotHelper.plot_stats(dataMap, method, HOUR, "Hourly-Avg", pd, tr);
         }
 
     }

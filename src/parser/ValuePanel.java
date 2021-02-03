@@ -5,11 +5,7 @@ import java.util.prefs.Preferences;
 import javax.swing.*;
 import java.awt.*;
 
-
-
 public class ValuePanel extends JPanel{
-
-
   JIntField minD_field;
   JIntField minM_field;
   JDoubleField min_field;
@@ -59,11 +55,11 @@ public class ValuePanel extends JPanel{
     minM_field.setToolTipText("min. num of (valid) days required for a valid month");
 
 
-    boolean use= pref.getBoolean(use_pref, true);
+    boolean use = pref.getBoolean(use_pref, true);
     use_col_box = new JCheckBox("use", use);
     use_col_box.setToolTipText("log values belonging to this column");
 
-//    boolean meas= pref.getBoolean(meas_pref, true);
+//    boolean meas = pref.getBoolean(meas_pref, true);
 //    use_meas_box = new JCheckBox("meas", meas);
 //    use_meas_box.setToolTipText("log number of measurements for this column");
 
@@ -80,9 +76,6 @@ public class ValuePanel extends JPanel{
     valid_panel.add(minM_field);
     valid_panel.add(Box.createRigidArea(new Dimension(20,0)));
 
-
-
-
     JPanel val_panel = new JPanel();
     val_panel.setLayout(new BoxLayout(val_panel, BoxLayout.X_AXIS));
 
@@ -95,7 +88,6 @@ public class ValuePanel extends JPanel{
     val_panel.add(Box.createRigidArea(new Dimension(10,0)));
     val_panel.add(max_field);
     val_panel.add(Box.createRigidArea(new Dimension(20,0)));
-
 
     //val_panel.add(use_meas_box);
     val_panel.add(Box.createRigidArea(new Dimension(20,0)));

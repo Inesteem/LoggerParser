@@ -145,6 +145,10 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
     }
   }
 
+  public Limits get_limits(){
+    return limits;
+  }
+
   public void set_limits(Limits lim){
     limits = lim;
     for(T unit : subUnits) {

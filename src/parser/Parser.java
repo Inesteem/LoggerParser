@@ -21,12 +21,12 @@ public class Parser extends JFrame {
   static Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 
   String[] options = {"keep key", "override old key", "always keep", "always override","abort operation"};
-  ParserType p_type;
-  LogFormat l_format;	
+  static ParserType p_type = ParserType.NONE;
+  static LogFormat l_format;
   
   //recognize duplicated entries
 	HashMap<Date,String> RainPerDate;
-  static YearMap dataMaps[][];
+  static YearMap dataMaps[][] = new YearMap[Method.SIZE.value()][Data.SIZE.value()];
 
   public enum ParserType {
     NONE, IMPULS, MOMENT_VALS, REL_HUM, REL_HUM_VOLT, WITH_FOG, REL_HUM_WIND, OTHER
@@ -35,10 +35,7 @@ public class Parser extends JFrame {
   public Parser(){
     setTitle("Parse Log-Files");
     setVisible(true);
-    p_type = ParserType.NONE;
     RainPerDate = new HashMap<Date,String>();
-    if (dataMaps == null)
-      dataMaps = new YearMap[Method.SIZE.value()][Data.SIZE.value()];
 
     Font f = content.getFont();
     content.setFont(f.deriveFont(f.getStyle() | Font.BOLD));
@@ -48,9 +45,9 @@ public class Parser extends JFrame {
     setLayout(new BorderLayout());
     add(content);
     setBounds(20,20,600,100);
-    setLocation(dim.width/2-getSize().width/2, dim.height/2-getSize().height*2);
+    setLocation(dim.width/2-getSize().width/2, dim.height/2-getSize().height/2);
 
-    ImageIcon appIcon = IOManager.loadLGIcon();
+    ImageIcon appIcon = IOManager.loadLGIcon("icon");
     if(appIcon != null) {
       setIconImage(appIcon.getImage());
     }
@@ -61,7 +58,10 @@ public class Parser extends JFrame {
     l_format = lf;
     //p_type = lf.get_parser_type();
   }
-  
+
+  public static void doVisualize(){
+    l_format.doVisualize();
+  }
   public static YearMap getDataMap(Method m, Data pd, Limits limits) {
     
     if(dataMaps[m.value()][pd.value()]== null){
@@ -134,7 +134,7 @@ public class Parser extends JFrame {
           break;
         }
       }
-      if ( type == ParserType.NONE) {
+      if ( type == ParserType.NONE ) {
         IOManager.asError("logger format unsupported : " + file.getAbsolutePath());
       }
       //file append support; check if file types match
@@ -156,7 +156,7 @@ public class Parser extends JFrame {
       while ((line = bufferedReader.readLine()) != null) {
 
         String splitted[] = line.split("\\s+");
-//        System.out.println("trying to parse: " + splitted[0] + " " + splitted[1] + " with val " + line);
+        //System.out.println("trying to parse: " + splitted[0] + " " + splitted[1] + " with val " + line);
 
         Date date = l_format.get_date(splitted);
 

@@ -74,7 +74,7 @@ public abstract class LogFormat {
 
     frame = new JFrame(frame_title);
 
-    ImageIcon appIcon = IOManager.loadLGIcon();
+    ImageIcon appIcon = IOManager.loadLGIcon("icon");
     if(appIcon != null)
       frame.setIconImage(appIcon.getImage());
     OKButton = new JButton("Only this File");
@@ -168,16 +168,16 @@ public abstract class LogFormat {
 
     frame.addWindowListener(new WindowAdapter() {
 
-        @Override
-        public void windowClosing(WindowEvent arg0) {
+      @Override
+      public void windowClosing(WindowEvent arg0) {
         synchronized (lock) {
-        frame.setVisible(false);
-        IOManager.getInstance().asError("Configuration aborted");
-        lock.notify();
+          frame.setVisible(false);
+          IOManager.asError("Configuration aborted");
+          lock.notify();
         }
-        }
+      }
 
-        });
+    });
     frame.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,0),"clickButton");
 
     frame.getRootPane().getActionMap().put("clickButton",new AbstractAction(){
@@ -192,26 +192,26 @@ public abstract class LogFormat {
     //button event press
     OKButton.addActionListener(new ActionListener() {
 
-        public void actionPerformed(ActionEvent e){
+      public void actionPerformed(ActionEvent e){
         synchronized (lock) {
-        frame.setVisible(false);
-        for_all = false;
-        lock.notify();
+          frame.setVisible(false);
+          for_all = false;
+          lock.notify();
         }
-        }
-        });
+      }
+    });
 
 
     OKAllButton.addActionListener(new ActionListener() {
 
-        public void actionPerformed(ActionEvent e){
+      public void actionPerformed(ActionEvent e){
         synchronized (lock) {
-        frame.setVisible(false);
-        for_all = true;
-        lock.notify();
+          frame.setVisible(false);
+          for_all = true;
+          lock.notify();
         }
-        }
-        });
+      }
+    });
 
     //set default button  
     if(pref_all) {
@@ -221,7 +221,6 @@ public abstract class LogFormat {
       frame.getRootPane().setDefaultButton(OKButton);
       OKButton.requestFocus();
     }
-
 
     //run window
     boolean finished = false;
@@ -283,7 +282,7 @@ public abstract class LogFormat {
     try{
       date = date_format.parse(data[0] + " " + data[1]);
     } catch (ParseException e) {
-      IOManager.getInstance().asError("error while parsing " + Arrays.toString(data)); 
+      IOManager.asError("error while parsing " + Arrays.toString(data));
     }
     return date;
   }
@@ -310,6 +309,26 @@ public abstract class LogFormat {
       ostream.write(("\nData: "+col.key+" \n").getBytes());
       col.write_to_file(ostream);
     }
+  }
+
+  public void doVisualize() {
+    new DataTreeVisualization(columns);
+   // //Schedule a job for the event dispatch thread:
+   // //creating and showing this application's GUI.
+   // SwingUtilities.invokeLater(new Runnable() {
+   //   public void run() {
+   //     //Turn off metal's use of bold fonts
+   //     UIManager.put("swing.boldMetal", Boolean.FALSE);
+   //     new DataTreeVisualization(columns);
+   //   }
+   // });
+   // final Object lock = new Object();
+   // synchronized (lock) {
+   //   try {
+   //     lock.wait();
+   //   } catch (InterruptedException ex) {
+   //   }
+   // }
   }
 
 }

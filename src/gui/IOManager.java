@@ -347,11 +347,17 @@ public class IOManager {
     return success;
   }
 
-    public static ImageIcon loadLGIcon() {
+    public static ImageIcon loadLGIcon(String iconName) {
     String str = new File(IOManager.class.getProtectionDomain()
-            .getCodeSource().getLocation().getPath()).getAbsolutePath() + "\\src\\img\\icon.png";
+            .getCodeSource().getLocation().getPath()).getAbsolutePath() + "\\src\\img\\"+iconName+".png";
     ImageIcon imgIcon = new ImageIcon(str);
     return imgIcon;
+  }
+  //TODO: refactor; put in another file
+  public static ImageIcon scale(ImageIcon imageIcon, int width, int height){
+    Image image = imageIcon.getImage(); // transform it
+    Image newImg = image.getScaledInstance(width,height,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
+    return new ImageIcon(newImg);  // transform it back
   }
 
 
