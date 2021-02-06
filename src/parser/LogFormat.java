@@ -29,8 +29,8 @@ import java.io.IOException;
 public abstract class LogFormat {
 
   private final Parser.ParserType type;
-  protected boolean for_all = false;
-  protected ArrayList<ValuePanel> val_panels;
+  protected boolean forAll = false;
+  protected ArrayList<ValuePanel> valuePanels;
   protected ArrayList<Column> columns;
 
   private final String pref_all_str;
@@ -54,9 +54,8 @@ public abstract class LogFormat {
   public LogFormat(Parser.ParserType t, String pas){ 
     pref_all_str = pas;
     type = t;
-    val_panels= new ArrayList<ValuePanel>();
+    valuePanels = new ArrayList<ValuePanel>();
     columns= new ArrayList<Column>();
-
 
     calendar = GregorianCalendar.getInstance();
     date_format = new SimpleDateFormat("dd.MM.yy HH:mm:ss");
@@ -74,7 +73,7 @@ public abstract class LogFormat {
 
     frame = new JFrame(frame_title);
 
-    ImageIcon appIcon = IOManager.loadLGIcon("icon");
+    ImageIcon appIcon = IOManager.loadLGIcon("icon.png");
     if(appIcon != null)
       frame.setIconImage(appIcon.getImage());
     OKButton = new JButton("Only this File");
@@ -96,7 +95,7 @@ public abstract class LogFormat {
 
 
   public void configure(String file_name, JPanel options){
-    if (for_all) return;
+    if (forAll) return;
     Preferences pref = Preferences.userRoot();
     boolean pref_all = pref.getBoolean(pref_all_str, false);
 
@@ -114,7 +113,7 @@ public abstract class LogFormat {
 
     JPanel panelThresh= new JPanel();
     panelThresh.setLayout(new BoxLayout(panelThresh, BoxLayout.Y_AXIS));
-    for(ValuePanel p : val_panels){
+    for(ValuePanel p : valuePanels){
       panelThresh.add(Box.createRigidArea(new Dimension(0,10))); // a spacer
       panelThresh.add(p);
     }
@@ -195,7 +194,7 @@ public abstract class LogFormat {
       public void actionPerformed(ActionEvent e){
         synchronized (lock) {
           frame.setVisible(false);
-          for_all = false;
+          forAll = false;
           lock.notify();
         }
       }
@@ -207,7 +206,7 @@ public abstract class LogFormat {
       public void actionPerformed(ActionEvent e){
         synchronized (lock) {
           frame.setVisible(false);
-          for_all = true;
+          forAll = true;
           lock.notify();
         }
       }
@@ -248,7 +247,7 @@ public abstract class LogFormat {
       }
 
       String timezone = get_selected_timezone();
-      pref.putBoolean(pref_all_str,for_all);
+      pref.putBoolean(pref_all_str, forAll);
       pref.put(PREF_TIMEZONE,timezone);
 
 
@@ -256,13 +255,13 @@ public abstract class LogFormat {
       calendar.setTimeZone(pdt);
       date_format.setTimeZone(TimeZone.getTimeZone(timezone));
 
-      for(int i = 0; i < val_panels.size(); ++i){
-        ValuePanel panel = val_panels.get(i);
+      for(int i = 0; i < valuePanels.size(); ++i){
+        ValuePanel panel = valuePanels.get(i);
         Column col = columns.get(i);
 
         if (!panel.valid()) {
           IOManager.asWarning("Wrong values entered. Please retry or exit.");
-          for_all=false;
+          forAll =false;
           finished=false;
           break;
         }
@@ -306,13 +305,15 @@ public abstract class LogFormat {
   void write_to_file(FileOutputStream ostream) throws IOException{
 
     for(Column col : columns) {
-      ostream.write(("\nData: "+col.key+" \n").getBytes());
       col.write_to_file(ostream);
     }
   }
 
-  public void doVisualize() {
-    new DataTreeVisualization(columns);
+  public void updateVisualization(DataTreeVisualization dtr) {
+    dtr.update(columns);
+  }
+  public DataTreeVisualization doVisualize() throws InterruptedException {
+    return new DataTreeVisualization(columns);
    // //Schedule a job for the event dispatch thread:
    // //creating and showing this application's GUI.
    // SwingUtilities.invokeLater(new Runnable() {

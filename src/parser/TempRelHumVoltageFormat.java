@@ -14,10 +14,10 @@ extends LogFormat {
 
     public TempRelHumVoltageFormat(){
         super(Parser.ParserType.REL_HUM_VOLT, PREF_ALL);
-        val_panels.add(new ValuePanel("Temperature", PREF_STR+"_TEMP", 11, 0, 100, true));
-        val_panels.add(new ValuePanel("Relative Humidity", PREF_STR+"_RH", 11, 0, 100, true));
-        val_panels.add(new ValuePanel("Voltage 1", PREF_STR+"_V1", 10, 0, 100, true));
-        val_panels.add(new ValuePanel("Voltage 2", PREF_STR+"_V2", 10, 0, 100, true));
+        valuePanels.add(new ValuePanel("Temperature", PREF_STR+"_TEMP", 11, 0, 100, true));
+        valuePanels.add(new ValuePanel("Relative Humidity", PREF_STR+"_RH", 11, 0, 100, true));
+        valuePanels.add(new ValuePanel("Voltage 1", PREF_STR+"_V1", 10, 0, 100, true));
+        valuePanels.add(new ValuePanel("Voltage 2", PREF_STR+"_V2", 10, 0, 100, true));
 
         columns.add(new Column(TEMP_KEY, 1, 100 , 2, true, calendar, Data.TEMP));
         columns.add(new Column(RHUM_KEY, 1, 100 , 3, true, calendar, Data.HUM));

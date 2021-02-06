@@ -1,36 +1,32 @@
 package src.gui;
 
-import java.awt.Desktop;
-
-import javax.swing.JOptionPane;
-import javax.swing.Action;
-import javax.swing.KeyStroke;
-import javax.swing.JFileChooser;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
-import java.nio.charset.Charset;
-
-import java.io.IOException;
-import java.io.File;
-
-import java.util.List;
-import java.util.prefs.Preferences;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.FileUtils;
-
 import java.awt.*;
+import java.awt.Desktop;
 import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.text.*;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.io.File;
+import java.io.IOException;
+
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import java.text.SimpleDateFormat;
+
+import java.util.Calendar;
+import java.util.prefs.Preferences;
+
+import javax.swing.*;
+import javax.swing.Action;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
+import javax.swing.text.*;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 
 public class IOManager {
 
@@ -103,8 +99,8 @@ public class IOManager {
   }
 
 
-  public static File[] getFileFromUser(JFrame frame, String default_path, String message, FileType f_type, boolean multiple_files) throws java.lang.NoClassDefFoundError {
-
+  public static File[] getFileFromUser(JFrame frame, String default_path, String message, FileType f_type, boolean multiple_files, int dialogType)
+          throws java.lang.NoClassDefFoundError {
 
     //set preferred start path
     Preferences pref = Preferences.userRoot();
@@ -114,8 +110,10 @@ public class IOManager {
     for (int i = 0; i < sfs_str.length; ++i){
       sfs[i] = new File(sfs_str[i]);
     }
-    JFileChooser jfc = new JFileChooser();
 
+    JFileChooser jfc = new JFileChooser();
+    jfc.setDialogType(dialogType);
+    jfc.setDialogTitle(message);
 
     //restrict selection
     if (f_type == FileType.DIR) {
@@ -128,23 +126,18 @@ public class IOManager {
     if (multiple_files){
       jfc.setMultiSelectionEnabled(true);
     }	
-    jfc.setDialogTitle(message);
-
-
 
     if(sfs.length>0){
-      System.out.println(sfs[0]);
-      //      if (sf.isDirectory()) {
-      //        jfc.setCurrentDirectory(sf);
-      //      } else {
       jfc.setSelectedFile(sfs[0]);
       jfc.setSelectedFiles(sfs);
-      //      }
     }
 
-
-
-    int returnValue = jfc.showOpenDialog(frame);
+    int returnValue;
+    if (dialogType == JFileChooser.OPEN_DIALOG) {
+      returnValue = jfc.showOpenDialog(frame);
+    } else {
+      returnValue = jfc.showSaveDialog(frame);
+    }
     if(returnValue != JFileChooser.APPROVE_OPTION) { return null ;} //CANCEL_OPTION
 
     File[] selectedFiles = null;
@@ -161,25 +154,21 @@ public class IOManager {
     }
 
     if (selectedFiles != null && selectedFiles.length > 0){
-     // if(selectedFiles.length == 1) {
-    //    pref.put(default_path, selectedFiles[0].getAbsolutePath());
-        //pref.put(default_path, FilenameUtils.getFullPath(selectedFiles[0].getAbsolutePath()));
-        //  } else {
       String str =String.join(";:,.",sfs_str);
-      
       pref.put(default_path, str);
-      //  }
     }
 
     return selectedFiles;
   }
 
-  public static File[] getFileList(JFrame frame, String default_path, String message, FileType f_type) throws java.lang.NoClassDefFoundError {
-    return getFileFromUser(frame, default_path,message,f_type,true);
+  public static File[] getFileList(JFrame frame, String default_path, String message, FileType f_type, int dialogType)
+          throws java.lang.NoClassDefFoundError {
+    return getFileFromUser(frame, default_path,message,f_type,true, dialogType);
   }
 
-  public static File getFile(JFrame frame, String default_path, String message, FileType f_type) throws java.lang.NoClassDefFoundError {
-    File[] file =  getFileFromUser(frame, default_path,message,f_type,false);
+  public static File getFile(JFrame frame, String default_path, String message, FileType f_type, int dialogType)
+          throws java.lang.NoClassDefFoundError {
+    File[] file =  getFileFromUser(frame, default_path,message,f_type,false, dialogType);
     if (file == null || file.length == 0) return null;
     return file[0];
 
@@ -207,7 +196,7 @@ public class IOManager {
     createFile(new File(filepath));
   }
 
-  public static File getOutputFile(File file){
+  public static File openOutputFile(File file){
     try {
       if(file.exists()){ 
         if (System.getProperty("os.name").toLowerCase().contains("windows")) {
@@ -302,19 +291,6 @@ public class IOManager {
     return confirmed;
   }	
 
-  //public void copyFile(String file, String copy) 
-  //	throws IOException {
-
-  //Path copied = Paths.get("src/test/resources/copiedWithNio.txt");
-  //Path originalPath = original.toPath();
-  //Files.copy(originalPath, copied, StandardCopyOption.REPLACE_EXISTING);
-
-  //assertThat(copied).exists();
-  //assertThat(Files.readAllLines(originalPath)
-  //  .equals(Files.readAllLines(copied)));
-  //}
-
-
   public boolean copy_file(String src, String dst){
     File f = new File(src);
     if (!f.exists()){ return false; }
@@ -349,7 +325,7 @@ public class IOManager {
 
     public static ImageIcon loadLGIcon(String iconName) {
     String str = new File(IOManager.class.getProtectionDomain()
-            .getCodeSource().getLocation().getPath()).getAbsolutePath() + "\\src\\img\\"+iconName+".png";
+            .getCodeSource().getLocation().getPath()).getAbsolutePath() + "\\src\\img\\"+iconName;
     ImageIcon imgIcon = new ImageIcon(str);
     return imgIcon;
   }

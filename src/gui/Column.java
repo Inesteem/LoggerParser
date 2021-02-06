@@ -29,6 +29,7 @@ public class Column {
   Method method;
   Limits limits;
   Data data;
+  TimeRange timeRange;
 
   public Column(String key, double l_thresh, double u_thresh, int pos, boolean average, Calendar calendar, Data pd){
     this.data = pd;
@@ -40,6 +41,7 @@ public class Column {
     mul = 1.0;
     format = NumberFormat.getInstance(Locale.FRANCE);
     limits = new Limits();
+    timeRange = new TimeRange(~0l);
 
     if (average) method = Method.AVG;
     else method = Method.SUM;
@@ -58,6 +60,11 @@ public class Column {
     return dataTree;
 
   }
+
+  public TimeRange get_timeRange() {
+    return  timeRange;
+  }
+
   public void set_limits(int minD, int minM){
     limits.set_limit(Metric.HOUR, minD);
     limits.set_limit(Metric.DAY, minM);
@@ -90,8 +97,9 @@ public class Column {
   }
 
   public void write_to_file(FileOutputStream ostream) throws IOException {
+    ostream.write(("\nData: "+data.toString().toLowerCase()+" in "+key+" \n").getBytes());
+
     TreeWriter tw = new TreeWriter(ostream,method);
-    TimeRange timeRange = new TimeRange(~0l);
     dataTree.add_years(timeRange);
     tw.set_timeRange(timeRange);
     tw.monthly_overview(dataTree);

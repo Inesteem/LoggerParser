@@ -15,12 +15,12 @@ public class TempRelHumWindFormat
 
     public TempRelHumWindFormat(){
         super(Parser.ParserType.REL_HUM_WIND, PREF_ALL);
-        val_panels.add(new ValuePanel("Temperature", PREF_STR+"_TEMP", 11, 0, 100, true));
-        val_panels.add(new ValuePanel("Relative Humidity", PREF_STR+"_RH", 11, 0, 100, true));
-        val_panels.add(new ValuePanel("Wind Direction", PREF_STR+"_WD", 11, 0, 360, true));//degree
-        val_panels.add(new ValuePanel("Wind Velocity", PREF_STR+"_WV1", 11, 0, 10000, true));//in m per sec
-        val_panels.add(new ValuePanel("Frequency", PREF_STR+"_F", 11, 0, 1000, true));//in Hz
-        val_panels.add(new ValuePanel("Wind Velocity", PREF_STR+"_WV2", 11, 0, 10000, true));//in m per sec
+        valuePanels.add(new ValuePanel("Temperature", PREF_STR+"_TEMP", 11, 0, 100, true));
+        valuePanels.add(new ValuePanel("Relative Humidity", PREF_STR+"_RH", 11, 0, 100, true));
+        valuePanels.add(new ValuePanel("Wind Direction", PREF_STR+"_WD", 11, 0, 360, true));//degree
+        valuePanels.add(new ValuePanel("Wind Velocity", PREF_STR+"_WV1", 11, 0, 10000, true));//in m per sec
+        valuePanels.add(new ValuePanel("Frequency", PREF_STR+"_F", 11, 0, 1000, true));//in Hz
+        valuePanels.add(new ValuePanel("Wind Velocity", PREF_STR+"_WV2", 11, 0, 10000, true));//in m per sec
 
         columns.add(new Column(TEMP_KEY, 1, 100,    2, true, calendar, TEMP));
         columns.add(new Column(RHUM_KEY, 1, 100,    3, true, calendar, HUM));

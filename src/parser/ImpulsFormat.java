@@ -22,7 +22,7 @@ extends LogFormat {
 
   public ImpulsFormat(){
     super(Parser.ParserType.IMPULS, PREF_ALL);
-    val_panels.add(new ValuePanel(TITLE_STR, PREF_STR, 10, 0,1000, false));
+    valuePanels.add(new ValuePanel(TITLE_STR, PREF_STR, 10, 0,1000, false));
 
     columns.add(new Column(IMPULS_KEY, 0, 100 , 2, false, calendar, Data.RAIN));
   }

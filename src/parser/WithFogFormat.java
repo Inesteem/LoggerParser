@@ -19,10 +19,10 @@ extends LogFormat {
 
   public WithFogFormat(){
     super(Parser.ParserType.WITH_FOG, PREF_ALL);
-    val_panels.add(new ValuePanel("Temperature", PREF_STR+"_TEMP", 10, 0, 100, true));
-    val_panels.add(new ValuePanel("Relative Humidity", PREF_STR+"_RH", 10, 0, 100, true));
-    val_panels.add(new ValuePanel("Rain", PREF_STR+"_RAIN", 10, 0, 100, true));
-    val_panels.add(new ValuePanel("FOG", PREF_STR+"_FOG", 10, 0, 100, true)); // todo sum or avg?
+    valuePanels.add(new ValuePanel("Temperature", PREF_STR+"_TEMP", 10, 0, 100, true));
+    valuePanels.add(new ValuePanel("Relative Humidity", PREF_STR+"_RH", 10, 0, 100, true));
+    valuePanels.add(new ValuePanel("Rain", PREF_STR+"_RAIN", 10, 0, 100, true));
+    valuePanels.add(new ValuePanel("FOG", PREF_STR+"_FOG", 10, 0, 100, true)); // todo sum or avg?
 
     columns.add(new Column(TEMP_KEY, 0, 100 , 2, true, calendar,Data.TEMP));
     columns.add(new Column(RHUM_KEY, 0, 100 , 3, true, calendar,Data.HUM));

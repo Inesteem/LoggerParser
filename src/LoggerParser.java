@@ -4,10 +4,13 @@
 //	jar -cmvf Manifest.txt LoggerParser.jar *.class .\parser\*.class .\lib\*
 package src;
 import java.awt.*;
+import javax.management.openmbean.TabularData;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Objects;
 
 import src.parser.*;
@@ -21,25 +24,24 @@ public class LoggerParser {
   public static final String PREF_INPUT_PATH_FILE = "LP_PREF_INPUT_PATH";
   public static final String PREF_OUTPUT_PATH_FILE = "LP_PREF_OUTPUT_PATH";
 
+  static ArrayList <DataTreeVisualization> visualizations = new ArrayList<DataTreeVisualization>();
   static Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 
 private static class MainMenu extends JFrame {
 
-  JButton plotButton = new JButton(  "Plot Data  ");
-  JButton inputButton = new JButton( "Input Path ");
-  JButton outputButton = new JButton("Output File");
-  JButton parseButton = new JButton( "Parse Input");
-  JButton limitButton = new JButton( "Limit Data ");
-  JButton saveButton= new JButton(   "Save Data  ");
+  JButton inputButton = new JButton( "Input");
+  JButton parseButton = new JButton( "Parse");
+  JButton filterButton = new JButton( "Filter");
+  JButton saveButton= new JButton("Save");
   private final Object lock = new Object();
-  private final Object plot_lock = new Object();
-  private final Object limit_lock = new Object();
+  private final Object filterLock = new Object();
+  private final Object parseLock = new Object();
   MainMenu() {
     setTitle("Logger Parser");
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setLayout(new BoxLayout(getContentPane(), BoxLayout.X_AXIS));
 
-    JButton buttons[] = {inputButton, outputButton, parseButton, plotButton, limitButton, saveButton};
+    JButton buttons[] = {inputButton, parseButton, filterButton, saveButton};
     JPanel buttonPanel = new JPanel();
     buttonPanel.setLayout(new BoxLayout(buttonPanel,BoxLayout.Y_AXIS));
     JPanel lBorderPanel = new JPanel(new GridLayout(buttons.length,1));
@@ -61,16 +63,15 @@ private static class MainMenu extends JFrame {
     setLocation(dim.width/2-getSize().width/2, dim.height/2-getSize().height/2);
 
     parseButton.setEnabled(false);
-    plotButton.setEnabled(false);
-    limitButton.setEnabled(false);
+    filterButton.setEnabled(false);
     saveButton.setEnabled(false);
 
-    ImageIcon appIcon = IOManager.loadLGIcon("icon");
+    ImageIcon appIcon = IOManager.loadLGIcon("icon.png");
     if(appIcon != null) {
       setIconImage(appIcon.getImage());
     }
 
-    final MainMenu main_frame = this;
+    final MainMenu mainFrame = this;
     setVisible(true);
 
     //button event press
@@ -78,10 +79,10 @@ private static class MainMenu extends JFrame {
 
       public void actionPerformed(ActionEvent e){
         try {
-          input_paths = IOManager.getFileList(main_frame, PREF_INPUT_PATH_FILE, "Define input file(s)/dir(s).", IOManager.FileType.ALL);
+          input_paths = IOManager.getFileList(mainFrame, PREF_INPUT_PATH_FILE, "Define input file(s)/dir(s).", IOManager.FileType.ALL, JFileChooser.OPEN_DIALOG);
           if(input_paths == null || input_paths.length == 0){
-            IOManager.asError("No valid input specified!");
-            System.exit(-1);
+            IOManager.asWarning("No valid input specified!");
+            return;
           }
           if (output_path != null ) parseButton.setEnabled(true);
 
@@ -91,136 +92,189 @@ private static class MainMenu extends JFrame {
           IOManager.asError("jar file missing: check if there is a 'lib' dir containing a file named 'org.apache.commons.io.FilenameUtils.jar'");
           System.exit(-1);
         }
-      }
-    });
-
-    //button event press
-    outputButton.addActionListener(new ActionListener() {
-
-      public void actionPerformed(ActionEvent e){
-        try {
-
-          output_path = IOManager.getFile(main_frame, PREF_OUTPUT_PATH_FILE,"Select an output file/dir.", IOManager.FileType.ALL);
-          if(output_path == null){
-            IOManager.asError("No valid output specified!");
-            System.exit(-1);
-          }
-          if (input_paths != null ) parseButton.setEnabled(true);
-
-          outputButton.setBackground(Color.GREEN);
-
-        } catch (java.lang.NoClassDefFoundError e2){
-          IOManager.asError("jar file missing: check if there is a 'lib' dir containing a file named 'org.apache.commons.io.FilenameUtils.jar'");
-          System.exit(-1);
-        }
+        Parser.reset();
+        parseButton.setEnabled(true);
+        saveButton.setEnabled(false);
+        filterButton.setEnabled(false);
+        getRootPane().setDefaultButton(parseButton);
+        parseButton.requestFocus();
       }
     });
 
     parseButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e){
-        synchronized (lock) {
-          lock.notify();
+
+        synchronized (parseLock) {
+          parseLock.notify();
         }
+        getRootPane().setDefaultButton(saveButton);
+        saveButton.requestFocus();
+
       }
     });
 
-
-
-    plotButton.addActionListener(new ActionListener() {
+    filterButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e){
-        synchronized (plot_lock) {
-          plot_lock.notify();
-        }
-      }
-    });
-
-    limitButton.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e){
-        synchronized(limit_lock) {
-          limit_lock.notify();
+        synchronized(filterLock) {
+          filterLock.notify();
         }
       }
     });
 
     saveButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e){
-        IOManager.asWarning("not implemented");
+        try {
+          output_path = IOManager.getFile(mainFrame, PREF_OUTPUT_PATH_FILE,"Select an output file/dir.", IOManager.FileType.ALL, JFileChooser.SAVE_DIALOG );
+          if(output_path == null){
+            IOManager.asWarning("No valid output specified! Content was not saved.");
+            return;
+          }
+        } catch (java.lang.NoClassDefFoundError e2){
+          IOManager.asError("jar file missing: check if there is a 'lib' dir containing a file named 'org.apache.commons.io.FilenameUtils.jar'");
+          System.exit(-1);
+        }
+        saveButton.setEnabled(false);
+        save_data();
+        saveButton.setEnabled(true);
+        IOManager.openOutputFile(output_path);
+      }
+
+    });
+
+    getRootPane().setDefaultButton(inputButton);
+    inputButton.requestFocus();
+
+    getRootPane().getActionMap().put("clickButton",new AbstractAction(){
+      public void actionPerformed(ActionEvent ae)
+      {
+        if (inputButton.hasFocus()){inputButton.doClick(); }
+        else if (parseButton.hasFocus()){parseButton.doClick(); }
+        else if (saveButton.hasFocus()){saveButton.doClick(); }
+        else if (filterButton.hasFocus()){filterButton.doClick(); }
       }
     });
 
-    //limit
-    Thread limit_thread = new Thread() {
+
+
+    Thread parseThread = new Thread() {
       public void run() {
-        System.out.println("i am a thread : " + main_frame.isVisible());
-        synchronized(limit_lock) {
-          while (main_frame.isVisible()) {
+        synchronized(parseLock) {
+          while (mainFrame.isVisible()) {
             try {
-              System.out.println("before visualize");
-              limit_lock.wait();
-              Parser.doVisualize();
-              System.out.println("after visualize");
+              parseLock.wait();
             } catch (InterruptedException e) {
               e.printStackTrace();
+            }
+            parseButton.setEnabled(false);
+            inputButton.setEnabled(false);
+            filterButton.setEnabled(false);
+            saveButton.setEnabled(false);
+            boolean successfull = parse_logs(input_paths);
+            parseButton.setEnabled(true);
+            inputButton.setEnabled(true);
+            if(successfull) {
+              filterButton.setEnabled(true);
+              saveButton.setEnabled(true);
+
+              updateVisualizations();
+            }
+
+          }
+        }
+      }
+    };
+    //limit
+    Thread limitThread = new Thread() {
+      public void run() {
+        synchronized(filterLock) {
+          while (mainFrame.isVisible()) {
+            try {
+              filterLock.wait();
+              DataTreeVisualization dtv =  Parser.doVisualize();
+              visualizations.add(dtv);
+              dtv.start();
+            } catch (InterruptedException e) {
+              e.printStackTrace();
+              //TODO: what to do?
             }
           }
         }
       }
     };
-    limit_thread.start();
+    limitThread.start();
+    parseThread.start();
 
     synchronized (lock) {
       try {
         lock.wait();
-        parse_logs(input_paths, output_path.getAbsolutePath());
-        plotButton.setEnabled(true);
-        saveButton.setEnabled(true);
-        limitButton.setEnabled(true);
-        lock.wait();
-        Parser.plot();
-        lock.wait();
-        //this.wait();
       } catch (InterruptedException ex) {
       }
     }
     try {
-      limit_thread.join();
+      limitThread.join();
+      parseThread.join();
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
   }
 }
 
-  static void parse_logs(File[] input_paths, String output_path){
+  static boolean parse_logs(File[] input_paths){
     Parser parser = new Parser();
-    String new_output_path = output_path;
-    int cnt = 0;
-
     for (final File fileEntry : input_paths) {
-  
+
       if (fileEntry.isFile()){
         System.out.println("parsing file " + fileEntry.getName());
-        parser.parse(fileEntry);
-        ++cnt;
+        if (!parser.parse(fileEntry)) {
+          IOManager.asMessage("parsing interrupted");
+          return false;
+        }
       } else if ( fileEntry.isDirectory() ){
-        new_output_path = output_path + "\\" + fileEntry.getName();
-        IOManager.createDir(new_output_path);
-        parse_logs(Objects.requireNonNull(fileEntry.listFiles()), new_output_path);
+      //  new_output_path = output_path + "\\" + fileEntry.getName();
+      //  IOManager.createDir(new_output_path);
+        if (!parse_logs(Objects.requireNonNull(fileEntry.listFiles()))) return false;
       } else {
         IOManager.asWarning("Skipping strange file: " + fileEntry.getAbsolutePath());
       }
 
     }
-    if(cnt >0){
-      if(new File(output_path).isDirectory()){
-        new_output_path = output_path + "\\" + "log.txt";
-      }
-      IOManager.createFile(new_output_path);
+  return true;
 
-      System.out.println("parsed " + cnt + " files for " + new_output_path);
-      //parser.print_log_info();
-      parser.write_log_info(new_output_path);
+  }
+  static void save_data() {
+    String output_path = LoggerParser.output_path.getAbsolutePath();
+
+    if(new File(output_path).isDirectory()){
+      output_path = output_path + "\\" + "log.txt";
     }
+    IOManager.createFile(output_path);
 
+    // System.out.println("parsed " + cnt + " files for " + new_output_path);
+    //parser.print_log_info();
+    Parser.write_log_info(output_path);
+  }
+
+  static void updateVisualizations() {
+    // Create an iterator from the l
+    Iterator<DataTreeVisualization> itr = visualizations.iterator();
+
+    // Find and remove all null
+    while (itr.hasNext()) {
+
+      // Fetching the next element
+       DataTreeVisualization dtv = itr.next();
+
+      // Checking for Predicate condition
+      if (!dtv.isAlive()) {
+        IOManager.asWarning("removed thread");
+        // If the condition matches,
+        // remove that element
+        itr.remove();
+      } else {
+        IOManager.asWarning("updated thread");
+        Parser.updateVisualization(dtv);
+      }
+    }
 
   }
 
@@ -237,8 +291,5 @@ private static class MainMenu extends JFrame {
     ToolTipManager.sharedInstance().setDismissDelay(60000);
     new MainMenu();
 
-    //TODO: das noch einbauen; wird übersprungen im Moment
-    IOManager.asMessage("Finished!");
-    IOManager.getOutputFile(output_path);
   }
 }
