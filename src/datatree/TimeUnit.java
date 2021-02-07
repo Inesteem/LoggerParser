@@ -178,18 +178,49 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
   }
 
   /**
+   * Removes data specified by timeRange matching cond.
+   * @param timeRange
+   * @param metric the metric for which to compare
+   * @param cond the remove condition
+   * @param cmp the compare value used by cond
+   * @return number of removed entries
+   */
+  public int remove(TimeRange timeRange, Metric metric, Condition cond, double cmp){
+    int num = 0;
+    for(int i = 0; i < subUnits.size(); ++i) {
+      T unit = subUnits.get(i);
+      if (unit == null || !timeRange.in_range(this.metric,get_idx(i))) continue;
+
+      if(this.metric == metric && cond != Condition.ALL ){
+        int num_vsu = unit.get_num_valid_subUnits(TimeRange.ALL);
+        if (cond.cond.checkFor(cmp, num_vsu)){
+          num += num_vsu;
+          subUnits.set(i, null);
+        }
+      } else {
+        num += unit.remove(timeRange, metric, cond, cmp);
+        if (unit.get_num_valid_subUnits(TimeRange.ALL) == 0)
+          subUnits.set(i, null);
+      }
+    }
+    return num;
+  }
+
+  /**
    * Get number of valid subUnits contained in this subtree
    * @param timeRange the TimeRange object defining valid TimeUnits
    * @return number of valid subUnits
    */
   @Override
   public int get_num_valid_subUnits(TimeRange timeRange) {
+    //if (valid_subUnits != -1) return valid_subUnits;
     int num = 0;
     for(int i = 0; i < subUnits.size(); ++i) {
       if (!timeRange.in_range(metric,get_idx(i))) continue;
       T unit = subUnits.get(i);
-      if (unit != null && unit.is_valid(metric)) ++num;
+      if (unit != null) num += unit.get_num_valid_subUnits(timeRange);
     }
+   // valid_subUnits = num;
     return num;
   }
 }

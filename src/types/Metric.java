@@ -34,6 +34,17 @@ public enum Metric {
     return Metric.values()[m];
   }
 
+  public static Metric getEnum(String m){
+    switch (m.toUpperCase()) {
+      case "YEAR": return YEAR;
+      case "MONTH": return MONTH;
+      case "DAY": return DAY;
+      case "HOUR": return HOUR;
+    }
+    return null;
+  }
+
+
   public int getMinIncl() {
     return minVals[value];
   }

@@ -15,6 +15,7 @@ import java.util.Objects;
 
 import src.parser.*;
 import src.gui.*;
+import src.types.Condition;
 
 public class LoggerParser {
 
@@ -86,8 +87,6 @@ private static class MainMenu extends JFrame {
           }
           if (output_path != null ) parseButton.setEnabled(true);
 
-          inputButton.setBackground(Color.GREEN);
-
         } catch (java.lang.NoClassDefFoundError e2){
           IOManager.asError("jar file missing: check if there is a 'lib' dir containing a file named 'org.apache.commons.io.FilenameUtils.jar'");
           System.exit(-1);
@@ -103,12 +102,15 @@ private static class MainMenu extends JFrame {
 
     parseButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e){
+        Parser.reset();
 
         synchronized (parseLock) {
           parseLock.notify();
         }
-        getRootPane().setDefaultButton(saveButton);
-        saveButton.requestFocus();
+        //getRootPane().setDefaultButton(saveButton);
+        //saveButton.requestFocus();
+        getRootPane().setDefaultButton(filterButton);
+        filterButton.requestFocus();
 
       }
     });
@@ -224,7 +226,6 @@ private static class MainMenu extends JFrame {
     for (final File fileEntry : input_paths) {
 
       if (fileEntry.isFile()){
-        System.out.println("parsing file " + fileEntry.getName());
         if (!parser.parse(fileEntry)) {
           IOManager.asMessage("parsing interrupted");
           return false;
@@ -261,17 +262,11 @@ private static class MainMenu extends JFrame {
     // Find and remove all null
     while (itr.hasNext()) {
 
-      // Fetching the next element
        DataTreeVisualization dtv = itr.next();
 
-      // Checking for Predicate condition
       if (!dtv.isAlive()) {
-        IOManager.asWarning("removed thread");
-        // If the condition matches,
-        // remove that element
         itr.remove();
       } else {
-        IOManager.asWarning("updated thread");
         Parser.updateVisualization(dtv);
       }
     }

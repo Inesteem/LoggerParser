@@ -42,7 +42,6 @@ extends LogFormat {
     panelMMs.add(new JLabel("Millimeter per impuls: "));
     panelMMs.add(mm_select);
 
-    System.out.println("b super conf");
     super.configure(file_name, panelMMs);
     mm=(Double) mm_select.getSelectedItem();
     Column col = columns.get(0);

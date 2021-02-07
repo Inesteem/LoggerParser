@@ -64,4 +64,19 @@ public class Hour extends TimeUnitI<Double> {
     //System.out.print(max);
     //System.out.print("    ");
   }
+
+  /**
+   * Removes data specified by timeRange matching cond.
+   * @param timeRange
+   * @param metric the metric for which to compare
+   * @param cond the remove condition
+   * @param cmp the compare value used by cond
+   * @return number of removed entries
+   */
+  public int remove(TimeRange timeRange, Metric metric, Condition cond, double cmp){
+    sum = 0;
+    num = 0;
+    return 1;
+  }
+
 }

@@ -11,11 +11,13 @@ public abstract class TimeUnitI<T>{
   protected double sum;
   protected int num;
   protected Limits limits;
+  protected int valid_subUnits;
 
   public TimeUnitI(Limits limits){
     num = -1;
     sum = Double.NaN;
     this.limits = limits;
+    valid_subUnits = -1;
   }
   public void set_limits(Limits lim){
     limits = lim;
@@ -24,6 +26,7 @@ public abstract class TimeUnitI<T>{
   public void reset(){
     num = -1;
     sum = Double.NaN;
+    valid_subUnits = -1;
   }
 
   void set_extrema(double val, Method method){}
@@ -80,6 +83,17 @@ public abstract class TimeUnitI<T>{
   public int get_idx(int i){
     return i;
   }
+
+  /**
+   * Removes data specified by timeRange matching cond.
+   * @param timeRange
+   * @param cond the remove condition
+   * @param metric the metric for which to compare
+   * @param cmp the compare value used by cond
+   * @return number of removed entries
+   */
+  public abstract int remove(TimeRange timeRange, Metric metric, Condition cond, double cmp);
+
 
   /**
    * Get number of valid subUnits contained in this subtree

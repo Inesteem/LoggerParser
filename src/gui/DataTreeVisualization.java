@@ -2,6 +2,7 @@ package src.gui;
 
 import src.datatree.TimeRange;
 import src.datatree.YearMap;
+import src.types.Condition;
 import src.types.Method;
 import src.types.Metric;
 import src.types.Data;
@@ -20,10 +21,100 @@ public class DataTreeVisualization extends Thread {
     boolean finished = false;
     Window window;
     class Window extends JFrame {
+        ConditionRemove conditionRemove;
+        class ConditionRemove extends JFrame {
+            JFrame frame = this;
+            JButton removeButton = new JButton("Remove");
+            JButton cancelButton = new JButton("Cancel");
+            String sr_str[] = {"years", "months", "days", "hours"};
+            JComboBox<String> selectMetric = new JComboBox<String>(sr_str);
+            JComboBox<String> selectCond = new JComboBox<String>(Condition.condNames);
+            JDoubleField valField = new JDoubleField(10);
+            public void close() {
+                setVisible(false);
+                dispose();
+            }
+            public ConditionRemove(YearMap dataTree, TimeRange timeRange, Point pos) {
+                valField.setValue(0.0);
+                removeButton.setBackground(Color.RED);
+                removeButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        int opt = IOManager.askTwoOptions(frame ,"Remove selected entries", "Remove Data", "Cancel", "Removed Data can only restored by reparsing!");
+                        if (opt == 0) {
+                            String str = (String)selectMetric.getSelectedItem();
+                            int numRemoved = dataTree.remove(timeRange,
+                                    Metric.getEnum(str.substring(0, str.length()-1)),
+                                    Condition.getEnum((String)selectCond.getSelectedItem()),
+                                    valField.getValue());
+                            dataTree.reset();
+                            IOManager.asMessage(numRemoved + " entries removed.");
+                        }
+                        close();
+
+                    }
+                });
+
+                cancelButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        close();
+                    }
+                });
+
+                setIconImage(appIcon.getImage());
+                setLocation(pos);
+                //setLayout(new GridBagLayout());
+                getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
+                //c.anchor = GridBagConstraints.WEST;
+                //setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+                add(Box.createRigidArea(new Dimension(0,10))); // a spacer
+
+                JPanel panel = new JPanel();
+                panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+                panel.add(Box.createRigidArea(new Dimension(5,0))); // a spacer
+                panel.add(new JLabel("Remove all"));
+                panel.add(Box.createRigidArea(new Dimension(5,0))); // a spacer
+                panel.add(selectMetric);
+                panel.add(Box.createRigidArea(new Dimension(5,0))); // a spacer
+                panel.add(new JLabel(" that have "));
+                panel.add(Box.createRigidArea(new Dimension(5,0))); // a spacer
+                panel.add(selectCond);
+                panel.add(Box.createRigidArea(new Dimension(5,0))); // a spacer
+                panel.add(valField);
+                JLabel label = new JLabel(" subUnits.");
+                label.setToolTipText("For example, the subUnit of a year is >month<.");
+                panel.add(label);
+                panel.add(Box.createRigidArea(new Dimension(5,0))); // a spacer
+                add(panel);
+                add(Box.createRigidArea(new Dimension(0,10))); // a spacer
+
+                JPanel panel2 = new JPanel();
+                panel2.setLayout(new BoxLayout(panel2, BoxLayout.X_AXIS));
+                panel2.add(Box.createRigidArea(new Dimension(5,0))); // a spacer
+                panel2.add(removeButton);
+                panel2.add(Box.createRigidArea(new Dimension(5,0))); // a spacer
+                panel2.add(cancelButton);
+                panel2.add(Box.createRigidArea(new Dimension(5,0))); // a spacer
+                add(panel2);
+
+                add(Box.createRigidArea(new Dimension(0,10))); // a spacer
+
+                pack();
+                setVisible(true);
+            }
+        }
+        public void close() {
+            setVisible(false);
+            dispose();
+            if(conditionRemove != null) conditionRemove.close();
+        }
+
+
+        ImageIcon appIcon = IOManager.loadLGIcon("icon.png");
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         public static final String PREF_METRICS = "LP_PLOTWINDOW_METRICS";
         Preferences pref = Preferences.userRoot();
-        String sr_str[] = {"YEARS", "MONTHS", "DAYS", "HOURS"};
+        String sr_str[] = {"YEAR", "MONTH", "DAY", "HOUR"};
         String tt_str[] = {"Valid Ranges, e.g. : ALL 1900-2022  2000,2001,2002  2000"
                 , "Valid Ranges, e.g. : ALL 1-13  1,2,3,4 5 "
                 , "Valid Ranges, e.g. : ALL 1-32  1,2,3,4 5"
@@ -49,55 +140,79 @@ public class DataTreeVisualization extends Thread {
 
         }
 
-        JPanel getPlotStuff(Data pd, JButton plotButton, JButton visButton, JComboBox<String> select_range, JRangeField[] rangeFields) {
+        JPanel getPlotStuff(Data pd, JButton plotButton, JButton visButton, JButton remButton, JButton remCondButton, JComboBox<String> select_range, JRangeField[] rangeFields) {
 
             //configure panels
             JPanel panelHeader = new JPanel();
-            JLabel title_l = new JLabel(String.valueOf(pd) + " - Define valid ranges:");
+            JLabel title_l = new JLabel("Filter / Remove Data:");
             title_l.setFont(title_l.getFont().deriveFont(Font.BOLD, 14f));
             panelHeader.add(title_l, BorderLayout.CENTER);
 
-            JPanel panelThresh = new JPanel();
-            panelThresh.setLayout(new BoxLayout(panelThresh, BoxLayout.Y_AXIS));
+            JPanel panelThresh = new JPanel(new GridBagLayout());
+            GridBagConstraints c = new GridBagConstraints();
+            c.anchor = GridBagConstraints.WEST;
+            //c.gridwidth = 5;
+            //panelThresh.setLayout(new BoxLayout(panelThresh, BoxLayout.Y_AXIS));
 
             JPanel panelMiddle = new JPanel();
 
             panelMiddle.setLayout(new BoxLayout(panelMiddle, BoxLayout.Y_AXIS));
             panelMiddle.add(panelThresh);
             for (int i = 0; i < rangeFields.length; ++i) {
-
-                JPanel range_panel = new JPanel();
-                range_panel.setLayout(new BoxLayout(range_panel, BoxLayout.X_AXIS));
-
-                range_panel.add(Box.createRigidArea(new Dimension(20, 0)));
-                range_panel.add(new JLabel(String.format("%1$7s", Metric.values()[i])));
-                range_panel.add(Box.createRigidArea(new Dimension(10, 0)));
-                range_panel.add(rangeFields[i]);
-                range_panel.add(Box.createRigidArea(new Dimension(20, 0)));
-                panelThresh.add(range_panel);
+                c.gridx = 1;
+                panelThresh.add(Box.createRigidArea(new Dimension(20, 0)),c);
+                c.gridx = 2;
+                panelThresh.add(new JLabel(String.format("%1s", Metric.values()[i])+":", SwingConstants.LEFT), c);
+                c.gridx = 3;
+                panelThresh.add(Box.createRigidArea(new Dimension(10, 0)),c);
+                c.gridx = 4;
+                panelThresh.add(rangeFields[i],c);
+                c.gridx = 5;
+                panelThresh.add(Box.createRigidArea(new Dimension(20, 0)),c);
             }
 
-            JPanel panelTZ = new JPanel();
-            //panelTZ.setLayout(new BoxLayout(panelTZ, BoxLayout.X_AXIS));
-            panelTZ.add(new JLabel("Select time unit: "));
-            //panelTZ.add(Box.createRigidArea(new Dimension(5,0))); // a spacer
-            panelTZ.add(select_range);
-            panelMiddle.add(Box.createRigidArea(new Dimension(0, 10))); // a spacer
-            panelMiddle.add(panelTZ);
-            panelMiddle.add(Box.createRigidArea(new Dimension(0, 10))); // a spacer
-            panelMiddle.add(new JSeparator());
+            JPanel panelLeftFooter = new JPanel(new GridBagLayout());
+            c = new GridBagConstraints();
+
+            c.gridy = 1;
+            panelLeftFooter.add(new JLabel("Time unit: "),c);
+            panelLeftFooter.add(Box.createRigidArea(new Dimension(5,0)),c); // a spacer
+            panelLeftFooter.add(select_range, c);
+
+            c.gridy = 2;
+            panelLeftFooter.add(Box.createRigidArea(new Dimension(0, 5)),c); // a spacer
+
+            c.gridy = 3;
+            panelLeftFooter.add(plotButton,c);
+            panelLeftFooter.add(Box.createRigidArea(new Dimension(5,0)),c); // a spacer
+            panelLeftFooter.add(visButton,c);
+
+
+            JPanel panelRightFooter = new JPanel();
+            panelRightFooter.setLayout(new BoxLayout(panelRightFooter, BoxLayout.Y_AXIS));
+            panelRightFooter.add(remButton);
+            panelRightFooter.add(Box.createRigidArea(new Dimension(0,5))); // a spacer
+            panelRightFooter.add(remCondButton);
 
             JPanel panelFooter = new JPanel();
-            panelFooter.add(plotButton);
-            panelFooter.add(visButton);
+            panelFooter.setLayout(new BoxLayout(panelFooter, BoxLayout.X_AXIS));
+            panelFooter.add(panelLeftFooter);
+            panelFooter.add(Box.createRigidArea(new Dimension(5,0))); // a spacer
+            panelFooter.add(new JSeparator(SwingConstants.VERTICAL));
+            panelFooter.add(Box.createRigidArea(new Dimension(5, 0))); // a spacer
+            panelFooter.add(panelRightFooter);
 
             //configure frame layout
             JPanel mainPanel = new JPanel();
             mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
             mainPanel.add(Box.createRigidArea(new Dimension(0, 5))); // a spacer
             mainPanel.add(panelHeader);
+            mainPanel.add(Box.createRigidArea(new Dimension(0, 5))); // a spacer
             mainPanel.add(new JSeparator());
+            mainPanel.add(Box.createRigidArea(new Dimension(0, 10))); // a spacer
             mainPanel.add(panelMiddle);
+            mainPanel.add(Box.createRigidArea(new Dimension(0, 10))); // a spacer
+            mainPanel.add(new JSeparator());
             mainPanel.add(Box.createRigidArea(new Dimension(0, 10))); // a spacer
             mainPanel.add(panelFooter);
             mainPanel.add(Box.createRigidArea(new Dimension(0, 5))); // a spacer
@@ -112,7 +227,6 @@ public class DataTreeVisualization extends Thread {
             setTitle("Set Data Limits");
             setLocation(dim.width/2-getSize().width/2, dim.height/2-getSize().height/2);
 
-            ImageIcon appIcon = IOManager.loadLGIcon("icon.png");
             if (appIcon != null) {
                 setIconImage(appIcon.getImage());
             }
@@ -127,6 +241,7 @@ public class DataTreeVisualization extends Thread {
                 }
             });
 
+            JFrame mainFrame = this;
             JTabbedPane tabbedPane = new JTabbedPane();
             int key_events[] = {KeyEvent.VK_1, KeyEvent.VK_2, KeyEvent.VK_3, KeyEvent.VK_4,
                     KeyEvent.VK_5, KeyEvent.VK_6, KeyEvent.VK_7, KeyEvent.VK_8, KeyEvent.VK_9};
@@ -140,37 +255,68 @@ public class DataTreeVisualization extends Thread {
 
                 ImageIcon icon = IOManager.scale(IOManager.loadLGIcon(data.toString().toLowerCase() + ".png"), 16, 16);
 
-                String pref_str = PREF_METRICS + "_" + data.toString().toUpperCase();
+                String pref_str = PREF_METRICS + "_" + col.key;
                 JButton visTreeButton = new JButton("Show Data Tree");
                 JButton plotButton = new JButton("Plot Data");
+                JButton remButton = new JButton("Remove");
+                remButton.setBackground(Color.RED);
+                remButton.setToolTipText("Removes the Dates specified by the RangeFields completely from the Data Tree.");
+                JButton remCondButton = new JButton("Remove Cond...");
+                remCondButton.setBackground(Color.RED);
+                remCondButton.setToolTipText("Removes the Dates specified by the RangeFields and matching a condition completely from the Data Tree.");
+
                 JComboBox<String> select_range = new JComboBox<String>(sr_str);
                 JRangeField[] rangeFields = new JRangeField[Metric.SIZE.value()];
                 configure(select_range, rangeFields, pref_str, timeRange);
 
+                remButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        pref.put(pref_str, String.valueOf(select_range.getSelectedItem()));
+                        int opt = IOManager.askTwoOptions(mainFrame ,"Remove selected entries", "Remove Data", "Cancel", "Removed Data can only restored by reparsing!");
+                        if (opt == 0) {
+                            int numRemoved = dataTree.remove(timeRange,null, Condition.ALL, 0);
+                            dataTree.reset();
+                            IOManager.asMessage(numRemoved + " entries removed.");
+                        }
+                    }
+                });
+                JFrame frame = this;
+                remCondButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        if(conditionRemove != null) {
+                            conditionRemove.close();
+                        }
+                        conditionRemove = new ConditionRemove(dataTree, timeRange, frame.getLocation());
+                    }
+                });
+
                 visTreeButton.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        PlotHelper.visualizeDataTree(dataTree, method, timeRange, "LG_DATA_TREE.csv");
+                        pref.put(pref_str, String.valueOf(select_range.getSelectedItem()));
+                        PlotHelper.visualizeDataTree(dataTree, method, timeRange, Metric.getEnum((String)select_range.getSelectedItem()), "LG_DATA_TREE.csv");
                     }
                 });
 
                 plotButton.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         pref.put(pref_str, String.valueOf(select_range.getSelectedItem()));
-                        if (select_range.getSelectedItem().equals("YEARS"))
+                        if (select_range.getSelectedItem().equals("YEAR"))
                             PlotHelper.plot_stats(dataTree, method, YEAR, "Yearly-Avg", data, timeRange);
-                        else if (select_range.getSelectedItem().equals("MONTHS"))
+                        else if (select_range.getSelectedItem().equals("MONTH"))
                             PlotHelper.plot_stats(dataTree, method, MONTH, "Monthly-Avg", data, timeRange);
-                        else if (select_range.getSelectedItem().equals("DAYS"))
+                        else if (select_range.getSelectedItem().equals("DAY"))
                             PlotHelper.plot_stats(dataTree, method, DAY, "Daily-Avg", data, timeRange);
-                        else if (select_range.getSelectedItem().equals("HOURS"))
+                        else if (select_range.getSelectedItem().equals("HOUR"))
                             PlotHelper.plot_stats(dataTree, method, HOUR, "Hourly-Avg", data, timeRange);
                     }
                 });
 
-                JPanel panel = getPlotStuff(col.get_data(), plotButton, visTreeButton, select_range, rangeFields);
+                JPanel panel = getPlotStuff(col.get_data(), plotButton, visTreeButton, remButton, remCondButton, select_range, rangeFields);
                 tabbedPane.addTab(col.get_data().toString(), icon, panel, col.get_data().getDescription());
                 tabbedPane.setMnemonicAt(0, key_events[i]);
             }
+
 
             //Add the tabbed pane to this panel.
             add(tabbedPane);
@@ -181,13 +327,6 @@ public class DataTreeVisualization extends Thread {
             pack();
         }
 
-        protected override void OnFormClosing(FormClosingEventArgs e)
-        {
-            if (new StackTrace().GetFrames().Any(x => x.GetMethod().Name == "Close"))
-            MessageBox.Show("Closed by calling Close()");
-    else
-            MessageBox.Show("Closed by X or Alt+F4");
-        }
 
         protected JComponent makeTextPanel(String text) {
             JPanel panel = new JPanel(false);
@@ -203,6 +342,7 @@ public class DataTreeVisualization extends Thread {
         window = new Window(columns);
     }
 
+
     @Override
     public void run() {
         window.setVisible(true);
@@ -210,8 +350,7 @@ public class DataTreeVisualization extends Thread {
             try {
                 while(!finished) {
                     closeWindow.wait();
-                    window.setVisible(false);
-                    window.dispose();
+                    window.close();
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -221,8 +360,10 @@ public class DataTreeVisualization extends Thread {
     }
 
     public void update(ArrayList<Column> columns) {
-        window.setVisible(false);
-        window.dispose();
+        Point tmp = window.getLocation();
+        window.close();
         window = new Window(columns);
+        window.setLocation(tmp);
+        window.setVisible(true);
     }
 }

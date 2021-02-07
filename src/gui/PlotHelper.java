@@ -140,13 +140,15 @@ public class PlotHelper {
     tr.print(metric);
   }
 
-  public static void visualizeDataTree(YearMap dataMap, Method method, TimeRange timeRange, String fileName) {
+  public static void visualizeDataTree(YearMap dataMap, Method method, TimeRange timeRange, Metric metric, String fileName) {
     String filePath = System.getProperty("java.io.tmpdir") + "\\"+fileName;
     StringBuilder sb = new StringBuilder("");
     TreeETE3Stringifier tw = new TreeETE3Stringifier(sb,method);
-    dataMap.add_years(timeRange);
+    dataMap.add_years(timeRange); //TODO;
+    timeRange.print(DAY);
     tw.set_timeRange(timeRange);
-    dataMap.accept(tw,DAY, timeRange);
+    dataMap.accept(tw,metric, timeRange);
+    //System.out.println(metric); //TODO
     System.out.println(sb.toString()); //TODO
     try {
       FileOutputStream plotFile = new FileOutputStream(filePath);

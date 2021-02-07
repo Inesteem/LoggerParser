@@ -251,7 +251,7 @@ public class IOManager {
     return filename;
   }
 
-  public int askTwoOptions(String header, String op1, String op2, String dialogstr, String default_opt){
+  public static int askTwoOptions(JFrame parent, String header, String op1, String op2, String dialogstr, String default_opt){
     Object[] options = {op1,op2};
     Preferences pref = Preferences.userRoot();
     int pref_opt = Integer.parseInt(pref.get(default_opt, "0"));
@@ -261,7 +261,7 @@ public class IOManager {
     //int confirmed = JOptionPane.showConfirmDialog(null, 
     //"The file " + FilenameUtils.getName(outputFile) + " already exists; are you sure you want to override it?", "Decide wisely...",
     //	JOptionPane.YES_NO_OPTION);
-    int confirmed = JOptionPane.showOptionDialog(null, dialogstr, 
+    int confirmed = JOptionPane.showOptionDialog(parent, dialogstr,
         header, 
         JOptionPane.YES_NO_OPTION, 
         JOptionPane.WARNING_MESSAGE, 
@@ -276,13 +276,13 @@ public class IOManager {
     }
     return -1;
   }
-  public int askTwoOptions(String header, String op1, String op2, String dialogstr){
-    return askTwoOptions(header, op1, op2, dialogstr,"DEFAULT_OPTION_TWO");
+  public static int askTwoOptions(JFrame parent, String header, String op1, String op2, String dialogstr){
+    return askTwoOptions(parent, header, op1, op2, dialogstr,"DEFAULT_OPTION_TWO");
   }
 
-  public static int askNOptions(String header, String[] options, String dialogstr){
+  public static int askNOptions(JFrame parent, String header, String[] options, String dialogstr){
 
-    int confirmed = JOptionPane.showOptionDialog(null, dialogstr, 
+    int confirmed = JOptionPane.showOptionDialog(parent, dialogstr,
         header, 
         JOptionPane.DEFAULT_OPTION, 
         JOptionPane.WARNING_MESSAGE, 

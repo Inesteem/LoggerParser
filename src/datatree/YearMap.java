@@ -90,7 +90,9 @@ public class YearMap extends TimeUnit<Year> {
 
   public int get_idx(int i){
     if (i < 0 || i > subUnits.size()) return -1;
-    return subUnits.get(i).y;
+    Year year = subUnits.get(i);
+    if (year == null) return -1;
+    return year.y;
   }
 
   public String identifier(int id) {

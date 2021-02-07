@@ -56,51 +56,59 @@ public class TreeETE3Stringifier implements TreeVisitor<Integer> {
         if (sb.charAt(sb.length()-1) == ',') sb.setLength(sb.length() - 1);
         else sb.append("no valid data");
 
-        sb.append("){;");
+        sb.append(")-;");
         return null;
     }
 
     @Override
     public Integer visit(Year y, Metric metric){
-        int num = 0;
-        int len = sb.length();
+
+        int num = y.get_num_valid_subUnits(timeRange);
+        System.out.println(y + " " + num);
+        if (num == 0) return 0;
+
+        if (metric == YEAR) {
+            sb.append(num);
+            //sb.append(df.format(y.get_val(timeRange, method)));
+            return num;
+        }
         for (int i = 0; i < y.subUnits.size(); ++i) {
             if (!timeRange.in_range(MONTH,y.get_idx(i))) continue;
             Month month = y.subUnits.get(i);
             if (month != null  && month.is_valid(MONTH)) {
                 sb.append("(");
-                num += visit(month, metric);
+                visit(month, metric);
                 sb.append(")"+Month.toString(i)+",");
             }
         }
         if (sb.charAt(sb.length()-1) == ',') {
-            if (num == 0)
-                sb.setLength(len);
-            else
-                sb.setLength(sb.length() - 1);
+            sb.setLength(sb.length() - 1);
         }
         return num;
     }
 
     @Override
     public Integer visit(Month m, Metric metric){
-        int num = 0;
-        int len = sb.length();
+        int num = m.get_num_valid_subUnits(timeRange);
+        if (num == 0) return 0;
+
+        if (metric == MONTH) {
+            sb.append(num);
+            //sb.append(df.format(m.get_val(timeRange, method)));
+            return num;
+        }
         for (int i = 0; i < m.subUnits.size(); ++i) {
             if (!timeRange.in_range(DAY,m.get_idx(i))) continue;
             Day day = m.subUnits.get(i);
 
             if (day != null  && day.is_valid(DAY)) {
                 sb.append("(");
-                num += visit(day, metric);
+                visit(day, metric);
                 sb.append(")"+(i+1)+",");
             }
         }
 
         if (sb.charAt(sb.length()-1) == ',') {
-            if (num == 0)
-                sb.setLength(len);
-            else
                 sb.setLength(sb.length() - 1);
         }
         return num;
@@ -108,29 +116,33 @@ public class TreeETE3Stringifier implements TreeVisitor<Integer> {
 
     @Override
     public Integer visit(Day d, Metric metric) {
-        int num = 0;
-        int len = sb.length();
+        int num = d.get_num_valid_subUnits(timeRange);
+        if (num == 0) return 0;
+
+        if (metric == DAY) {
+            sb.append(num);
+            //sb.append(df.format(d.get_val(timeRange, method)));
+            return num;
+        }
         for (int i = 0; i < d.subUnits.size(); ++i) {
             if (!timeRange.in_range(HOUR,d.get_idx(i))) continue;
             Hour hour = d.subUnits.get(i);
             if (hour != null && hour.is_valid(HOUR)) {
                 sb.append("(");
-                num += visit(hour, metric);
+                visit(hour, metric);
                 sb.append(")"+i+",");
             }
         }
         if (sb.charAt(sb.length()-1) == ',') {
-            if (num == 0)
-                sb.setLength(len);
-            else
-                sb.setLength(sb.length() - 1);
+            sb.setLength(sb.length() - 1);
         }
         return num;
     }
 
     @Override
     public Integer visit(Hour h, Metric metric) {
-        sb.append(df.format(h.get_val(timeRange, method)));
+        sb.append(h.get_num(timeRange));
+        //sb.append(df.format(h.get_val(timeRange, method)));
         return 1;
     }
 }

@@ -215,7 +215,7 @@ public class Parser extends JFrame {
 
           String key_str = l_format.date_format.format(date);
 
-          int opt = IOManager.askNOptions("entry already exists", options,
+          int opt = IOManager.askNOptions(this, "entry already exists", options,
                   "date:\n "+key_str+"\nold:\n "+old_val+"\nnew:\n "+line);
           //int opt = iom.askTwoOptions("test1", "keep new key", "override old key", 
           //"the entry with date >" +key +"< already exists; exit dialog to abort");
