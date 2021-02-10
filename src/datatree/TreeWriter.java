@@ -6,7 +6,6 @@ import src.types.Method;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -40,7 +39,7 @@ public class TreeWriter implements TreeVisitor<Boolean> {
         df.applyPattern("##.##");
     }
 
-    public void monthly_overview(YearMap yearMap) {
+    public void monthly_overview(DataTree yearMap) {
         long valid_month_range = timeRange.get_val(MONTH);
         try {
             ostream.write("\nOVERALL MONTHLY STATS (num of meas, min, max, val): \n\n".getBytes());
@@ -58,9 +57,7 @@ public class TreeWriter implements TreeVisitor<Boolean> {
                 ostream.write(("\t " + df.format(yearMap.get_min(method, timeRange, MONTH)) + " ").getBytes());
                 ostream.write(("\t " + df.format(yearMap.get_max(method, timeRange, MONTH)) + " ").getBytes());
 
-                double val;
-                if(method == Method.SUM) val = yearMap.get_sum(timeRange);
-                else val = yearMap.get_avg(timeRange);
+                double val = yearMap.get_val(timeRange, method);
 
                 ostream.write(("\t " + df.format(val) + "\n").getBytes());
                 timeRange.unset_idx(Metric.MONTH,i);
@@ -74,10 +71,46 @@ public class TreeWriter implements TreeVisitor<Boolean> {
         }
         timeRange.set_val(MONTH, valid_month_range);
         yearMap.reset();
-
     }
+
+
+    public void hourly_overview(DataTree yearMap) {
+        long valid_hour_range = timeRange.get_val(DAY);
+        try {
+            ostream.write("\nOVERALL HOURLY STATS (num of meas, min, max, val): \n\n".getBytes());
+            timeRange.unset_range(DAY,0,24);
+            for(int i = 0; i < 24; ++i){
+                yearMap.reset();
+                timeRange.set_idx(Metric.HOUR,i);
+                yearMap.reset();
+                ostream.write((i + ": ").getBytes());
+                if (yearMap.get_num(timeRange) == 0){
+                    ostream.write(( "- \n").getBytes());
+                    continue;
+                }
+                ostream.write(("\t " +String.valueOf(yearMap.get_num(timeRange)) + " ").getBytes());
+                ostream.write(("\t " + df.format(yearMap.get_min(method, timeRange, HOUR)) + " ").getBytes());
+                ostream.write(("\t " + df.format(yearMap.get_max(method, timeRange, HOUR)) + " ").getBytes());
+
+                double val = yearMap.get_val(timeRange, method);
+
+                ostream.write(("\t " + df.format(val) + "\n").getBytes());
+                timeRange.unset_idx(Metric.HOUR,i);
+                yearMap.reset();
+            }
+            ostream.write(("\n").getBytes());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            IOManager.asError("yearmap write failed");
+        }
+        timeRange.set_val(HOUR, valid_hour_range);
+        yearMap.reset();
+    }
+
+
     @Override
-    public Boolean visit(YearMap ym, Metric metric){
+    public Boolean visit(DataTree ym, Metric metric){
         int valid_subunits = 0;
 
         double min = ym.get_min(method, timeRange, YEAR);

@@ -19,15 +19,15 @@ extends LogFormat {
 
   public WithFogFormat(){
     super(Parser.ParserType.WITH_FOG, PREF_ALL);
-    valuePanels.add(new ValuePanel("Temperature", PREF_STR+"_TEMP", 10, 0, 100, true));
-    valuePanels.add(new ValuePanel("Relative Humidity", PREF_STR+"_RH", 10, 0, 100, true));
-    valuePanels.add(new ValuePanel("Rain", PREF_STR+"_RAIN", 10, 0, 100, true));
-    valuePanels.add(new ValuePanel("FOG", PREF_STR+"_FOG", 10, 0, 100, true)); // todo sum or avg?
+    valuePanels.add(new ValuePanel(Data.TEMP,PREF_STR+"_TEMP", 10, 0, 100));
+    valuePanels.add(new ValuePanel(Data.HUM ,PREF_STR+"_RH", 10, 0, 100));
+    valuePanels.add(new ValuePanel(Data.RAIN,PREF_STR+"_RAIN", 10, 0, 100));
+    valuePanels.add(new ValuePanel(Data.FOG ,PREF_STR+"_FOG", 10, 0, 100)); // todo sum or avg?
 
-    columns.add(new Column(TEMP_KEY, 0, 100 , 2, true, calendar,Data.TEMP));
-    columns.add(new Column(RHUM_KEY, 0, 100 , 3, true, calendar,Data.HUM));
-    columns.add(new Column(RAIN_KEY, 0, 100 , 4, true, calendar,Data.RAIN));
-    columns.add(new Column(FOG_KEY, 0, 100 , 5, true, calendar ,Data.FOG));
+    columns.add(new Column(TEMP_KEY, 2, true, calendar,Data.TEMP));
+    columns.add(new Column(RHUM_KEY, 3, true, calendar,Data.HUM ));
+    columns.add(new Column(RAIN_KEY, 4, true, calendar,Data.RAIN));
+    columns.add(new Column(FOG_KEY, 5, true, calendar ,Data.FOG ));
   }
 
   public void configure(String file_name){

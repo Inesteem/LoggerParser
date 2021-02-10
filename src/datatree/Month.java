@@ -3,6 +3,7 @@ import src.types.*;
 
 import java.util.Calendar;
 import java.text.DateFormatSymbols;
+import java.util.Locale;
 
 public class Month extends TimeUnit<Day> {
   public Month(Limits limits){
@@ -19,7 +20,9 @@ public class Month extends TimeUnit<Day> {
   }
 
   public static String toString(int id) {
-    return new DateFormatSymbols().getShortMonths()[id];
+
+    Locale locale = new Locale("en","UK");
+    return new DateFormatSymbols(locale).getShortMonths()[id];
   };
 
   public String identifier(int id) {

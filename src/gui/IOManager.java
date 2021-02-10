@@ -7,6 +7,7 @@ import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 
+import java.net.URL;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -27,6 +28,7 @@ import javax.swing.text.*;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import src.LoggerParser;
 
 public class IOManager {
 
@@ -323,11 +325,11 @@ public class IOManager {
     return success;
   }
 
-    public static ImageIcon loadLGIcon(String iconName) {
-    String str = new File(IOManager.class.getProtectionDomain()
-            .getCodeSource().getLocation().getPath()).getAbsolutePath() + "\\src\\img\\"+iconName;
-    ImageIcon imgIcon = new ImageIcon(str);
-    return imgIcon;
+  public static ImageIcon loadLGIcon(String iconName) {
+    URL url = LoggerParser.class.getResource( "/src/img/"+iconName);
+    if(url != null)
+      return new ImageIcon(url);
+    return null;
   }
   //TODO: refactor; put in another file
   public static ImageIcon scale(ImageIcon imageIcon, int width, int height){
@@ -336,6 +338,12 @@ public class IOManager {
     return new ImageIcon(newImg);  // transform it back
   }
 
+  public static String addIdToFilename(String filename, String id) {
+    String newFilename = FilenameUtils.removeExtension(filename);
+    newFilename += "_"+id;
+    newFilename += "."+FilenameUtils.getExtension(filename);
+    return newFilename;
 
+  }
 
 }

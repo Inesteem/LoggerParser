@@ -1,7 +1,8 @@
-package src.gui;
+package src.plotting;
 import src.datatree.TimeRange;
 import src.datatree.TreeETE3Stringifier;
-import src.datatree.YearMap;
+import src.datatree.DataTree;
+import src.gui.IOManager;
 import src.types.*;
 
 import java.io.FileOutputStream;
@@ -9,11 +10,10 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.nio.file.Files;
 import java.io.IOException;
-import java.sql.Time;
-
-import static src.types.Metric.DAY;
 
 public class PlotHelper {
+  public static String PlotScript1 = "PlotFiles.py";
+  public static String PlotScript2 = "PlotDataTree.py";
 
   public static void delete_pyscripts(String scriptName) {
 
@@ -45,7 +45,7 @@ public class PlotHelper {
     return newFileName;
   }
   public static void execute_dataPlot(String title, Data plotData, Metric metric, String fileName) {
-    String path = copy_pyscript("PlotFiles.py");
+    String path = copy_pyscript(PlotScript1);
     if (path.equals("")) {
       IOManager.asWarning("Plotting not possible; The python file '\"+fileName+\"' is not accessible.");
       return;
@@ -54,16 +54,14 @@ public class PlotHelper {
     String line = "python " + path + " --file "+fileName + " --title "+title+" --label "+String.valueOf(plotData)+" --xTics "+String.valueOf(metric);
     System.out.println(line);
     try{
-      // create a process and execute notepad.exe
       Runtime.getRuntime().exec(line);
-
     } catch (Exception ex) {
       IOManager.asWarning(ex.getMessage());
       ex.printStackTrace();
     }
   }
   public static void execute_treeDataPlot(String fileName) {
-    String path = copy_pyscript("PlotDataTree.py");
+    String path = copy_pyscript(PlotScript2);
     if (path.equals("")) {
       IOManager.asWarning("Plotting not possible; The python file '"+fileName+"' is not accessible.");
       return;
@@ -72,9 +70,7 @@ public class PlotHelper {
     String line = "python " + path + " --file "+fileName;
     System.out.println(line);
     try{
-      // create a process and execute notepad.exe
       Runtime.getRuntime().exec(line);
-
     } catch (Exception ex) {
       IOManager.asWarning(ex.getMessage());
       ex.printStackTrace();
@@ -88,7 +84,7 @@ public class PlotHelper {
    * @param plotData the plotted data type (RAIN, WIND, ...)
    * @param tr the timeRange set by the user via the GUI restricting certain time ranges
    */
-  public static void plot_stats(YearMap dataMap, Method method, Metric metric, String title, Data plotData, TimeRange tr){
+  public static void plot_stats(DataTree dataMap, Method method, Metric metric, String title, Data plotData, TimeRange tr){
 
     String fileName = System.getProperty("java.io.tmpdir") + "\\plot_"+ plotData;
     int min = metric.getUserMinIncl();
@@ -140,16 +136,16 @@ public class PlotHelper {
     tr.print(metric);
   }
 
-  public static void visualizeDataTree(YearMap dataMap, Method method, TimeRange timeRange, Metric metric, String fileName) {
+  public static void visualizeDataTree(DataTree dataMap, Method method, TimeRange timeRange, Metric metric, Data data, String fileName) {
     String filePath = System.getProperty("java.io.tmpdir") + "\\"+fileName;
     StringBuilder sb = new StringBuilder("");
     TreeETE3Stringifier tw = new TreeETE3Stringifier(sb,method);
     dataMap.add_years(timeRange); //TODO;
-    timeRange.print(DAY);
     tw.set_timeRange(timeRange);
+    tw.set_data(data);
     dataMap.accept(tw,metric, timeRange);
     //System.out.println(metric); //TODO
-    System.out.println(sb.toString()); //TODO
+    //System.out.println(sb.toString()); //TODO
     try {
       FileOutputStream plotFile = new FileOutputStream(filePath);
       plotFile.write(sb.toString().getBytes());

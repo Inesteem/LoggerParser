@@ -18,8 +18,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--file", help="input file", type=str, required=True)
     args = parser.parse_args()
-    tree_str = open(args.file).readline().strip()
-    print(tree_str)
+    tree_str = open(args.file).readline().strip().replace('Â','' )
+   # print(tree_str)
     ts = TreeStyle()
     # Do not add leaf names automatically
     ts.show_leaf_name = False

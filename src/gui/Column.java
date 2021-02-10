@@ -1,6 +1,7 @@
 package src.gui;
 import src.datatree.*;
 import src.parser.Parser;
+import src.parser.ValuePanel;
 import src.types.*;
 import static src.types.Metric.*;
 
@@ -19,8 +20,7 @@ import java.util.Locale;
 
 public class Column {
 
-  YearMap dataTree;
-  public double l_thresh,u_thresh;
+  DataTree dataTree;
   int pos;
   public double mul;
   NumberFormat format;
@@ -31,11 +31,9 @@ public class Column {
   Data data;
   TimeRange timeRange;
 
-  public Column(String key, double l_thresh, double u_thresh, int pos, boolean average, Calendar calendar, Data pd){
-    this.data = pd;
+  public Column(String key, int pos, boolean average, Calendar calendar, Data data){
+    this.data = data;
     this.key=key;
-    this.l_thresh = l_thresh;
-    this.u_thresh = u_thresh;
     this.pos = pos;
     this.calendar = calendar;
     mul = 1.0;
@@ -46,7 +44,7 @@ public class Column {
     if (average) method = Method.AVG;
     else method = Method.SUM;
 
-    dataTree = Parser.getDataMap(method,pd,limits);
+    dataTree = Parser.getDataMap(method,data,limits);
   }
   public Data get_data() {
     return data;
@@ -56,7 +54,7 @@ public class Column {
     return method;
   }
 
-  public YearMap get_data_tree() {
+  public DataTree get_data_tree() {
     return dataTree;
 
   }
@@ -65,13 +63,8 @@ public class Column {
     return  timeRange;
   }
 
-  public void set_limits(int minD, int minM){
-    limits.set_limit(Metric.HOUR, minD);
-    limits.set_limit(Metric.DAY, minM);
-  }
-
-  public boolean set_values(String[] data, Date date){
-    if (data.length <= pos){
+  public boolean set_values(String[] data, Date date, ValuePanel panel){
+    if (data.length <= pos || !panel.useVal()){
       return false;
     } 
 
@@ -88,7 +81,7 @@ public class Column {
       }
     }
     val *= mul;
-    if(l_thresh > val || val > u_thresh) return false;
+    if(panel.getMin() > val || val > panel.getMax()) return false;
 
     calendar.setTime(date);  
     dataTree.add_val(val, calendar);
@@ -97,12 +90,13 @@ public class Column {
   }
 
   public void write_to_file(FileOutputStream ostream) throws IOException {
-    ostream.write(("\nData: "+data.toString().toLowerCase()+" in "+key+" \n").getBytes());
+    ostream.write(("Data: "+data.description + "\n").getBytes());
 
     TreeWriter tw = new TreeWriter(ostream,method);
     dataTree.add_years(timeRange);
     tw.set_timeRange(timeRange);
     tw.monthly_overview(dataTree);
+    tw.hourly_overview(dataTree);
     dataTree.accept(tw,DAY, timeRange);
     return;
     /*

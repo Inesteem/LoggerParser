@@ -1,7 +1,8 @@
 package src.gui;
 
 import src.datatree.TimeRange;
-import src.datatree.YearMap;
+import src.datatree.DataTree;
+import src.plotting.PlotHelper;
 import src.types.Condition;
 import src.types.Method;
 import src.types.Metric;
@@ -34,7 +35,7 @@ public class DataTreeVisualization extends Thread {
                 setVisible(false);
                 dispose();
             }
-            public ConditionRemove(YearMap dataTree, TimeRange timeRange, Point pos) {
+            public ConditionRemove(DataTree dataTree, TimeRange timeRange, Point pos) {
                 valField.setValue(0.0);
                 removeButton.setBackground(Color.RED);
                 removeButton.addActionListener(new ActionListener() {
@@ -49,7 +50,7 @@ public class DataTreeVisualization extends Thread {
                             dataTree.reset();
                             IOManager.asMessage(numRemoved + " entries removed.");
                         }
-                        close();
+                        //close();
 
                     }
                 });
@@ -249,11 +250,11 @@ public class DataTreeVisualization extends Thread {
                 Column col = columns.get(i);
                 Data data = col.get_data();
                 Method method = col.get_method();
-                YearMap dataTree = col.get_data_tree();
+                DataTree dataTree = col.get_data_tree();
                 TimeRange timeRange = col.get_timeRange();
                 dataTree.add_years(timeRange);
 
-                ImageIcon icon = IOManager.scale(IOManager.loadLGIcon(data.toString().toLowerCase() + ".png"), 16, 16);
+                ImageIcon icon = IOManager.scale(IOManager.loadLGIcon(data.icon), 16, 16);
 
                 String pref_str = PREF_METRICS + "_" + col.key;
                 JButton visTreeButton = new JButton("Show Data Tree");
@@ -294,7 +295,7 @@ public class DataTreeVisualization extends Thread {
                 visTreeButton.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         pref.put(pref_str, String.valueOf(select_range.getSelectedItem()));
-                        PlotHelper.visualizeDataTree(dataTree, method, timeRange, Metric.getEnum((String)select_range.getSelectedItem()), "LG_DATA_TREE.csv");
+                        PlotHelper.visualizeDataTree(dataTree, method, timeRange, Metric.getEnum((String)select_range.getSelectedItem()),data, "LG_DATA_TREE.csv");
                     }
                 });
 
@@ -313,7 +314,7 @@ public class DataTreeVisualization extends Thread {
                 });
 
                 JPanel panel = getPlotStuff(col.get_data(), plotButton, visTreeButton, remButton, remCondButton, select_range, rangeFields);
-                tabbedPane.addTab(col.get_data().toString(), icon, panel, col.get_data().getDescription());
+                tabbedPane.addTab(col.get_data().toString(), icon, panel, col.get_data().description);
                 tabbedPane.setMnemonicAt(0, key_events[i]);
             }
 

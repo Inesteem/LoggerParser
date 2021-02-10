@@ -257,7 +257,6 @@ public abstract class LogFormat {
 
       for(int i = 0; i < valuePanels.size(); ++i){
         ValuePanel panel = valuePanels.get(i);
-        Column col = columns.get(i);
 
         if (!panel.valid()) {
           IOManager.asWarning("Wrong values entered. Please retry or exit.");
@@ -265,9 +264,6 @@ public abstract class LogFormat {
           finished=false;
           break;
         }
-        col.l_thresh = panel.getMin();
-        col.u_thresh = panel.getMax();
-        col.set_limits(panel.getMinD(), panel.getMinM());
 
         panel.updatePrefs();
       }
@@ -292,20 +288,23 @@ public abstract class LogFormat {
     //		calendar.setTime(date);   // assigns calendar to given date 
     Date date = get_date(data);
     preprocess(data);
-    for(Column c : columns) {
+    for(int i = 0; i < valuePanels.size(); ++i){
+      ValuePanel panel = valuePanels.get(i);
+      Column col = columns.get(i);
       // out of bounds (thresholds)
-      if(!c.set_values(data, date)){
-        return false;
-      }
+      col.set_values(data, date, panel);
+
     }
     return true;
   }
 
 
-  void write_to_file(FileOutputStream ostream) throws IOException{
-
+  void write_to_file(String filename) throws IOException{
     for(Column col : columns) {
+      FileOutputStream ostream;
+      ostream = new FileOutputStream(IOManager.addIdToFilename(filename, col.get_data().name));
       col.write_to_file(ostream);
+      ostream.close();
     }
   }
 

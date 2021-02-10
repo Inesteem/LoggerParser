@@ -15,19 +15,19 @@ public class TempRelHumWindFormat
 
     public TempRelHumWindFormat(){
         super(Parser.ParserType.REL_HUM_WIND, PREF_ALL);
-        valuePanels.add(new ValuePanel("Temperature", PREF_STR+"_TEMP", 11, 0, 100, true));
-        valuePanels.add(new ValuePanel("Relative Humidity", PREF_STR+"_RH", 11, 0, 100, true));
-        valuePanels.add(new ValuePanel("Wind Direction", PREF_STR+"_WD", 11, 0, 360, true));//degree
-        valuePanels.add(new ValuePanel("Wind Velocity", PREF_STR+"_WV1", 11, 0, 10000, true));//in m per sec
-        valuePanels.add(new ValuePanel("Frequency", PREF_STR+"_F", 11, 0, 1000, true));//in Hz
-        valuePanels.add(new ValuePanel("Wind Velocity", PREF_STR+"_WV2", 11, 0, 10000, true));//in m per sec
+        valuePanels.add(new ValuePanel(TEMP     ,PREF_STR+"_TEMP", 11, 0, 100));
+        valuePanels.add(new ValuePanel(HUM      ,PREF_STR+"_RH", 11, 0, 100));
+        valuePanels.add(new ValuePanel(WIND_DIR ,PREF_STR+"_WD", 11, 0, 360));//degree
+        valuePanels.add(new ValuePanel(WIND_VEL1,PREF_STR+"_WV1", 11, 0, 10000));//in m per sec
+        valuePanels.add(new ValuePanel(FREQ     ,PREF_STR+"_F", 11, 0, 1000));//in Hz
+        valuePanels.add(new ValuePanel(WIND_VEL2,PREF_STR+"_WV2", 11, 0, 10000));//in m per sec
 
-        columns.add(new Column(TEMP_KEY, 1, 100,    2, true, calendar, TEMP));
-        columns.add(new Column(RHUM_KEY, 1, 100,    3, true, calendar, HUM));
-        columns.add(new Column(WDIR_KEY, 0, 360,    4, true, calendar, WIND_DIR));
-        columns.add(new Column(WVE1_KEY, 0, 10000,  5, true, calendar, WIND_VEL));
-        columns.add(new Column(FREQ_KEY, 0, 1000,   6, true, calendar, FREQ));
-        columns.add(new Column(WVE2_KEY, 0, 10000,  7, true, calendar, WIND_VEL));
+        columns.add(new Column(TEMP_KEY,  2, true, calendar, TEMP     ));
+        columns.add(new Column(RHUM_KEY,  3, true, calendar, HUM      ));
+        columns.add(new Column(WDIR_KEY,  4, true, calendar, WIND_DIR ));
+        columns.add(new Column(WVE1_KEY,  5, true, calendar, WIND_VEL1));
+        columns.add(new Column(FREQ_KEY,  6, true, calendar, FREQ     ));
+        columns.add(new Column(WVE2_KEY,  7, true, calendar, WIND_VEL2));
     }
 
     void preprocess(String[] data){}

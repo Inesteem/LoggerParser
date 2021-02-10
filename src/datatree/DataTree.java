@@ -22,7 +22,7 @@
  * Again, I am sorry. It's all crap but it works, so I wont change it. Let's just hate this peace of shit together.
  *
  * So, a valid usage would be
- * YearMap ym = ...//fill the tree
+ * DataTree ym = ...//fill the tree
  * TimeRange tr = new TimeRange(~0l); //allow all hours, days, months and years
  * //days, hours and months can be unset in advance
  * tr.unset_idx(DAY,0); //everybody hates mondays, so let's disable them. Remember to subtract one for the nth day
@@ -41,12 +41,12 @@
  * //adding new Limits requires a reset
  * tr.reset()
  * Limits limits = new Limits();
- * //its equally valid to add a limit to limits BEFORE its added to the YearMap...
+ * //its equally valid to add a limit to limits BEFORE its added to the DataTree...
  * limits.set_limit(HOUR, 3); // hours are only valid if they contain at least 3 measurements
  * limits.set_limit(DAY, 12); // days are only valid if they contain at least 12 valid hours
  * ym.set_limit(limits);
  * //as it is valid to add it AFTER. It doesn't matter since it is the same element.
- * //this means that changing the limits element outside the YearMap changes the limits inside it.
+ * //this means that changing the limits element outside the DataTree changes the limits inside it.
  * limits.set_limit(MONTH, 15); // months are only valid if they contain at least 15 valid days
  * ym.calc(tr);
  * */
@@ -58,10 +58,10 @@ import src.types.*;
 import java.util.Calendar;
 import java.util.HashMap;
 
-public class YearMap extends TimeUnit<Year> {
+public class DataTree extends TimeUnit<Year> {
   protected HashMap<Integer,Year> hm;
 
-  public YearMap(Limits limits){
+  public DataTree(Limits limits){
     super(0,limits);
     hm = new HashMap<Integer,Year>();
     metric = Metric.YEAR;

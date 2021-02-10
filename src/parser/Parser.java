@@ -30,7 +30,7 @@ public class Parser extends JFrame {
   boolean windowClosed = false;
   //recognize duplicated entries
   HashMap<Date,String> RainPerDate;
-  static YearMap dataMaps[][] = new YearMap[Method.SIZE.value()][Data.SIZE.value()];
+  static DataTree dataMaps[][] = new DataTree[Method.SIZE.value()][Data.SIZE.value];
 
   public enum ParserType {
     NONE, IMPULS, MOMENT_VALS, REL_HUM, REL_HUM_VOLT, WITH_FOG, REL_HUM_WIND, OTHER
@@ -38,7 +38,7 @@ public class Parser extends JFrame {
 
   public static void reset() {
     p_type = ParserType.NONE;
-    dataMaps = new YearMap[Method.SIZE.value()][Data.SIZE.value()];
+    dataMaps = new DataTree[Method.SIZE.value()][Data.SIZE.value];
   }
   public Parser(){
     setTitle("Parse Log-Files");
@@ -105,36 +105,19 @@ public class Parser extends JFrame {
     l_format.updateVisualization(dtr);
   }
 
-  public static YearMap getDataMap(Method m, Data pd, Limits limits) {
+  public static DataTree getDataMap(Method method, Data data, Limits limits) {
 
-    if(dataMaps[m.value()][pd.value()]== null){
-      dataMaps[m.value()][pd.value()] = new YearMap(limits);
+    if(dataMaps[method.value()][data.value]== null){
+      dataMaps[method.value()][data.value] = new DataTree(limits);
     } else {
-      dataMaps[m.value()][pd.value()].set_limits(limits);
+      dataMaps[method.value()][data.value].set_limits(limits);
     }
-    return dataMaps[m.value()][pd.value()];
+    return dataMaps[method.value()][data.value];
   }
-
-  public static void plot(){
-    for(Method m : Method.values()){
-      int midx = m.value();
-      if(midx >= dataMaps.length) continue;
-      for(Data pd : Data.values()){
-        int idx = pd.value();
-        if(idx >=dataMaps[midx].length || dataMaps[midx][idx] == null) continue;
-        PlotWindow pw = new PlotWindow();
-        pw.run(null, pd, m, dataMaps[midx][idx]);
-      }
-    }
-  }
-
 
   public static void write_log_info(String filename){
-    FileOutputStream outputStream;
     try{
-      outputStream = new FileOutputStream(filename);
-      l_format.write_to_file(outputStream);
-      outputStream.close();
+      l_format.write_to_file(filename);
     } catch(IOException e) {
       e.printStackTrace();
     }

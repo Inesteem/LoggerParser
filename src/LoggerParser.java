@@ -4,7 +4,6 @@
 //	jar -cmvf Manifest.txt LoggerParser.jar *.class .\parser\*.class .\lib\*
 package src;
 import java.awt.*;
-import javax.management.openmbean.TabularData;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -15,7 +14,7 @@ import java.util.Objects;
 
 import src.parser.*;
 import src.gui.*;
-import src.types.Condition;
+import src.plotting.PlotHelper;
 
 public class LoggerParser {
 
@@ -29,7 +28,8 @@ public class LoggerParser {
   static Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 
 private static class MainMenu extends JFrame {
-
+  JMenuBar menuBar= new JMenuBar();
+  JMenuItem debugItem;
   JButton inputButton = new JButton( "Input");
   JButton parseButton = new JButton( "Parse");
   JButton filterButton = new JButton( "Filter");
@@ -41,6 +41,14 @@ private static class MainMenu extends JFrame {
     setTitle("Logger Parser");
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setLayout(new BoxLayout(getContentPane(), BoxLayout.X_AXIS));
+    setJMenuBar(menuBar);
+
+    JMenu debugMenu = new JMenu("Debug");
+    debugMenu.setForeground(Color.GRAY);
+    debugItem = debugMenu.add("Reload Scripts");
+    debugItem.setForeground(Color.GRAY);
+    debugItem.setToolTipText("This is useless shit if you are an user.");
+    menuBar.add(debugMenu);
 
     JButton buttons[] = {inputButton, parseButton, filterButton, saveButton};
     JPanel buttonPanel = new JPanel();
@@ -80,9 +88,15 @@ private static class MainMenu extends JFrame {
 
       public void actionPerformed(ActionEvent e){
         try {
+          Parser.reset();
+          inputButton.setEnabled(false);
+          parseButton.setEnabled(false);
+          saveButton.setEnabled(false);
+          filterButton.setEnabled(false);
           input_paths = IOManager.getFileList(mainFrame, PREF_INPUT_PATH_FILE, "Define input file(s)/dir(s).", IOManager.FileType.ALL, JFileChooser.OPEN_DIALOG);
           if(input_paths == null || input_paths.length == 0){
             IOManager.asWarning("No valid input specified!");
+            inputButton.setEnabled(true);
             return;
           }
           if (output_path != null ) parseButton.setEnabled(true);
@@ -91,10 +105,8 @@ private static class MainMenu extends JFrame {
           IOManager.asError("jar file missing: check if there is a 'lib' dir containing a file named 'org.apache.commons.io.FilenameUtils.jar'");
           System.exit(-1);
         }
-        Parser.reset();
+        inputButton.setEnabled(true);
         parseButton.setEnabled(true);
-        saveButton.setEnabled(false);
-        filterButton.setEnabled(false);
         getRootPane().setDefaultButton(parseButton);
         parseButton.requestFocus();
       }
@@ -107,6 +119,7 @@ private static class MainMenu extends JFrame {
         synchronized (parseLock) {
           parseLock.notify();
         }
+        parseButton.setEnabled(false);
         //getRootPane().setDefaultButton(saveButton);
         //saveButton.requestFocus();
         getRootPane().setDefaultButton(filterButton);
@@ -143,6 +156,15 @@ private static class MainMenu extends JFrame {
 
     });
 
+    debugItem.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        PlotHelper.delete_pyscripts(PlotHelper.PlotScript1);
+        PlotHelper.delete_pyscripts(PlotHelper.PlotScript2);
+      }
+    });
+
+
     getRootPane().setDefaultButton(inputButton);
     inputButton.requestFocus();
 
@@ -167,14 +189,13 @@ private static class MainMenu extends JFrame {
             } catch (InterruptedException e) {
               e.printStackTrace();
             }
-            parseButton.setEnabled(false);
             inputButton.setEnabled(false);
             filterButton.setEnabled(false);
             saveButton.setEnabled(false);
-            boolean successfull = parse_logs(input_paths);
+            boolean successful = parse_logs(input_paths);
             parseButton.setEnabled(true);
             inputButton.setEnabled(true);
-            if(successfull) {
+            if(successful) {
               filterButton.setEnabled(true);
               saveButton.setEnabled(true);
 
@@ -244,14 +265,9 @@ private static class MainMenu extends JFrame {
   }
   static void save_data() {
     String output_path = LoggerParser.output_path.getAbsolutePath();
-
     if(new File(output_path).isDirectory()){
       output_path = output_path + "\\" + "log.txt";
     }
-    IOManager.createFile(output_path);
-
-    // System.out.println("parsed " + cnt + " files for " + new_output_path);
-    //parser.print_log_info();
     Parser.write_log_info(output_path);
   }
 

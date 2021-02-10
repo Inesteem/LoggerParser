@@ -1,11 +1,9 @@
 package src.datatree;
 
-import src.gui.IOManager;
+import src.types.Data;
 import src.types.Method;
 import src.types.Metric;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -19,6 +17,7 @@ public class TreeETE3Stringifier implements TreeVisitor<Integer> {
     Method method;
     DecimalFormat df;
     StringBuilder sb;
+    Data data;
 
     @Override
     public void set_limits(Limits l){ this.limits = l;}
@@ -31,6 +30,8 @@ public class TreeETE3Stringifier implements TreeVisitor<Integer> {
         this.method = method;
     }
 
+    public void set_data(Data data) { this.data = data;}
+
     public TreeETE3Stringifier(StringBuilder sb, Method method){
         this.sb = sb;
         this.method = method;
@@ -40,7 +41,7 @@ public class TreeETE3Stringifier implements TreeVisitor<Integer> {
     }
 
     @Override
-    public Integer visit(YearMap ym, Metric metric){
+    public Integer visit(DataTree ym, Metric metric){
         sb.append("(");
         for(int i = 0; i < ym.subUnits.size(); ++i){
             if (!timeRange.in_range(YEAR,ym.get_idx(i))) continue;
@@ -68,7 +69,7 @@ public class TreeETE3Stringifier implements TreeVisitor<Integer> {
         if (num == 0) return 0;
 
         if (metric == YEAR) {
-            sb.append(num);
+            sb.append(num + "|" + df.format(y.get_val(timeRange, method))+data.unit);
             //sb.append(df.format(y.get_val(timeRange, method)));
             return num;
         }
@@ -93,7 +94,7 @@ public class TreeETE3Stringifier implements TreeVisitor<Integer> {
         if (num == 0) return 0;
 
         if (metric == MONTH) {
-            sb.append(num);
+            sb.append(num + "|" + df.format(m.get_val(timeRange, method))+data.unit);
             //sb.append(df.format(m.get_val(timeRange, method)));
             return num;
         }
@@ -120,7 +121,7 @@ public class TreeETE3Stringifier implements TreeVisitor<Integer> {
         if (num == 0) return 0;
 
         if (metric == DAY) {
-            sb.append(num);
+            sb.append(num + "|" + df.format(d.get_val(timeRange, method))+data.unit);
             //sb.append(df.format(d.get_val(timeRange, method)));
             return num;
         }
@@ -141,7 +142,7 @@ public class TreeETE3Stringifier implements TreeVisitor<Integer> {
 
     @Override
     public Integer visit(Hour h, Metric metric) {
-        sb.append(h.get_num(timeRange));
+        sb.append(h.get_num(timeRange) + "|" + df.format(h.get_val(timeRange, method))+data.unit);
         //sb.append(df.format(h.get_val(timeRange, method)));
         return 1;
     }

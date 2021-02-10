@@ -11,7 +11,6 @@ extends LogFormat {
   public static final String PREF_MM = "LP_PREF_IMPULS_MM";
   public static final String PREF_ALL = "LP_PREF_IMPULS_ALL";
   public static final String PREF_STR = "LP_PREF_IMPULS";
-  public static final String TITLE_STR= "Millimeter";
   public static final String IMPULS_KEY = "mms";
 
   Double[] impuls_mms = {0.2,0.5,0.8,1.0};
@@ -22,9 +21,9 @@ extends LogFormat {
 
   public ImpulsFormat(){
     super(Parser.ParserType.IMPULS, PREF_ALL);
-    valuePanels.add(new ValuePanel(TITLE_STR, PREF_STR, 10, 0,1000, false));
+    valuePanels.add(new ValuePanel(Data.RAIN, PREF_STR, 10, 0,1000));
 
-    columns.add(new Column(IMPULS_KEY, 0, 100 , 2, false, calendar, Data.RAIN));
+    columns.add(new Column(IMPULS_KEY,2, false, calendar, Data.RAIN));
   }
 
   void preprocess(String[] data){}
@@ -36,7 +35,7 @@ extends LogFormat {
     mm_select.setSelectedItem(pref_mm);
     mm_select.setEditable(true);
 
-    mm_select.setName(TITLE_STR + "_val");
+    mm_select.setName(Data.RAIN.unit + "_val");
 
     JPanel panelMMs = new JPanel();
     panelMMs.add(new JLabel("Millimeter per impuls: "));

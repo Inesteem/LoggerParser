@@ -192,8 +192,8 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
       if (unit == null || !timeRange.in_range(this.metric,get_idx(i))) continue;
 
       if(this.metric == metric && cond != Condition.ALL ){
-        int num_vsu = unit.get_num_valid_subUnits(TimeRange.ALL);
-        if (cond.cond.checkFor(cmp, num_vsu)){
+        int num_vsu = unit.get_num_valid_subUnits(timeRange);
+        if (cond.cond.checkFor(num_vsu, cmp)){
           num += num_vsu;
           subUnits.set(i, null);
         }

@@ -12,19 +12,18 @@ import org.junit.jupiter.api.Test;
 
 import src.datatree.Limits;
 import src.datatree.TimeRange;
-import src.datatree.TreePrinter;
-import src.datatree.YearMap;
+import src.datatree.DataTree;
 
 import static src.datatree.TimeRange.ALL;
 import static src.types.Method.*;
 import static src.types.Metric.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-class YearMapTest {
+class DataTreeTest {
     public static DateFormat date_format;
     public static Calendar calendar;
-    public static YearMap yearMap;
-    public static YearMap yearMap2;
+    public static DataTree yearMap;
+    public static DataTree yearMap2;
     public static Limits limits;
 
     final static String[] dates2 = {
@@ -77,8 +76,8 @@ class YearMapTest {
             6, 3, 4, 7, // 20 } 45
             2, 2, 3, 5  // 12/
     };
-    public static YearMap getFilledYearMap(String dates[], String times[][], double data[]) throws java.text.ParseException {
-         YearMap yp = new YearMap(limits);
+    public static DataTree getFilledYearMap(String dates[], String times[][], double data[]) throws java.text.ParseException {
+         DataTree yp = new DataTree(limits);
          assertTrue(dates.length == times.length);
          int d = 0;
          for(int i = 0; i < dates.length; ++i) {
@@ -91,7 +90,7 @@ class YearMapTest {
          }
         return yp;
     }
-    public static YearMap getYearMap1(){
+    public static DataTree getYearMap1(){
 
         try {
             return getFilledYearMap(dates, times, data);
@@ -101,7 +100,7 @@ class YearMapTest {
         return null;
 
     }
-    public static YearMap getYearMap2(){
+    public static DataTree getYearMap2(){
 
         try {
             return getFilledYearMap(dates2, times2, data2);

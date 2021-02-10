@@ -11,7 +11,8 @@ figuresize = (
 
 labelMap = {
     'WIND_DIR'  : 'Wind Direction (in degree)',
-    'WIND_VEL'  : 'Wind Velocity (in m/s)',
+    'WIND_VEL1'  : 'Wind Velocity (in m/s)',
+    'WIND_VEL2'  : 'Wind Velocity (in m/s)',
     'FOG'   : 'Fog (in TODO)',
     'RAIN'  : 'Rain (in mms)',
     'TEMP'  : 'Temperature (in DegC)',
@@ -20,18 +21,21 @@ labelMap = {
     'HOUR'  : 'Hours',
     'DAY'   : 'Days',
     'YEAR'  : 'Years',
-    'VOLT'  : 'Voltage (in mV)',
+    'VOLT1'  : 'Voltage (in mV)',
+    'VOLT2'  : 'Voltage (in mV)',
     'NOK'   : 'No Data'
 }
 
 colorMap = {
     'WIND_DIR' : '#76d1e3',
-    'WIND_VEL' : '#76d1e3',
+    'WIND_VEL1' : '#76d1e3',
+    'WIND_VEL2' : '#76d1e3',
     'FOG'  : '#9da7b0',
     'RAIN' : '#042f66',
     'TEMP' : '#980598',
     'HUM'  : '#77c7df',
-    'VOLT' : '#993366',
+    'VOLT1' : '#993366',
+    'VOLT2' : '#993366',
     'NOK'  : '#e71109'
 }
 

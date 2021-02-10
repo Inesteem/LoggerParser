@@ -34,7 +34,7 @@ public class TreePrinter implements TreeVisitor<Void> {
 
 
     @Override
-    public Void visit(YearMap ym, Metric metric) {
+    public Void visit(DataTree ym, Metric metric) {
         System.out.println("");
         for(int i = 0; i < ym.subUnits.size(); ++i){
             if (!timeRange.in_range(YEAR,ym.get_idx(i))) continue;

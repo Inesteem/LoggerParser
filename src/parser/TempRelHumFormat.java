@@ -13,11 +13,11 @@ extends LogFormat {
 
   public TempRelHumFormat(){
     super(Parser.ParserType.REL_HUM, PREF_ALL);
-    valuePanels.add(new ValuePanel("Temperature", PREF_STR+"_TEMP", 10, 0, 100, true));
-    valuePanels.add(new ValuePanel("Relative Humidity", PREF_STR+"_RH", 10, 0, 42, true));
+    valuePanels.add(new ValuePanel(Data.TEMP,PREF_STR+"_TEMP", 10, 0, 100));
+    valuePanels.add(new ValuePanel(Data.HUM, PREF_STR+"_RH", 10, 0, 100));
 
-    columns.add(new Column(TEMP_KEY, 0, 100 , 2, true, calendar, Data.TEMP));
-    columns.add(new Column(RHUM_KEY, 0, 100 , 3, true, calendar, Data.HUM));
+    columns.add(new Column(TEMP_KEY,  2, true, calendar, Data.TEMP));
+    columns.add(new Column(RHUM_KEY,  3, true, calendar, Data.HUM ));
   }
 
   void preprocess(String[] data){}
