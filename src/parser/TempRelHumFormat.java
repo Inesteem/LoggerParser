@@ -12,12 +12,12 @@ extends LogFormat {
   static String RHUM_KEY = "rhum";
 
   public TempRelHumFormat(){
-    super(Parser.ParserType.REL_HUM, PREF_ALL);
+    super(ParserType.REL_HUM, PREF_ALL);
     valuePanels.add(new ValuePanel(Data.TEMP,PREF_STR+"_TEMP", 10, 0, 100));
     valuePanels.add(new ValuePanel(Data.HUM, PREF_STR+"_RH", 10, 0, 100));
 
-    columns.add(new Column(TEMP_KEY,  2, true, calendar, Data.TEMP));
-    columns.add(new Column(RHUM_KEY,  3, true, calendar, Data.HUM ));
+    columns.add(new Column(2, true, calendar, Data.TEMP));
+    columns.add(new Column(3, true, calendar, Data.HUM ));
   }
 
   void preprocess(String[] data){}
@@ -30,10 +30,6 @@ extends LogFormat {
     if(!line[2].contains("Temperatur")) return false;
     if(!line[4].contains("rel.Humidity") && !line[4].contains("rel.Feuchte")) return false;
     return true;
-  }
-
-  public String get_value_header() {
-    return "temp rel_hum";
   }
 
 }

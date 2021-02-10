@@ -13,7 +13,6 @@ import java.lang.NumberFormatException;
 import java.text.NumberFormat;
 import java.text.ParseException;
 
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -25,15 +24,13 @@ public class Column {
   public double mul;
   NumberFormat format;
   Calendar calendar;
-  public String key;
   Method method;
   Limits limits;
   Data data;
   TimeRange timeRange;
 
-  public Column(String key, int pos, boolean average, Calendar calendar, Data data){
+  public Column(int pos, boolean average, Calendar calendar, Data data){
     this.data = data;
-    this.key=key;
     this.pos = pos;
     this.calendar = calendar;
     mul = 1.0;
@@ -54,20 +51,20 @@ public class Column {
     return method;
   }
 
+  public int get_pos() {
+    return pos;
+  }
+
+
   public DataTree get_data_tree() {
     return dataTree;
-
   }
 
   public TimeRange get_timeRange() {
     return  timeRange;
   }
 
-  public boolean set_values(String[] data, Date date, ValuePanel panel){
-    if (data.length <= pos || !panel.useVal()){
-      return false;
-    } 
-
+  public double parse_val(String[] data) {
     double val = -1;
     try {
       val= Double.parseDouble(data[pos]);
@@ -77,15 +74,23 @@ public class Column {
         val = number.doubleValue();
       } catch (ParseException e2){
         e2.printStackTrace();
-        IOManager.getInstance().asError("Parse exception with " + Arrays.toString(data));
       }
     }
+    return val;
+  }
+
+  public boolean set_values(String[] data, Date date, ValuePanel panel){
+    if (data.length <= pos || !panel.useVal() || data[pos].length() == 0){
+      return false;
+    } 
+
+    double val = parse_val(data);
+
     val *= mul;
     if(panel.getMin() > val || val > panel.getMax()) return false;
 
     calendar.setTime(date);  
     dataTree.add_val(val, calendar);
-
     return true;
   }
 

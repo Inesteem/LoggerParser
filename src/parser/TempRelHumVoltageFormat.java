@@ -13,16 +13,16 @@ extends LogFormat {
     static String V3_KEY = "volt2";
 
     public TempRelHumVoltageFormat(){
-        super(Parser.ParserType.REL_HUM_VOLT, PREF_ALL);
+        super(ParserType.REL_HUM_VOLT, PREF_ALL);
         valuePanels.add(new ValuePanel(Data.TEMP ,PREF_STR+"_TEMP", 11, 0, 100));
         valuePanels.add(new ValuePanel(Data.HUM  ,PREF_STR+"_RH", 11, 0, 100));
         valuePanels.add(new ValuePanel(Data.VOLT1,PREF_STR+"_V1", 10, 0, 100));
         valuePanels.add(new ValuePanel(Data.VOLT2,PREF_STR+"_V2", 10, 0, 100));
 
-        columns.add(new Column(TEMP_KEY, 2, true, calendar, Data.TEMP ));
-        columns.add(new Column(RHUM_KEY, 3, true, calendar, Data.HUM  ));
-        columns.add(new Column(V2_KEY, 4, true, calendar,   Data.VOLT1));
-        columns.add(new Column(V3_KEY, 5, true, calendar,   Data.VOLT2));
+        columns.add(new Column(2, true, calendar, Data.TEMP ));
+        columns.add(new Column(3, true, calendar, Data.HUM  ));
+        columns.add(new Column(4, true, calendar,   Data.VOLT1));
+        columns.add(new Column(5, true, calendar,   Data.VOLT2));
     }
 
     void preprocess(String[] data){}
@@ -37,10 +37,5 @@ extends LogFormat {
         if(!line[6].contains("Voltage") || !line[8].contains("Voltage")) return false;
         return true;
     }
-
-    public String get_value_header() {
-        return "temp rel_hum volt2 volt2";
-    }
-
 }
 

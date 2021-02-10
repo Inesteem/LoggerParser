@@ -4,10 +4,12 @@ import java.awt.*;
 import java.awt.Desktop;
 import java.awt.event.*;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
 import java.net.URL;
+import java.nio.Buffer;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -337,6 +339,14 @@ public class IOManager {
     Image newImg = image.getScaledInstance(width,height,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
     return new ImageIcon(newImg);  // transform it back
   }
+  public static ImageIcon crop(ImageIcon imageIcon, int row, int col, int width, int height) {
+    Image img= imageIcon.getImage();
+    BufferedImage bImg = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+    bImg =bImg.getSubimage(col, row, width, height);
+    bImg.getGraphics().drawImage(img, 0, 0, width, height, 0,0, width, height, null);
+    return new ImageIcon(bImg);
+  }
+
 
   public static String addIdToFilename(String filename, String id) {
     String newFilename = FilenameUtils.removeExtension(filename);

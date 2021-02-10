@@ -15,10 +15,23 @@ public class PlotHelper {
   public static String PlotScript1 = "PlotFiles.py";
   public static String PlotScript2 = "PlotDataTree.py";
 
+
+  public static boolean isInstalled(String program) {
+    try {
+      Process process = Runtime.getRuntime().exec(program);
+      int code = process.waitFor();
+      return code == 0;
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
+
+
   public static void delete_pyscripts(String scriptName) {
 
     String tmpDir = System.getProperty("java.io.tmpdir");
-    File script = new File(tmpDir + "\\" + scriptName);
+    File script = new File(tmpDir + File.separator + scriptName);
     if (script.exists()) { // true
       script.delete();
     }
@@ -26,8 +39,8 @@ public class PlotHelper {
 
   public static String copy_pyscript(String scriptName) {
     String tmpDir = System.getProperty("java.io.tmpdir");
-    String newFileName = tmpDir + "\\"+scriptName;
-    String pyFileName = "\\src\\plotting\\"+scriptName;
+    String newFileName = tmpDir + File.separator+scriptName;
+    String pyFileName = File.separator+"src"+File.separator+"plotting"+File.separator+scriptName;
     File newFile = new File(newFileName);
     String classPath = new File(PlotHelper.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getAbsolutePath();
     try {
@@ -50,8 +63,11 @@ public class PlotHelper {
       IOManager.asWarning("Plotting not possible; The python file '\"+fileName+\"' is not accessible.");
       return;
     }
-
-    String line = "python " + path + " --file "+fileName + " --title "+title+" --label "+String.valueOf(plotData)+" --xTics "+String.valueOf(metric);
+    String line = "python3 ";
+    if(!isInstalled("python3 -c 'print(1)'")){
+      line = "python ";
+    }
+    line += path + " --file "+fileName + " --title "+title+" --label "+String.valueOf(plotData)+" --xTics "+String.valueOf(metric);
     System.out.println(line);
     try{
       Runtime.getRuntime().exec(line);
@@ -66,8 +82,11 @@ public class PlotHelper {
       IOManager.asWarning("Plotting not possible; The python file '"+fileName+"' is not accessible.");
       return;
     }
-
-    String line = "python " + path + " --file "+fileName;
+    String line = "python3 ";
+    if(!isInstalled("python3 -c 'print(1)'")){
+      line = "python ";
+    }
+    line += path + " --file "+fileName;
     System.out.println(line);
     try{
       Runtime.getRuntime().exec(line);
@@ -86,7 +105,7 @@ public class PlotHelper {
    */
   public static void plot_stats(DataTree dataMap, Method method, Metric metric, String title, Data plotData, TimeRange tr){
 
-    String fileName = System.getProperty("java.io.tmpdir") + "\\plot_"+ plotData;
+    String fileName = System.getProperty("java.io.tmpdir") + File.separator+"plot_"+ plotData;
     int min = metric.getUserMinIncl();
     int max = metric.getUserMaxExcl();
     if (metric == Metric.YEAR) {
@@ -137,7 +156,7 @@ public class PlotHelper {
   }
 
   public static void visualizeDataTree(DataTree dataMap, Method method, TimeRange timeRange, Metric metric, Data data, String fileName) {
-    String filePath = System.getProperty("java.io.tmpdir") + "\\"+fileName;
+    String filePath = System.getProperty("java.io.tmpdir") + File.separator+fileName;
     StringBuilder sb = new StringBuilder("");
     TreeETE3Stringifier tw = new TreeETE3Stringifier(sb,method);
     dataMap.add_years(timeRange); //TODO;

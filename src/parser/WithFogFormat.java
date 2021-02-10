@@ -11,23 +11,17 @@ extends LogFormat {
 
   static String str1[] = {"Date", "Time", "1.Temperature", "[DegC]", "2.rel.Humidity", "[%]",  "Rain.Impulses", "[]", "Fog.Impulses", "[]"};  
 
-
-  static String TEMP_KEY = "temp";
-  static String RHUM_KEY = "rhum";
-  static String RAIN_KEY = "rain";
-  static String FOG_KEY =  "fog";
-
   public WithFogFormat(){
-    super(Parser.ParserType.WITH_FOG, PREF_ALL);
+    super(ParserType.WITH_FOG, PREF_ALL);
     valuePanels.add(new ValuePanel(Data.TEMP,PREF_STR+"_TEMP", 10, 0, 100));
     valuePanels.add(new ValuePanel(Data.HUM ,PREF_STR+"_RH", 10, 0, 100));
     valuePanels.add(new ValuePanel(Data.RAIN,PREF_STR+"_RAIN", 10, 0, 100));
     valuePanels.add(new ValuePanel(Data.FOG ,PREF_STR+"_FOG", 10, 0, 100)); // todo sum or avg?
 
-    columns.add(new Column(TEMP_KEY, 2, true, calendar,Data.TEMP));
-    columns.add(new Column(RHUM_KEY, 3, true, calendar,Data.HUM ));
-    columns.add(new Column(RAIN_KEY, 4, true, calendar,Data.RAIN));
-    columns.add(new Column(FOG_KEY, 5, true, calendar ,Data.FOG ));
+    columns.add(new Column( 2, true, calendar,Data.TEMP));
+    columns.add(new Column( 3, true, calendar,Data.HUM ));
+    columns.add(new Column( 4, true, calendar,Data.RAIN));
+    columns.add(new Column(5, true, calendar ,Data.FOG ));
   }
 
   public void configure(String file_name){
@@ -37,7 +31,6 @@ extends LogFormat {
   }
 
   void preprocess(String[] data) {
-    
     if(!data[4].equals("0")) {data[5]= "0";}
   }
 
@@ -54,9 +47,6 @@ extends LogFormat {
     return false;
   }
 
-  public String get_value_header() {
-    return "temp rel_hum rain fog";
-  }
 
 }
 

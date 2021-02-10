@@ -5,11 +5,13 @@
 package src;
 import java.awt.*;
 import javax.swing.*;
+import javax.swing.plaf.ColorUIResource;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Objects;
 
 import src.parser.*;
@@ -28,47 +30,62 @@ public class LoggerParser {
   static Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 
 private static class MainMenu extends JFrame {
-  JMenuBar menuBar= new JMenuBar();
-  JMenuItem debugItem;
-  JButton inputButton = new JButton( "Input");
-  JButton parseButton = new JButton( "Parse");
-  JButton filterButton = new JButton( "Filter");
-  JButton saveButton= new JButton("Save");
+  MainMenuButton inputButton = new MainMenuButton( "Input");
+  MainMenuButton parseButton = new MainMenuButton( "Parse");
+  MainMenuButton filterButton = new MainMenuButton( "Filter");
+  MainMenuButton saveButton= new MainMenuButton("Save");
   private final Object lock = new Object();
   private final Object filterLock = new Object();
   private final Object parseLock = new Object();
   MainMenu() {
-    setTitle("Logger Parser");
+    setTitle("LParser");
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setLayout(new BoxLayout(getContentPane(), BoxLayout.X_AXIS));
-    setJMenuBar(menuBar);
 
-    JMenu debugMenu = new JMenu("Debug");
-    debugMenu.setForeground(Color.GRAY);
-    debugItem = debugMenu.add("Reload Scripts");
-    debugItem.setForeground(Color.GRAY);
-    debugItem.setToolTipText("This is useless shit if you are an user.");
-    menuBar.add(debugMenu);
+    LinkedList<Object> a=new LinkedList<Object>();
+    a.add(0.3);
+    a.add(0.3);
 
-    JButton buttons[] = {inputButton, parseButton, filterButton, saveButton};
+    //JMenuBar menuBar= new JMenuBar();
+    //JMenuItem debugItem;
+    //setJMenuBar(menuBar);
+    //JMenu debugMenu = new JMenu("Debug");
+    //debugMenu.setForeground(Color.GRAY);
+    //debugItem = debugMenu.add("Reload Scripts");
+    //debugItem.setForeground(Color.GRAY);
+    //debugItem.setToolTipText("This is useless shit if you are an user.");
+    //menuBar.add(debugMenu);
+
+    JPanel mainPanel = new JPanel(){
+      @Override
+      public boolean isOptimizedDrawingEnabled() {
+        return false;
+      }
+    };
+    mainPanel.setLayout(new OverlayLayout(mainPanel));
+    add(mainPanel);
+    ImageIcon bg = IOManager.scale(IOManager.crop(IOManager.loadLGIcon("test.jpg"), 0,300,(int)(500*1.375),500), 220,160);
+    JLabel background= new JLabel("",bg, JLabel.CENTER);
+    background.setAlignmentX(0.5f);
+    background.setAlignmentY(0.5f);
+
+    MainMenuButton buttons[] = {inputButton, parseButton, filterButton, saveButton};
     JPanel buttonPanel = new JPanel();
     buttonPanel.setLayout(new BoxLayout(buttonPanel,BoxLayout.Y_AXIS));
-    JPanel lBorderPanel = new JPanel(new GridLayout(buttons.length,1));
-    JPanel rBorderPanel = new JPanel(new GridLayout(buttons.length,1));
     for (JButton button : buttons){
-      buttonPanel.add(Box.createRigidArea(new Dimension(0,1)));
+      buttonPanel.add(Box.createRigidArea(new Dimension(0,5)));
       buttonPanel.add(button);
-      buttonPanel.add(Box.createRigidArea(new Dimension(0,1)));
+      buttonPanel.add(Box.createRigidArea(new Dimension(0,5)));
       button.setPreferredSize(new Dimension(120, 30));
       button.setAlignmentX(JComponent.CENTER_ALIGNMENT);
-      lBorderPanel.add(Box.createRigidArea(new Dimension(3,0)));
-      rBorderPanel.add(Box.createRigidArea(new Dimension(3,0)));
     }
-    add(lBorderPanel);
-    add(buttonPanel);
-    add(rBorderPanel);
+    buttonPanel.setOpaque(false);
+    mainPanel.add(buttonPanel);
+    mainPanel.add(background);
+    add(mainPanel);
     pack();
-//    setSize(100, 300);
+    //setSize(300,400);
+    //setSize(getSize().width+100,getSize().height);
     setLocation(dim.width/2-getSize().width/2, dim.height/2-getSize().height/2);
 
     parseButton.setEnabled(false);
@@ -107,7 +124,7 @@ private static class MainMenu extends JFrame {
         }
         inputButton.setEnabled(true);
         parseButton.setEnabled(true);
-        getRootPane().setDefaultButton(parseButton);
+        mainFrame.getRootPane().setDefaultButton(parseButton);
         parseButton.requestFocus();
       }
     });
@@ -122,7 +139,7 @@ private static class MainMenu extends JFrame {
         parseButton.setEnabled(false);
         //getRootPane().setDefaultButton(saveButton);
         //saveButton.requestFocus();
-        getRootPane().setDefaultButton(filterButton);
+        mainFrame.getRootPane().setDefaultButton(filterButton);
         filterButton.requestFocus();
 
       }
@@ -156,13 +173,13 @@ private static class MainMenu extends JFrame {
 
     });
 
-    debugItem.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        PlotHelper.delete_pyscripts(PlotHelper.PlotScript1);
-        PlotHelper.delete_pyscripts(PlotHelper.PlotScript2);
-      }
-    });
+    //debugItem.addActionListener(new ActionListener() {
+    //  @Override
+    //  public void actionPerformed(ActionEvent e) {
+    //    PlotHelper.delete_pyscripts(PlotHelper.PlotScript1);
+    //    PlotHelper.delete_pyscripts(PlotHelper.PlotScript2);
+    //  }
+    //});
 
 
     getRootPane().setDefaultButton(inputButton);
@@ -266,7 +283,7 @@ private static class MainMenu extends JFrame {
   static void save_data() {
     String output_path = LoggerParser.output_path.getAbsolutePath();
     if(new File(output_path).isDirectory()){
-      output_path = output_path + "\\" + "log.txt";
+      output_path = output_path + File.separator + "log.txt";
     }
     Parser.write_log_info(output_path);
   }

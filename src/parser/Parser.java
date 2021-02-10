@@ -8,7 +8,6 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
-import java.io.FileOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -32,9 +31,6 @@ public class Parser extends JFrame {
   HashMap<Date,String> RainPerDate;
   static DataTree dataMaps[][] = new DataTree[Method.SIZE.value()][Data.SIZE.value];
 
-  public enum ParserType {
-    NONE, IMPULS, MOMENT_VALS, REL_HUM, REL_HUM_VOLT, WITH_FOG, REL_HUM_WIND, OTHER
-  }
 
   public static void reset() {
     p_type = ParserType.NONE;
@@ -56,7 +52,6 @@ public class Parser extends JFrame {
 
     ImageIcon bg= IOManager.loadLGIcon("test.jpg");
     JLabel background= new JLabel("",bg, JLabel.CENTER);
-
     background.setAlignmentX(0.5f);
     background.setAlignmentY(0.5f);
 
@@ -117,7 +112,7 @@ public class Parser extends JFrame {
 
   public static void write_log_info(String filename){
     try{
-      l_format.write_to_file(filename);
+      l_format.writeToFile(filename);
     } catch(IOException e) {
       e.printStackTrace();
     }
@@ -128,7 +123,6 @@ public class Parser extends JFrame {
     String line="";
 
     try {
-
       FileReader fileReader = new FileReader(file);
       BufferedReader bufferedReader = new BufferedReader(fileReader);
       ParserType type = ParserType.NONE;
@@ -154,6 +148,10 @@ public class Parser extends JFrame {
           setLogFormat((LogFormat) new TempRelHumWindFormat());
           type = ParserType.REL_HUM_WIND;
           break;
+        }else if(HoboFormat.matches(splitted)){
+          setLogFormat((LogFormat) new HoboFormat());
+          type = ParserType.HOBO;
+          break;
         }
       }
       if ( type == ParserType.NONE ) {
@@ -177,7 +175,7 @@ public class Parser extends JFrame {
       boolean dub_lines = false;
 
       while ((line = bufferedReader.readLine()) != null && !windowClosed) {
-        String splitted[] = line.split("\\s+");
+        String splitted[] = line.split(l_format.regex);
         //System.out.println("trying to parse: " + splitted[0] + " " + splitted[1] + " with val " + line);
 
         Date date = l_format.get_date(splitted);
