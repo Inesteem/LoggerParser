@@ -78,7 +78,7 @@ public class TreeWriter implements TreeVisitor<Boolean> {
         long valid_hour_range = timeRange.get_val(DAY);
         try {
             ostream.write("\nOVERALL HOURLY STATS (num of meas, min, max, val): \n\n".getBytes());
-            timeRange.unset_range(DAY,0,24);
+            timeRange.unset_range(HOUR,0,24);
             for(int i = 0; i < 24; ++i){
                 yearMap.reset();
                 timeRange.set_idx(Metric.HOUR,i);
@@ -111,6 +111,7 @@ public class TreeWriter implements TreeVisitor<Boolean> {
 
     @Override
     public Boolean visit(DataTree ym, Metric metric){
+        ym.get_val(timeRange,method);
         int valid_subunits = 0;
 
         double min = ym.get_min(method, timeRange, YEAR);
@@ -144,8 +145,9 @@ public class TreeWriter implements TreeVisitor<Boolean> {
 
     @Override
     public Boolean visit(Year y, Metric metric){
-        double min = y.get_min(method, timeRange, YEAR);
-        double max = y.get_max(method, timeRange, YEAR);
+        y.get_val(timeRange,method);
+        double min = y.get_min(method, timeRange,MONTH);
+        double max = y.get_max(method, timeRange,MONTH);
         boolean hasContent = false;
         try {
             if (min == Double.MAX_VALUE || max == Double.MIN_VALUE){
@@ -175,8 +177,9 @@ public class TreeWriter implements TreeVisitor<Boolean> {
 
     @Override
     public Boolean visit(Month m, Metric metric){
-        double min = m.get_min(method, timeRange, YEAR);
-        double max = m.get_max(method, timeRange, YEAR);
+        m.get_val(timeRange,method);
+        double min = m.get_min(method, timeRange, DAY);
+        double max = m.get_max(method, timeRange, DAY);
         if (min == Double.MAX_VALUE || max == Double.MIN_VALUE)  return false;
         boolean hasContent = false;
         try {
@@ -204,14 +207,15 @@ public class TreeWriter implements TreeVisitor<Boolean> {
 
     @Override
     public Boolean visit(Day d, Metric metric) {
-        double min = d.get_min(method, timeRange, YEAR);
-        double max = d.get_max(method, timeRange, YEAR);
+        d.get_val(timeRange,method);
+        double min = d.get_min(method, timeRange,HOUR);
+        double max = d.get_max(method, timeRange,HOUR);
         if (min == Double.MAX_VALUE || max == Double.MIN_VALUE)  return false;
         boolean hasContent = false;
         try {
             ostream.write(("val: " + df.format(d.get_val(timeRange, method)) + " - ").getBytes());
-            ostream.write(("min day: " + df.format(min) + " - ").getBytes());
-            ostream.write(("max day: " + df.format(max) + "\n\n").getBytes());
+            ostream.write(("min hour: " + df.format(min) + " - ").getBytes());
+            ostream.write(("max hour: " + df.format(max) + "\n\n").getBytes());
 
             if(metric == DAY) return true;
 

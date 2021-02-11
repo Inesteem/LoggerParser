@@ -1,4 +1,4 @@
-#pip3 install matplotlib pyqt5 tokenize-rt ete3
+#pip3 install matplotlib==3.3.0 pyqt5 tokenize-rt ete3
 #easy_install --upgrade pip
 #on ubuntu also needed : sudo apt install qt5-default
 from ete3 import Tree, faces, AttrFace, TreeStyle

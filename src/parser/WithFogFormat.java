@@ -8,8 +8,7 @@ public class WithFogFormat
 extends LogFormat {
   public static final String PREF_ALL = "LP_PREF_TRH_ALL";
   public static final String PREF_STR = "LP_PREF_TRH";
-
-  static String str1[] = {"Date", "Time", "1.Temperature", "[DegC]", "2.rel.Humidity", "[%]",  "Rain.Impulses", "[]", "Fog.Impulses", "[]"};  
+  static String str1[] = {"Date", "Time", "1.Temperature", "[DegC]", "2.rel.Humidity", "[%]",  "Rain.Impulses", "[]", "Fog.Impulses", "[]"};
 
   public WithFogFormat(){
     super(ParserType.WITH_FOG, PREF_ALL);
@@ -31,10 +30,13 @@ extends LogFormat {
   }
 
   void preprocess(String[] data) {
-    if(!data[4].equals("0")) {data[5]= "0";}
+    if(!data[4].equals("0")) {
+      data[5]= "0";
+    }
   }
+  void postprocess(String[] data) {}//TODO restore old fog value?
 
-  public static boolean matches(String[] line){
+  public boolean matches(String[] line){
 //    for(int i = 0; i < line.length; ++i) {
 //      if(!str1[i].equals(line[i])){
 //        System.out.println(">"+str1[i] + "< vs >" + line[i] +"<");

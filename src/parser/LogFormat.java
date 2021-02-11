@@ -72,27 +72,25 @@ public abstract class LogFormat {
     df.applyPattern("##.##");
 
 
-    frame = new JFrame(frame_title);
-
-    ImageIcon appIcon = IOManager.loadLGIcon("icon.png");
-    if(appIcon != null)
-      frame.setIconImage(appIcon.getImage());
     OKButton = new JButton("Only this File");
     OKAllButton = new JButton("All Files");
   }
 
-  public JFrame get_frame() {return frame;}
-
-
-  public abstract void configure(String file_name);
 
   public ParserType get_parser_type() { return type;}
-  public static boolean matches(String[] line){return false;}
 
   public String get_selected_timezone() { return (String) timezone_select.getSelectedItem();}
 
   public void configure(String file_name, JPanel options){
     if (forAll) return;
+
+    frame = new JFrame(frame_title);
+
+    ImageIcon appIcon = IOManager.loadLGIcon("icon.png");
+    if(appIcon != null)
+      frame.setIconImage(appIcon.getImage());
+
+
     Preferences pref = Preferences.userRoot();
     boolean pref_all = pref.getBoolean(pref_all_str, false);
 
@@ -268,7 +266,7 @@ public abstract class LogFormat {
    * @param data the splitted input line; the date needs to be in the first two parts.
    * @return the date
    */
-  public Date get_date(String[] data) {
+  public Date getDate(String[] data) {
 
     Date date = null; 
     try{
@@ -285,25 +283,47 @@ public abstract class LogFormat {
    */
   abstract void preprocess(String[] data);
 
-  public boolean set_values(String[] data){
-    Date date = get_date(data);
+  /**
+   * Redo magic shit with data if needed (since the input is merged) (see HoboFormat)
+   * @param data the splitted input line
+   */
+  abstract void postprocess(String[] data);
+
+  public abstract void configure(String file_name);
+  public abstract boolean matches(String[] line);
+
+  public boolean setValues(String[] data){
+    Date date = getDate(data);
     preprocess(data);
+    boolean validData = false;
     for(int i = 0; i < valuePanels.size(); ++i){
       ValuePanel panel = valuePanels.get(i);
       Column col = columns.get(i);
       // out of bounds (thresholds)
-      col.set_values(data, date, panel);
+      if(!col.setValues(data, date, panel)) {
+        if(data.length > col.getPos()) {
+          postprocess(data);
+          data[col.getPos()] = "-";
+        }
+      } else {
+        validData = true;
+      }
     }
-    return true;
+    return validData;
   }
 
 
   void writeToFile(String filename) throws IOException{
     for(Column col : columns) {
-      FileOutputStream ostream;
-      ostream = new FileOutputStream(IOManager.addIdToFilename(filename, col.get_data().name));
-      col.write_to_file(ostream);
-      ostream.close();
+      String tmpFileName=IOManager.addIdToFilename(filename, col.getData().name);
+      if(IOManager.canWriteToFile(null, tmpFileName)) {
+        FileOutputStream ostream;
+        ostream = new FileOutputStream(tmpFileName);
+        col.writeToFile(ostream);
+        ostream.close();
+      } else {
+        IOManager.asWarning("The column containing " + col.getData().name + " was not saved.");
+      }
     }
   }
 

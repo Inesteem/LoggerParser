@@ -5,9 +5,10 @@
 package src;
 import java.awt.*;
 import javax.swing.*;
-import javax.swing.plaf.ColorUIResource;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -16,7 +17,6 @@ import java.util.Objects;
 
 import src.parser.*;
 import src.gui.*;
-import src.plotting.PlotHelper;
 
 public class LoggerParser {
 
@@ -30,10 +30,10 @@ public class LoggerParser {
   static Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 
 private static class MainMenu extends JFrame {
-  MainMenuButton inputButton = new MainMenuButton( "Input");
-  MainMenuButton parseButton = new MainMenuButton( "Parse");
-  MainMenuButton filterButton = new MainMenuButton( "Filter");
-  MainMenuButton saveButton= new MainMenuButton("Save");
+  ColoredButton inputButton = ColoredButton.newMenuButton( "Input");
+  ColoredButton parseButton = ColoredButton.newMenuButton( "Parse");
+  ColoredButton filterButton = ColoredButton.newMenuButton( "Filter");
+  ColoredButton saveButton= ColoredButton.newMenuButton("Save");
   private final Object lock = new Object();
   private final Object filterLock = new Object();
   private final Object parseLock = new Object();
@@ -55,36 +55,24 @@ private static class MainMenu extends JFrame {
     //debugItem.setForeground(Color.GRAY);
     //debugItem.setToolTipText("This is useless shit if you are an user.");
     //menuBar.add(debugMenu);
-
-    JPanel mainPanel = new JPanel(){
-      @Override
-      public boolean isOptimizedDrawingEnabled() {
-        return false;
-      }
-    };
-    mainPanel.setLayout(new OverlayLayout(mainPanel));
+    JBackgroundPanel mainPanel = JBackgroundPanel.newMainMenuPanel();
     add(mainPanel);
-    ImageIcon bg = IOManager.scale(IOManager.crop(IOManager.loadLGIcon("test.jpg"), 0,300,(int)(500*1.375),500), 220,160);
-    JLabel background= new JLabel("",bg, JLabel.CENTER);
-    background.setAlignmentX(0.5f);
-    background.setAlignmentY(0.5f);
 
-    MainMenuButton buttons[] = {inputButton, parseButton, filterButton, saveButton};
+    ColoredButton buttons[] = {inputButton, parseButton, filterButton, saveButton};
     JPanel buttonPanel = new JPanel();
     buttonPanel.setLayout(new BoxLayout(buttonPanel,BoxLayout.Y_AXIS));
+    buttonPanel.add(Box.createRigidArea(new Dimension(0,15)));
     for (JButton button : buttons){
       buttonPanel.add(Box.createRigidArea(new Dimension(0,5)));
       buttonPanel.add(button);
       buttonPanel.add(Box.createRigidArea(new Dimension(0,5)));
-      button.setPreferredSize(new Dimension(120, 30));
+//      button.setPreferredSize(new Dimension(120, 30));
       button.setAlignmentX(JComponent.CENTER_ALIGNMENT);
     }
-    buttonPanel.setOpaque(false);
+    buttonPanel.add(Box.createRigidArea(new Dimension(0,15)));
     mainPanel.add(buttonPanel);
-    mainPanel.add(background);
-    add(mainPanel);
     pack();
-    //setSize(300,400);
+    setSize(225,240);
     //setSize(getSize().width+100,getSize().height);
     setLocation(dim.width/2-getSize().width/2, dim.height/2-getSize().height/2);
 
@@ -166,9 +154,9 @@ private static class MainMenu extends JFrame {
           System.exit(-1);
         }
         saveButton.setEnabled(false);
-        save_data();
+        saveData();
         saveButton.setEnabled(true);
-        IOManager.openOutputFile(output_path);
+        IOManager.openOutputDir(output_path);
       }
 
     });
@@ -209,7 +197,7 @@ private static class MainMenu extends JFrame {
             inputButton.setEnabled(false);
             filterButton.setEnabled(false);
             saveButton.setEnabled(false);
-            boolean successful = parse_logs(input_paths);
+            boolean successful = parseLogs(input_paths);
             parseButton.setEnabled(true);
             inputButton.setEnabled(true);
             if(successful) {
@@ -259,7 +247,7 @@ private static class MainMenu extends JFrame {
   }
 }
 
-  static boolean parse_logs(File[] input_paths){
+  static boolean parseLogs(File[] input_paths){
     Parser parser = new Parser();
     for (final File fileEntry : input_paths) {
 
@@ -271,7 +259,7 @@ private static class MainMenu extends JFrame {
       } else if ( fileEntry.isDirectory() ){
       //  new_output_path = output_path + "\\" + fileEntry.getName();
       //  IOManager.createDir(new_output_path);
-        if (!parse_logs(Objects.requireNonNull(fileEntry.listFiles()))) return false;
+        if (!parseLogs(Objects.requireNonNull(fileEntry.listFiles()))) return false;
       } else {
         IOManager.asWarning("Skipping strange file: " + fileEntry.getAbsolutePath());
       }
@@ -280,12 +268,12 @@ private static class MainMenu extends JFrame {
   return true;
 
   }
-  static void save_data() {
+  static void saveData() {
     String output_path = LoggerParser.output_path.getAbsolutePath();
     if(new File(output_path).isDirectory()){
       output_path = output_path + File.separator + "log.txt";
     }
-    Parser.write_log_info(output_path);
+    Parser.writeLogInfo(output_path);
   }
 
   static void updateVisualizations() {

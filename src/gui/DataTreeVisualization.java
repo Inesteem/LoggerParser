@@ -141,7 +141,7 @@ public class DataTreeVisualization extends Thread {
 
         }
 
-        JPanel getPlotStuff(Data pd, JButton plotButton, JButton visButton, DeleteButton remButton, DeleteButton remCondButton, JComboBox<String> select_range, JRangeField[] rangeFields) {
+        JPanel getPlotStuff(Data pd, JButton plotButton, JButton visButton, ColoredButton remButton, ColoredButton remCondButton, JComboBox<String> select_range, JRangeField[] rangeFields) {
 
             //configure panels
             JPanel panelHeader = new JPanel();
@@ -248,10 +248,10 @@ public class DataTreeVisualization extends Thread {
                     KeyEvent.VK_5, KeyEvent.VK_6, KeyEvent.VK_7, KeyEvent.VK_8, KeyEvent.VK_9};
             for (int i = 0; i < columns.size(); ++i) {
                 Column col = columns.get(i);
-                Data data = col.get_data();
-                Method method = col.get_method();
-                DataTree dataTree = col.get_data_tree();
-                TimeRange timeRange = col.get_timeRange();
+                Data data = col.getData();
+                Method method = col.getMethod();
+                DataTree dataTree = col.getDataTree();
+                TimeRange timeRange = col.getTimeRange();
                 dataTree.add_years(timeRange);
 
                 ImageIcon icon = IOManager.scale(IOManager.loadLGIcon(data.icon), 16, 16);
@@ -259,10 +259,9 @@ public class DataTreeVisualization extends Thread {
                 String pref_str = PREF_METRICS + "_" + col.data.name;
                 JButton visTreeButton = new JButton("Show Data Tree");
                 JButton plotButton = new JButton("Plot Data");
-                DeleteButton remButton = new DeleteButton("Remove");
+                ColoredButton remButton = ColoredButton.newDeleteButton("Remove");
                 remButton.setToolTipText("Removes the Dates specified by the RangeFields completely from the Data Tree.");
-                DeleteButton remCondButton = new DeleteButton("Remove Cond...");
-                remCondButton.setBackground(Color.RED);
+                ColoredButton remCondButton = ColoredButton.newDeleteButton("Remove Cond...");
                 remCondButton.setToolTipText("Removes the Dates specified by the RangeFields and matching a condition completely from the Data Tree.");
 
                 JComboBox<String> select_range = new JComboBox<String>(sr_str);
@@ -312,8 +311,8 @@ public class DataTreeVisualization extends Thread {
                     }
                 });
 
-                JPanel panel = getPlotStuff(col.get_data(), plotButton, visTreeButton, remButton, remCondButton, select_range, rangeFields);
-                tabbedPane.addTab(col.get_data().toString(), icon, panel, col.get_data().description);
+                JPanel panel = getPlotStuff(col.getData(), plotButton, visTreeButton, remButton, remCondButton, select_range, rangeFields);
+                tabbedPane.addTab(col.getData().toString(), icon, panel, col.getData().description);
                 tabbedPane.setMnemonicAt(0, key_events[i]);
             }
 

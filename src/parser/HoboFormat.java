@@ -6,7 +6,6 @@ import src.types.Data;
 import src.types.ParserType;
 
 import javax.swing.*;
-import java.util.Date;
 import java.util.prefs.Preferences;
 
 import static src.types.Data.TEMP;
@@ -34,11 +33,18 @@ extends LogFormat {
     regex = ";";
   }
 
+  void postprocess(String[] data){
+    if(data.length == 4) {
+      Column col = columns.get(1);
+      data[col.getPos()] = ""+last;
+    }
+  }
+
   void preprocess(String[] data){
     if(data.length == 4) {
       Column col = columns.get(1);
-      double val = col.parse_val(data);
-      data[col.get_pos()] = ""+(val-last);
+      double val = col.parseVal(data);
+      data[col.getPos()] = ""+(val-last);
       last = val;
     }
   }
@@ -63,12 +69,13 @@ extends LogFormat {
     pref.putDouble(PREF_MM,mm);
   }
 
-  public static boolean matches(String[] line){
+  public boolean matches(String[] line){
+    if(!line[0].contains("\"")) return false;
     if (line.length != 4) {
       IOManager.asError("Either your hobo format is wrong or not supported. Chose as delimiter ; , only use temperature and event in this order and use the data format : dd.MM.yy HH.mm.ss, both separated by ;" );
-
+      return false;
     }
-    return line[0].contains("\"");
+    return true;
   }
 
 } //end class

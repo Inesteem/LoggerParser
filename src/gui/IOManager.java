@@ -200,8 +200,10 @@ public class IOManager {
     createFile(new File(filepath));
   }
 
-  public static File openOutputFile(File file){
+  public static File openOutputDir(File file){
     try {
+
+      if(!file.isDirectory()) file = file.getParentFile();
       if(file.exists()){ 
         if (System.getProperty("os.name").toLowerCase().contains("windows")) {
           String cmd = "rundll32 url.dll,FileProtocolHandler " + file.getCanonicalPath();
@@ -306,6 +308,20 @@ public class IOManager {
     }
     return true;
 
+  }
+
+  /**
+   * Checks if a file with path exists. If true, the user is asked if he wants to override it.
+   * @param parent the parent frame
+   * @param filePath the path to the file
+   * @return true if the file does'nt exist or can be overwritten
+   */
+  public static boolean canWriteToFile(JFrame parent, String filePath) {
+    if(new File(filePath).exists()) {
+      int opt = askTwoOptions (parent,"Override File?", "Override", "Cancel", "The file \n\t" + filePath + "\nexists. Override?");
+      return opt == 0;
+    }
+    return true;
   }
 
   /**

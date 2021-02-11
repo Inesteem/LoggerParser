@@ -2,13 +2,12 @@ package src.types;
 
 public enum ParserType {
     IMPULS(0),
-    MOMENT_VALS(1),
-    REL_HUM(2),
-    REL_HUM_VOLT(3),
+    REL_HUM(1),
+    REL_HUM_VOLT(2),
+    REL_HUM_WIND(3),
     WITH_FOG(4),
-    REL_HUM_WIND(5),
-    HOBO(6),
-    NONE(7);
+    HOBO(5),
+    NONE(6); //used as size, needs to be num of parser types
 
     public final int value;
     private ParserType(int value){

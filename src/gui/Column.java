@@ -43,28 +43,27 @@ public class Column {
 
     dataTree = Parser.getDataMap(method,data,limits);
   }
-  public Data get_data() {
+  public Data getData() {
     return data;
   }
 
-  public Method get_method() {
+  public Method getMethod() {
     return method;
   }
 
-  public int get_pos() {
+  public int getPos() {
     return pos;
   }
 
-
-  public DataTree get_data_tree() {
+  public DataTree getDataTree() {
     return dataTree;
   }
 
-  public TimeRange get_timeRange() {
+  public TimeRange getTimeRange() {
     return  timeRange;
   }
 
-  public double parse_val(String[] data) {
+  public double parseVal(String[] data) {
     double val = -1;
     try {
       val= Double.parseDouble(data[pos]);
@@ -79,22 +78,23 @@ public class Column {
     return val;
   }
 
-  public boolean set_values(String[] data, Date date, ValuePanel panel){
-    if (data.length <= pos || !panel.useVal() || data[pos].length() == 0){
+  public boolean setValues(String[] data, Date date, ValuePanel panel){
+    if (!panel.useVal() || data.length <= pos || data[pos].length() == 0){
       return false;
-    } 
+    }
 
-    double val = parse_val(data);
+    double val = parseVal(data);
+    if (val == -1) return false;
 
-    val *= mul;
     if(panel.getMin() > val || val > panel.getMax()) return false;
+    val *= mul;
 
     calendar.setTime(date);  
     dataTree.add_val(val, calendar);
     return true;
   }
 
-  public void write_to_file(FileOutputStream ostream) throws IOException {
+  public void writeToFile(FileOutputStream ostream) throws IOException {
     ostream.write(("Data: "+data.description + "\n").getBytes());
 
     TreeWriter tw = new TreeWriter(ostream,method);

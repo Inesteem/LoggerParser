@@ -2,20 +2,19 @@ package src.parser;
 import src.datatree.*;
 import src.types.*;
 import src.gui.*;
+import static src.types.ParserType.*;
 
 import java.awt.*;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 
 import java.util.Date;
 import java.util.HashMap;
 
 import javax.swing.*;
+import javax.swing.plaf.ColorUIResource;
 
 
 public class Parser extends JFrame {
@@ -24,54 +23,42 @@ public class Parser extends JFrame {
   static Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 
   String[] options = {"keep key", "override old key", "always keep", "always override","abort operation"};
-  static ParserType p_type = ParserType.NONE;
-  static LogFormat l_format;
+  static ParserType parserType;
+  static LogFormat logFormats[] = new LogFormat[ParserType.NONE.value];
   boolean windowClosed = false;
   //recognize duplicated entries
   HashMap<Date,String> RainPerDate;
-  static DataTree dataMaps[][] = new DataTree[Method.SIZE.value()][Data.SIZE.value];
-
+  static DataTree dataMaps[][];
+  static StringBuilder mergedInput =new StringBuilder();
 
   public static void reset() {
-    p_type = ParserType.NONE;
+    parserType = ParserType.NONE;
     dataMaps = new DataTree[Method.SIZE.value()][Data.SIZE.value];
+    mergedInput = new StringBuilder();
+    logFormats[IMPULS.value] = new ImpulsFormat();
+    logFormats[REL_HUM.value] =  new TempRelHumFormat();
+    logFormats[REL_HUM_VOLT.value] = new TempRelHumVoltageFormat()  ;
+    logFormats[REL_HUM_WIND.value] = new TempRelHumWindFormat();
+    logFormats[WITH_FOG.value] = new WithFogFormat();
+    logFormats[HOBO.value] = new HoboFormat();
   }
+
   public Parser(){
     setTitle("Parse Log-Files");
     setVisible(false);
     RainPerDate = new HashMap<Date,String>();
 
-    JPanel mainPanel = new JPanel(){
-      @Override
-      public boolean isOptimizedDrawingEnabled() {
-        return false;
-      }
-    };
-    mainPanel.setLayout(new OverlayLayout(mainPanel));
+    JBackgroundPanel mainPanel = new JBackgroundPanel(IOManager.loadLGIcon("test.jpg"), new ColorUIResource(0,30,30));
     add(mainPanel);
 
-    ImageIcon bg= IOManager.loadLGIcon("test.jpg");
-    JLabel background= new JLabel("",bg, JLabel.CENTER);
-    background.setAlignmentX(0.5f);
-    background.setAlignmentY(0.5f);
-
     ImageIcon loadGif = IOManager.loadLGIcon("load3.gif");
-    assert(loadGif != null);
     loadLabel = new JLabel("", loadGif, JLabel.CENTER);
-//    loadGif.setImageObserver(loadLabel);
-    //loadLabel.setOpaque(true);
-    Font f = loadLabel.getFont();
-    loadLabel.setFont(f.deriveFont(f.getStyle() | Font.BOLD));
     loadLabel.setAlignmentX(0.5f);
     loadLabel.setAlignmentY(0.5f);
-
     mainPanel.add(loadLabel);
-    mainPanel.add(background);
 
     setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-
     setSize(400, 300);
-    //setBounds(20,20,600,100);
     setLocation(dim.width/2-getSize().width/2, dim.height/2-getSize().height/2);
 
     ImageIcon appIcon = IOManager.loadLGIcon("icon.png");
@@ -88,16 +75,11 @@ public class Parser extends JFrame {
     });
   }
 
-  public void setLogFormat(LogFormat lf){
-    l_format = lf;
-    //p_type = lf.get_parser_type();
-  }
-
   public static DataTreeVisualization doVisualize() throws InterruptedException {
-    return l_format.doVisualize();
+    return logFormats[parserType.value].doVisualize();
   }
   public static void updateVisualization(DataTreeVisualization dtr ) {
-    l_format.updateVisualization(dtr);
+    logFormats[parserType.value].updateVisualization(dtr);
   }
 
   public static DataTree getDataMap(Method method, Data data, Limits limits) {
@@ -110,10 +92,20 @@ public class Parser extends JFrame {
     return dataMaps[method.value()][data.value];
   }
 
-  public static void write_log_info(String filename){
+  public static void writeLogInfo(String filename){
     try{
-      l_format.writeToFile(filename);
-    } catch(IOException e) {
+      logFormats[parserType.value].writeToFile(filename);
+
+      filename = IOManager.addIdToFilename(filename, "raw_data");
+      if(IOManager.canWriteToFile(null, filename)) {
+        FileOutputStream ostream;
+        ostream = new FileOutputStream(filename);
+        ostream.write(mergedInput.toString().getBytes());
+        ostream.close();
+      } else {
+        IOManager.asWarning("The merged input data was not saved.");
+      }
+  } catch(IOException e) {
       e.printStackTrace();
     }
   }
@@ -125,49 +117,35 @@ public class Parser extends JFrame {
     try {
       FileReader fileReader = new FileReader(file);
       BufferedReader bufferedReader = new BufferedReader(fileReader);
-      ParserType type = ParserType.NONE;
-      while ((line = bufferedReader.readLine()) != null && !windowClosed) {
+      ParserType type = NONE;
+      while ( type == NONE && (line = bufferedReader.readLine()) != null && !windowClosed) {
+        if(parserType == NONE) {
+          mergedInput.append(line + "\n");
+        }
         String splitted[] = line.split("\\s+");
-        if(ImpulsFormat.matches(splitted)){
-          setLogFormat((LogFormat) new ImpulsFormat());
-          type = ParserType.IMPULS;
-          break;
-        } else if(TempRelHumFormat.matches(splitted)){
-          setLogFormat((LogFormat) new TempRelHumFormat());
-          type = ParserType.REL_HUM;
-          break;
-        } else if(WithFogFormat.matches(splitted)){
-          setLogFormat((LogFormat) new WithFogFormat());
-          type = ParserType.WITH_FOG;
-          break;
-        } else if(TempRelHumVoltageFormat.matches(splitted)){
-          setLogFormat((LogFormat) new TempRelHumVoltageFormat()  );
-          type = ParserType.REL_HUM_VOLT;
-          break;
-        } else if(TempRelHumWindFormat.matches(splitted)){
-          setLogFormat((LogFormat) new TempRelHumWindFormat());
-          type = ParserType.REL_HUM_WIND;
-          break;
-        }else if(HoboFormat.matches(splitted)){
-          setLogFormat((LogFormat) new HoboFormat());
-          type = ParserType.HOBO;
-          break;
+        for(LogFormat logFormat : logFormats) {
+          if(logFormat.matches(splitted)) {
+            type = logFormat.get_parser_type();
+            break;
+          }
         }
       }
-      if ( type == ParserType.NONE ) {
-        IOManager.asError("logger format unsupported : " + file.getAbsolutePath());
+
+      if ( type == NONE ) {
+        IOManager.asError("Logger format unsupported : " + file.getAbsolutePath());
       }
-      //file append support; check if file types match
+
       //TODO: support merging of different formats?
-      if(p_type == ParserType.NONE){
-        p_type = type;
-      } else if(p_type != type) {
+      if(parserType == NONE){
+        parserType = type;
+      } else if(parserType != type) {
         System.out.println("File types do not match! Aborting.");
         IOManager.asWarning("File types do not match! Aborting.");
         return false;
       }
 
-      l_format.configure(file.getName());
+      LogFormat logFormat = logFormats[parserType.value];
+      logFormat.configure(file.getName());
       setVisible(true);
 
       boolean keep_all = false;
@@ -175,10 +153,10 @@ public class Parser extends JFrame {
       boolean dub_lines = false;
 
       while ((line = bufferedReader.readLine()) != null && !windowClosed) {
-        String splitted[] = line.split(l_format.regex);
+        String splitted[] = line.split(logFormat.regex);
         //System.out.println("trying to parse: " + splitted[0] + " " + splitted[1] + " with val " + line);
 
-        Date date = l_format.get_date(splitted);
+        Date date = logFormat.getDate(splitted);
 
         //Dublicated Entry Handling
         if (RainPerDate.containsKey(date) && !override_all) {
@@ -194,7 +172,7 @@ public class Parser extends JFrame {
             continue;
           }
 
-          String key_str = l_format.date_format.format(date);
+          String key_str = logFormat.date_format.format(date);
 
           int opt = IOManager.askNOptions(this, "entry already exists", options,
                   "date:\n "+key_str+"\nold:\n "+old_val+"\nnew:\n "+line);
@@ -218,7 +196,9 @@ public class Parser extends JFrame {
 
         //      System.out.println("date: " + date + " " + key_str);
         //content.setText("<html><b><center>Parsing Line:<center/><b/><br/>"+line+"</html>");
-        l_format.set_values(splitted);
+        if(logFormat.setValues(splitted)) {
+          mergedInput.append(String.join("\t\t", splitted)+"\n");
+        }
         RainPerDate.put(date,line);
       }
       //if (dub_lines) {

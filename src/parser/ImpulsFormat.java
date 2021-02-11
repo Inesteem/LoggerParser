@@ -26,6 +26,9 @@ extends LogFormat {
   }
 
   void preprocess(String[] data){}
+
+  void postprocess(String[] data){}
+
   public void configure(String file_name){
     Preferences pref = Preferences.userRoot();
     double pref_mm = pref.getDouble(PREF_MM, impuls_mms[0]);
@@ -45,9 +48,9 @@ extends LogFormat {
     Column col = columns.get(0);
     col.mul = mm;
     pref.putDouble(PREF_MM,mm);
-  } 
+  }
 
-  public static boolean matches(String[] line){
+  public boolean matches(String[] line){
     if(line.length != 4) return false;
     if(!line[2].contains("Impuls")) return false;
     return true;

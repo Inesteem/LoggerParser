@@ -21,11 +21,14 @@ extends LogFormat {
   }
 
   void preprocess(String[] data){}
+
+  void postprocess(String[] data){}
+
   public void configure(String file_name){
     configure(file_name, null); 
   }
 
-  public static boolean matches(String[] line){
+  public boolean matches(String[] line){
     if(line.length != 6) return false;
     if(!line[2].contains("Temperatur")) return false;
     if(!line[4].contains("rel.Humidity") && !line[4].contains("rel.Feuchte")) return false;
