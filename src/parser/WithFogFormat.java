@@ -4,23 +4,17 @@ import src.types.*;
 
 import java.util.Arrays;
 
+import static src.types.Data.*;
+import static src.types.Data.TEMP_PT1000;
+
 public class WithFogFormat
 extends LogFormat {
-  public static final String PREF_ALL = "LP_PREF_TRH_ALL";
   public static final String PREF_STR = "LP_PREF_TRH";
   static String str1[] = {"Date", "Time", "1.Temperature", "[DegC]", "2.rel.Humidity", "[%]",  "Rain.Impulses", "[]", "Fog.Impulses", "[]"};
+  static Data data_types[] = {TEMP,HUM,RAIN,FOG};
 
   public WithFogFormat(){
-    super(ParserType.WITH_FOG, PREF_ALL);
-    valuePanels.add(new ValuePanel(Data.TEMP,PREF_STR+"_TEMP", 10, 0, 100));
-    valuePanels.add(new ValuePanel(Data.HUM ,PREF_STR+"_RH", 10, 0, 100));
-    valuePanels.add(new ValuePanel(Data.RAIN,PREF_STR+"_RAIN", 10, 0, 100));
-    valuePanels.add(new ValuePanel(Data.FOG ,PREF_STR+"_FOG", 10, 0, 100)); // todo sum or avg?
-
-    columns.add(new Column( 2, true, calendar,Data.TEMP));
-    columns.add(new Column( 3, true, calendar,Data.HUM ));
-    columns.add(new Column( 4, true, calendar,Data.RAIN));
-    columns.add(new Column(5, true, calendar ,Data.FOG ));
+    super(ParserType.WITH_FOG, PREF_STR, data_types);
   }
 
   public void configure(String file_name){

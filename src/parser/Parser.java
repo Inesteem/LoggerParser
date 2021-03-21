@@ -41,6 +41,7 @@ public class Parser extends JFrame {
     logFormats[REL_HUM_WIND.value] = new TempRelHumWindFormat();
     logFormats[WITH_FOG.value] = new WithFogFormat();
     logFormats[HOBO.value] = new HoboFormat();
+    logFormats[WIND_DIR_SPEED_TEMP_HUM_BAR_RAIN.value] = new WindTempHumBarRain();
   }
 
   public Parser(){
@@ -118,7 +119,7 @@ public class Parser extends JFrame {
       FileReader fileReader = new FileReader(file);
       BufferedReader bufferedReader = new BufferedReader(fileReader);
       ParserType type = NONE;
-      while ( type == NONE && (line = bufferedReader.readLine()) != null && !windowClosed) {
+      for(int i = 0; i < 10 && type == NONE && (line = bufferedReader.readLine()) != null && !windowClosed; ++i) {
         if(parserType == NONE) {
           mergedInput.append(line + "\n");
         }
@@ -133,6 +134,11 @@ public class Parser extends JFrame {
 
       if ( type == NONE ) {
         IOManager.asError("Logger format unsupported : " + file.getAbsolutePath());
+      } else if ( type == WIND_DIR_SPEED_TEMP_HUM_BAR_RAIN) {
+        //TODO: do it smarter
+        //skip two lines
+        bufferedReader.readLine();
+        bufferedReader.readLine();
       }
 
       //TODO: support merging of different formats?

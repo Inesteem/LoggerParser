@@ -1,28 +1,16 @@
 package src.parser;
 import src.gui.Column;
+import src.types.Data;
 import src.types.ParserType;
 
 import static src.types.Data.*;
 public class TempRelHumWindFormat
         extends LogFormat {
-    public static final String PREF_ALL = "LP_PREF_TRHW_ALL";
     public static final String PREF_STR = "LP_PREF_TRHW";
+    static Data data_types[] = {TEMP, HUM, WIND_DIR, WIND_VEL1, FREQ, WIND_VEL2};
 
     public TempRelHumWindFormat(){
-        super(ParserType.REL_HUM_WIND, PREF_ALL);
-        valuePanels.add(new ValuePanel(TEMP     ,PREF_STR+"_TEMP", 11, 0, 100));
-        valuePanels.add(new ValuePanel(HUM      ,PREF_STR+"_RH", 11, 0, 100));
-        valuePanels.add(new ValuePanel(WIND_DIR ,PREF_STR+"_WD", 11, 0, 360));//degree
-        valuePanels.add(new ValuePanel(WIND_VEL1,PREF_STR+"_WV1", 11, 0, 10000));//in m per sec
-        valuePanels.add(new ValuePanel(FREQ     ,PREF_STR+"_F", 11, 0, 1000));//in Hz
-        valuePanels.add(new ValuePanel(WIND_VEL2,PREF_STR+"_WV2", 11, 0, 10000));//in m per sec
-
-        columns.add(new Column(2, true, calendar, TEMP     ));
-        columns.add(new Column(3, true, calendar, HUM      ));
-        columns.add(new Column(4, true, calendar, WIND_DIR ));
-        columns.add(new Column(5, true, calendar, WIND_VEL1));
-        columns.add(new Column(6, true, calendar, FREQ     ));
-        columns.add(new Column(7, true, calendar, WIND_VEL2));
+        super(ParserType.REL_HUM_WIND, PREF_STR, data_types);
     }
 
     void preprocess(String[] data){}

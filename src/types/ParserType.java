@@ -7,7 +7,8 @@ public enum ParserType {
     REL_HUM_WIND(3),
     WITH_FOG(4),
     HOBO(5),
-    NONE(6); //used as size, needs to be num of parser types
+    WIND_DIR_SPEED_TEMP_HUM_BAR_RAIN(6),
+    NONE(7); //used as size, needs to be num of parser types
 
     public final int value;
     private ParserType(int value){

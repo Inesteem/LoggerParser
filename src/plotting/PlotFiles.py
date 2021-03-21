@@ -16,6 +16,9 @@ labelMap = {
     'FOG'   : 'Fog (in TODO)',
     'RAIN'  : 'Rain (in mms)',
     'TEMP'  : 'Temperature (in DegC)',
+    'TEMP_PT100'  : 'Temperature (in DegC)',
+    'TEMP_PT1000'  : 'Temperature (in DegC)',
+    'BAR'  : 'Barometric Pressure (in hPa)',
     'HUM'   : 'Humidity (in %)',
     'MONTH' : 'Months',
     'HOUR'  : 'Hours',
@@ -23,6 +26,8 @@ labelMap = {
     'YEAR'  : 'Years',
     'VOLT1'  : 'Voltage (in mV)',
     'VOLT2'  : 'Voltage (in mV)',
+    'VOLT3'  : 'Voltage (in mV)',
+    'VOLT4'  : 'Voltage (in mV)',
     'NOK'   : 'No Data'
 }
 
@@ -33,9 +38,14 @@ colorMap = {
     'FOG'  : '#9da7b0',
     'RAIN' : '#042f66',
     'TEMP' : '#980598',
+    'TEMP_PT100' : '#980598',
+    'TEMP_PT1000' : '#980598',
+    'BAR'  : '#62c20e',
     'HUM'  : '#77c7df',
     'VOLT1' : '#993366',
     'VOLT2' : '#993366',
+    'VOLT3' : '#993366',
+    'VOLT4' : '#993366',
     'NOK'  : '#e71109'
 }
 

@@ -8,14 +8,15 @@ import src.types.ParserType;
 import javax.swing.*;
 import java.util.prefs.Preferences;
 
+import static src.types.Data.RAIN;
 import static src.types.Data.TEMP;
 
 public class HoboFormat
 extends LogFormat {
 
   public static final String PREF_MM = "LP_PREF_HOBO_MM";
-  public static final String PREF_ALL = "LP_PREF_HOBO_ALL";
   public static final String PREF_STR = "LP_PREF_HOBO";
+  static Data data_types[] = {TEMP, RAIN};
   double last = 0;
   Double[] impuls_mms = {0.2,0.5,0.8,1.0};
   //num_elements: counts impulses > 0
@@ -23,13 +24,9 @@ extends LogFormat {
   public double mm;
 
 
-  public HoboFormat(){
-    super(ParserType.HOBO, PREF_ALL);
-    valuePanels.add(new ValuePanel(TEMP     ,PREF_STR+"_TEMP", 11, 0, 100));
-    valuePanels.add(new ValuePanel(Data.RAIN, PREF_STR, 10, 0,1000));
 
-    columns.add(new Column(2, true, calendar, Data.TEMP));
-    columns.add(new Column(3, false, calendar, Data.RAIN));
+  public HoboFormat(){
+    super(ParserType.HOBO, PREF_STR, data_types);
     regex = ";";
   }
 

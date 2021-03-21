@@ -1,5 +1,7 @@
 package src.parser;
 import src.gui.*;
+import src.types.Data;
+import src.types.Method;
 import src.types.ParserType;
 
 import java.util.Locale;
@@ -34,7 +36,8 @@ public abstract class LogFormat {
   protected ArrayList<ValuePanel> valuePanels;
   protected ArrayList<Column> columns;
 
-  private final String pref_all_str;
+  public final String PREF_ALL;
+  public final String PREF_STR;
   public static final String PREF_TIMEZONE = "LP_PREF_TIMEZONE";
 
   private final Object lock = new Object();
@@ -52,8 +55,9 @@ public abstract class LogFormat {
   public JButton OKButton;
   public JButton OKAllButton;
 
-  public LogFormat(ParserType t, String pas){
-    pref_all_str = pas;
+  public LogFormat(ParserType t, final String PREF_STR, Data data_types[] ){
+    this.PREF_STR = PREF_STR;
+    this.PREF_ALL = PREF_STR+"_ALL";
     type = t;
     valuePanels = new ArrayList<ValuePanel>();
     columns= new ArrayList<Column>();
@@ -74,8 +78,18 @@ public abstract class LogFormat {
 
     OKButton = new JButton("Only this File");
     OKAllButton = new JButton("All Files");
+
+  //  if(data_types == null) return;
+    for(int pos = 0; pos < data_types.length; ++pos){
+      Data data = data_types[pos];
+      valuePanels.add(new ValuePanel(data, PREF_STR + "_" + data.name, 10, data.min,data.max));
+      columns.add(new Column(pos+2, data.method == Method.AVG, calendar, data));
+    }
   }
 
+//  public LogFormat(ParserType t, final String PREF_STR) {
+//    this(t, PREF_STR,null);
+//  }
 
   public ParserType get_parser_type() { return type;}
 
@@ -92,7 +106,7 @@ public abstract class LogFormat {
 
 
     Preferences pref = Preferences.userRoot();
-    boolean pref_all = pref.getBoolean(pref_all_str, false);
+    boolean pref_all = pref.getBoolean(PREF_ALL, false);
 
     frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); //TODO fix this shit; exit on close closes whole app
 
@@ -237,7 +251,7 @@ public abstract class LogFormat {
       }
 
       String timezone = get_selected_timezone();
-      pref.putBoolean(pref_all_str, forAll);
+      pref.putBoolean(PREF_ALL, forAll);
       pref.put(PREF_TIMEZONE,timezone);
 
 

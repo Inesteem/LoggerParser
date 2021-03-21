@@ -5,24 +5,22 @@ import src.types.*;
 import java.util.prefs.Preferences;
 import javax.swing.*;
 
+import static src.types.Data.RAIN;
+
 public class ImpulsFormat
 extends LogFormat {
 
   public static final String PREF_MM = "LP_PREF_IMPULS_MM";
-  public static final String PREF_ALL = "LP_PREF_IMPULS_ALL";
   public static final String PREF_STR = "LP_PREF_IMPULS";
 
+  static Data data_types[] = {RAIN};
   Double[] impuls_mms = {0.2,0.5,0.8,1.0};
   //num_elements: counts impulses > 0
   //num_measurements: counts all (even 0 values)
   public double mm;
 
-
   public ImpulsFormat(){
-    super(ParserType.IMPULS, PREF_ALL);
-    valuePanels.add(new ValuePanel(Data.RAIN, PREF_STR, 10, 0,1000));
-
-    columns.add(new Column(2, false, calendar, Data.RAIN));
+    super(ParserType.IMPULS, PREF_STR, data_types);
   }
 
   void preprocess(String[] data){}
