@@ -60,5 +60,5 @@ public class JRangeField extends JValField<Long>{
   }
 
 
-  public Long errVal() {return -1l;}
+  public Long errVal() {return Long.MIN_VALUE;}
 }

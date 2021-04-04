@@ -104,7 +104,7 @@ class TimeRangeTest {
         //tests is_set(metric, idx), set_idx(metric, idx) and unset_idx(metric, idx)
         TimeRange tr = new TimeRange(0);
 
-        for (int m = 0; m < Metric.SIZE.value(); ++m) {
+        for (int m = 0; m < Metric.SIZE.value; ++m) {
             Metric metric = Metric.getEnum(m);
             for (int i = 0; i <= TimeRange.MAX_IDX_INCL; ++i) {
                 int idx = metric.getMinIncl() + i;

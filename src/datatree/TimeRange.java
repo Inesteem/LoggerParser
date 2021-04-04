@@ -19,7 +19,7 @@ public class TimeRange {
 
   public TimeRange(long val){
     this.yearRange= new HashMap<Integer,Integer>();
-    timeUnits= new long[Metric.SIZE.value()];
+    timeUnits= new long[Metric.SIZE.value];
     for (int i = 0; i < timeUnits.length; ++i)
       timeUnits[i] = val;
   }
@@ -28,7 +28,7 @@ public class TimeRange {
     //copy yearRange only shallow as they only represent a mapping that should not change
     //during one log parsing event
     this.yearRange = new HashMap<Integer,Integer>(other.yearRange);
-    timeUnits= new long[Metric.SIZE.value()];
+    timeUnits= new long[Metric.SIZE.value];
     System.arraycopy(other.timeUnits, 0, this.timeUnits, 0, other.timeUnits.length);
 
   }
@@ -118,7 +118,7 @@ public class TimeRange {
       if (!yearRange.containsKey(idx)) return false;
       idx = yearRange.get(idx);
     }
-    return is_set(timeUnits[m.value()],idx);
+    return is_set(timeUnits[m.value],idx);
   }
 
   /**
@@ -171,7 +171,7 @@ public class TimeRange {
       idx = get_year_idx(idx);
       if(idx == -1) return false;
     }
-    timeUnits[m.value()] |= (1l << idx);
+    timeUnits[m.value] |= (1l << idx);
     return true;
   }
 
@@ -187,7 +187,7 @@ public class TimeRange {
       idx = get_year_idx(idx);
       if(idx == -1) return false;
     }
-    timeUnits[m.value()] &= ~(1l << idx);
+    timeUnits[m.value] &= ~(1l << idx);
     return true;
   }
 
@@ -205,12 +205,12 @@ public class TimeRange {
       for(int year = from; year < to; ++year){
         int idx = get_year_idx(year);
         if(idx == -1) continue;
-        timeUnits[m.value()]=set_idx(timeUnits[m.value()],idx);
+        timeUnits[m.value]=set_idx(timeUnits[m.value],idx);
       }
       return true;
     }
 
-    int idx = m.value();
+    int idx = m.value;
     timeUnits[idx] = set_range(timeUnits[idx], from, to);
     return true;
   }
@@ -229,12 +229,12 @@ public class TimeRange {
       for(int year = from; year < to; ++year){
         int idx = get_year_idx(year);
         if(idx == -1) continue;
-        timeUnits[m.value()]=unset_idx(timeUnits[m.value()],idx);
+        timeUnits[m.value]=unset_idx(timeUnits[m.value],idx);
       }
       return true;
     }
 
-    int idx = m.value();
+    int idx = m.value;
     timeUnits[idx] = unset_range(timeUnits[idx], from, to);
     return true;
   }
@@ -244,7 +244,7 @@ public class TimeRange {
    * @param m the metric
    */
   public void set_all(Metric m) {
-    timeUnits[m.value()] = ~0l;
+    timeUnits[m.value] = ~0l;
   }
 
   /**
@@ -252,24 +252,24 @@ public class TimeRange {
    * @param m the metric
    */
   public void unset_all(Metric m) {
-    timeUnits[m.value()] = 0l;
+    timeUnits[m.value] = 0l;
   }
 
 
   public void or_val(Metric m, long val){
-    timeUnits[m.value()] |= val;
+    timeUnits[m.value] |= val;
   }
   public void and_val(Metric m, long val){
-    timeUnits[m.value()] &= val;
+    timeUnits[m.value] &= val;
   }
   public void xor_val(Metric m, long val){
-    timeUnits[m.value()] ^= val;
+    timeUnits[m.value] ^= val;
   }
   public void set_val(Metric m, long val){
-    timeUnits[m.value()] = val;
+    timeUnits[m.value] = val;
   }
   public long get_val(Metric m) {
-    return timeUnits[m.value()];
+    return timeUnits[m.value];
   }
 
   /**
@@ -292,7 +292,7 @@ public class TimeRange {
   //Debugging Functions
   public void print(Metric m) {
     System.out.println("mask: " + String.format("%64s",
-            Long.toBinaryString(timeUnits[m.value()])).replaceAll(" ", "0"));
+            Long.toBinaryString(timeUnits[m.value])).replaceAll(" ", "0"));
   }
 
   public void print_years(){

@@ -154,7 +154,8 @@ public abstract class LogFormat {
     panelFooter.add(OKAllButton);
 
     //configure frame layout
-    Container contentPane = frame.getContentPane();
+    //Container contentPane = frame.getContentPane();
+    JPanel contentPane = new JPanel();
     contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
     contentPane.add(Box.createRigidArea(new Dimension(0,5))); // a spacer
     contentPane.add(panelHeader);
@@ -164,9 +165,15 @@ public abstract class LogFormat {
     contentPane.add(panelFooter);
     contentPane.add(Box.createRigidArea(new Dimension(0,5))); // a spacer
 
+    JScrollPane scrollPane = new JScrollPane (contentPane,
+            ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+    frame.add(scrollPane);
     //configure frame
     frame.pack();
     Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+    frame.setSize(frame.getWidth(), Integer.min(frame.getHeight(), (int)(dim.height/1.5)));
     frame.setLocation(dim.width/2-frame.getSize().width/2, dim.height/2-frame.getSize().height/2);
 
     //frame.addWindowListener(new WindowAdapter() {

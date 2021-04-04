@@ -12,6 +12,7 @@ public abstract class TimeUnitI<T>{
   protected int num;
   protected Limits limits;
   protected int valid_subUnits;
+  //public boolean print = false;
 
   public TimeUnitI(Limits limits){
     num = -1;
@@ -72,7 +73,10 @@ public abstract class TimeUnitI<T>{
    * @param timeRange the TimeRange object defining valid TimeUnits
    * @return number of measurements contained by the unit and/or the subUnits
    */
-  public abstract int get_num(TimeRange timeRange);
+  public int get_num(TimeRange timeRange){
+    if (Double.isNaN(sum)) calc(timeRange);
+    return num;
+  }
 
   /**
    * Returns the valid index
@@ -115,5 +119,9 @@ public abstract class TimeUnitI<T>{
    * @return true if the object contains enough valid subUnits to be valid
    */
   public abstract boolean is_valid(Metric metric);
+
+  public abstract boolean matches(Metric metric);
+
+  public abstract int get_num_valid_subUnits(TimeRange timeRange, Metric metric);
 
 }

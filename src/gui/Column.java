@@ -24,7 +24,6 @@ public class Column {
   public double mul;
   NumberFormat format;
   Calendar calendar;
-  Method method;
   Limits limits;
   Data data;
   TimeRange timeRange;
@@ -38,17 +37,14 @@ public class Column {
     limits = new Limits();
     timeRange = new TimeRange(~0l);
 
-    if (average) method = Method.AVG;
-    else method = Method.SUM;
-
-    dataTree = Parser.getDataMap(method,data,limits);
+    dataTree = Parser.getDataMap(data,limits);
   }
   public Data getData() {
     return data;
   }
 
   public Method getMethod() {
-    return method;
+    return data.method;
   }
 
   public int getPos() {
@@ -63,13 +59,13 @@ public class Column {
     return  timeRange;
   }
 
-  public double parseVal(String[] data) {
-    double val = -1;
+  public double parseVal(String[] data_line) {
+    double val = -Double.MAX_VALUE;
     try {
-      val= Double.parseDouble(data[pos]);
+      val= Double.parseDouble(data_line[pos]);
     } catch (NumberFormatException e){
       try { // number has , instead of .
-        Number number = format.parse(data[pos]);
+        Number number = format.parse(data_line[pos]);
         val = number.doubleValue();
       } catch (ParseException e2){
         e2.printStackTrace();
@@ -84,7 +80,7 @@ public class Column {
     }
 
     double val = parseVal(data);
-    if (val == -1) return false;
+    if (val == -Double.MAX_VALUE) return false;
 
     if(panel.getMin() > val || val > panel.getMax()) return false;
     val *= mul;
@@ -97,7 +93,7 @@ public class Column {
   public void writeToFile(FileOutputStream ostream) throws IOException {
     ostream.write(("Data: "+data.description + "\n").getBytes());
 
-    TreeWriter tw = new TreeWriter(ostream,method);
+    TreeWriter tw = new TreeWriter(ostream,data.method);
     dataTree.add_years(timeRange);
     tw.set_timeRange(timeRange);
     tw.monthly_overview(dataTree);

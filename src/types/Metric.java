@@ -12,12 +12,8 @@ public enum Metric {
   static final Integer[] maxVals = {Calendar.getInstance().get(Calendar.YEAR),11,30,23};
   static final Integer[] minValsUser = {1950,1,1,0};
   static final Integer[] maxValsUser = {Calendar.getInstance().get(Calendar.YEAR),12,31,23};
-  // internal state
-  private int value;
 
-  public int value() {
-    return value;
-  }
+  public final int value;
 
   public String getPrev() {
     if(this == Metric.MONTH){return "Year";}

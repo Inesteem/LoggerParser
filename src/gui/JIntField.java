@@ -12,5 +12,5 @@ public class JIntField extends JValField<Integer>{
   public Integer valueOf(String str) throws Exception{
     return Integer.valueOf(str);
   }
-  public Integer errVal() {return -1;}
+  public Integer errVal() {return Integer.MIN_VALUE;}
 }

@@ -40,7 +40,7 @@ public class Hour extends TimeUnitI<Double> {
     return;
   }
 
-  public int get_num(TimeRange tr) {
+  public int get_num(TimeRange timeRange) {
     return num;
   }
 
@@ -78,5 +78,14 @@ public class Hour extends TimeUnitI<Double> {
     num = 0;
     return 1;
   }
+  @Override
+  public boolean matches(Metric metric){
+    return metric == HOUR;
+  }
 
+  @Override
+  public int get_num_valid_subUnits(TimeRange timeRange, Metric metric){
+    assert(false);
+    return 0;
+  }
 }

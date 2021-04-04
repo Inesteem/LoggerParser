@@ -14,7 +14,7 @@ public class Limits {
   public static final Limits NO = new Limits();
 
   public Limits(){
-    limits = new int[Metric.SIZE.value()];
+    limits = new int[Metric.SIZE.value];
     for(int i = 0; i < limits.length; ++i) limits[i] = 1;
   }
 
@@ -25,7 +25,7 @@ public class Limits {
    * @return true if the number of measurements is significant
    */
   public boolean valid(Metric m, int num) {
-    return (num >= limits[m.value()]);
+    return (num >= limits[m.value]);
   }
 
   /**
@@ -35,7 +35,7 @@ public class Limits {
    * @param lim the minimal number if measurements required for a valid calculation
    */
   public void set_limit(Metric m, int lim) {
-    limits[m.value()]=lim;
+    limits[m.value]=lim;
   }
 
 //debugging

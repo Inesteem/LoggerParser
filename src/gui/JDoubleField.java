@@ -12,5 +12,5 @@ public class JDoubleField extends JValField<Double>{
   public Double valueOf(String str) throws Exception {
     return Double.valueOf(str);
   }
-  public Double errVal() {return -1.0;}
+  public Double errVal() {return -Double.MAX_VALUE;}
 }

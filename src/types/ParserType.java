@@ -13,6 +13,5 @@ public enum ParserType {
     public final int value;
     private ParserType(int value){
         this.value = value;
-
     }
 }

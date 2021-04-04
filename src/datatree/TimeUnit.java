@@ -12,6 +12,8 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
 
+import static src.types.Metric.HOUR;
+
 public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
   protected double minVal[][];
   protected double maxVal[][];
@@ -24,8 +26,8 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
     for(int i = 0; i < num; ++i)
       subUnits.add(null);
 
-    minVal = new double[Method.SIZE.value()][Metric.SIZE.value()];
-    maxVal = new double[Method.SIZE.value()][Metric.SIZE.value()];
+    minVal = new double[Method.SIZE.value][Metric.SIZE.value];
+    maxVal = new double[Method.SIZE.value][Metric.SIZE.value];
 
     Locale locale = new Locale("en","UK");
     df = (DecimalFormat) NumberFormat.getNumberInstance(locale);
@@ -38,7 +40,7 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
     for(int i = 0; i < minVal.length; ++i){
       for(int j = 0; j < minVal[0].length; ++j){
         minVal[i][j] = Double.MAX_VALUE;
-        maxVal[i][j] = Double.MIN_VALUE;
+        maxVal[i][j] = -Double.MAX_VALUE;
       }
     }
     for(T unit : subUnits) {
@@ -63,6 +65,7 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
       if (u_num <= 0) continue;
       num += u_num;
       sum += unit.get_sum(tr);
+      //if(print) System.out.println(this.metric + " "+ i + " " + unit.get_sum(tr) + " " + u_num);
       // System.out.println(this.metric + "\t " + this.get_idx(i) + " " + unit.get_sum(tr) + " " + u_num + " " + unit.get_avg(tr));
       set_extrema(unit.get_sum(tr), Method.SUM);
       set_extrema(unit.get_avg(tr), Method.AVG);
@@ -71,18 +74,22 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
   }
 
   void set_extrema(double val, Method method){
-    int methodI = method.value();
-    int metricI = metric.value();
-    if(minVal[methodI][metricI] > val)
+    int methodI = method.value;
+    int metricI = metric.value;
+    if(minVal[methodI][metricI] > val) {
+//      if (method == Method.AVG && val < 20) System.out.println("["+minVal[methodI][metricI]+", " + maxVal[methodI][metricI]+"]new min val: " + val + " for " + metric);
       minVal[methodI][metricI] = val;
-    if(maxVal[methodI][metricI] < val)
+    }
+    if(maxVal[methodI][metricI] < val){
+  //    if (method == Method.AVG && val < 20) System.out.println("["+minVal[methodI][metricI]+", " + maxVal[methodI][metricI]+"]  new max val: " + val + " for " + metric);
       maxVal[methodI][metricI] = val;
+    }
   }
   // GETTER METHODS
 
   public double get_min(Method method, TimeRange tr, Metric metric){
-    int methodI = method.value();
-    int metricI = metric.value();
+    int methodI = method.value;
+    int metricI = metric.value;
 
     if (minVal[methodI][metricI] == Double.MAX_VALUE) {
       for(int i = 0; i < subUnits.size(); ++i){
@@ -103,10 +110,10 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
 
   public double get_max(Method method, TimeRange tr, Metric metric){
 
-    int methodI = method.value();
-    int metricI = metric.value();
+    int methodI = method.value;
+    int metricI = metric.value;
 
-    if (maxVal[methodI][metricI] == Double.MIN_VALUE) {
+    if (maxVal[methodI][metricI] == -Double.MAX_VALUE) {
 
       for(int i = 0; i < subUnits.size(); ++i){
         if (!tr.in_range(this.metric,this.get_idx(i))) continue;
@@ -115,7 +122,7 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
         if(unit == null || !unit.is_valid(this.metric)) continue;
 
         double max = unit.get_max(method, tr, metric);
-        if(max == -1) continue;
+        if(max == -Double.MAX_VALUE) continue;
 
         if (max > maxVal[methodI][metricI]){
           maxVal[methodI][metricI] = max;
@@ -126,15 +133,6 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
     return maxVal[methodI][metricI];
   }
 
-
-  public double get_min(Method method){
-    return minVal[method.value()][metric.value()];
-  }
-
-  public double get_max(Method method){
-    return maxVal[method.value()][metric.value()];
-  }
-
   public void print(TimeRange tr){
 
     for(int i = 0; i < subUnits.size(); ++i){
@@ -143,10 +141,6 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
       if(unit != null && unit.is_valid(this.metric)) unit.print(tr);
 
     }
-  }
-
-  public Limits get_limits(){
-    return limits;
   }
 
   public void set_limits(Limits lim){
@@ -170,11 +164,6 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
       }
     }
     return limits.valid(metric, num);
-  }
-
-  public int get_num(TimeRange tr){
-    if (Double.isNaN(sum)) calc(tr);
-    return num;
   }
 
   /**
@@ -221,6 +210,31 @@ public abstract class TimeUnit<T extends TimeUnitI> extends TimeUnitI<T> {
       if (unit != null) num += unit.get_num_valid_subUnits(timeRange);
     }
    // valid_subUnits = num;
+    return num;
+  }
+  @Override
+  public boolean matches(Metric metric){
+    return metric == this.metric;
+  }
+  /**
+   * Get number of valid subUnits contained in this subtree matching the metric m
+   * @param timeRange the TimeRange object defining valid TimeUnits
+   * @param metric the Metric object
+   * @return number of valid subUnits
+   */
+  @Override
+  public int get_num_valid_subUnits(TimeRange timeRange, Metric metric) {
+    int num = 0;
+    for(int i = 0; i < subUnits.size(); ++i) {
+      if (!timeRange.in_range(this.metric,get_idx(i))) continue;
+      T unit = subUnits.get(i);
+      if (unit != null && unit.is_valid(this.metric)) {
+        if (this.metric == metric) {
+          num += 1;
+        } else
+          num += unit.get_num_valid_subUnits(timeRange, metric);
+      }
+    }
     return num;
   }
 }

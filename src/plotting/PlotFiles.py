@@ -18,7 +18,7 @@ labelMap = {
     'TEMP'  : 'Temperature (in DegC)',
     'TEMP_PT100'  : 'Temperature (in DegC)',
     'TEMP_PT1000'  : 'Temperature (in DegC)',
-    'BAR'  : 'Barometric Pressure (in hPa)',
+    'BAR_PRESS'  : 'Barometric Pressure (in hPa)',
     'HUM'   : 'Humidity (in %)',
     'MONTH' : 'Months',
     'HOUR'  : 'Hours',

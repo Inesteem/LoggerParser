@@ -90,7 +90,7 @@ public class ValuePanel extends JPanel{
   }
 
   public boolean valid(){
-    return (getMin() >= 0) && (getMax() >= 0);
+    return true; //TODO maybe remove
   }
 
   public void updatePrefs(){

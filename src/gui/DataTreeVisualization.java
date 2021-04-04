@@ -132,7 +132,7 @@ public class DataTreeVisualization extends Thread {
                     "do not exist in Europa due to clock change. However, don't bother with a 100% correct timezone.");
             for (Metric m : Metric.values()) {
                 if (m == Metric.SIZE) continue;
-                int i = m.value();
+                int i = m.value;
                 rangeFields[i] = new JRangeField(20, tr, m);
                 rangeFields[i].setToolTipText(tt_str[i]);
                 rangeFields[i].setName("range");
@@ -265,7 +265,7 @@ public class DataTreeVisualization extends Thread {
                 remCondButton.setToolTipText("Removes the Dates specified by the RangeFields and matching a condition completely from the Data Tree.");
 
                 JComboBox<String> select_range = new JComboBox<String>(sr_str);
-                JRangeField[] rangeFields = new JRangeField[Metric.SIZE.value()];
+                JRangeField[] rangeFields = new JRangeField[Metric.SIZE.value];
                 configure(select_range, rangeFields, pref_str, timeRange);
 
                 remButton.addActionListener(new ActionListener() {
@@ -313,7 +313,7 @@ public class DataTreeVisualization extends Thread {
 
                 JPanel panel = getPlotStuff(col.getData(), plotButton, visTreeButton, remButton, remCondButton, select_range, rangeFields);
                 tabbedPane.addTab(col.getData().toString(), icon, panel, col.getData().description);
-                tabbedPane.setMnemonicAt(0, key_events[i]);
+                if(i < key_events.length) tabbedPane.setMnemonicAt(0, key_events[i]);
             }
 
 

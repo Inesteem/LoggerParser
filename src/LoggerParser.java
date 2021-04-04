@@ -42,10 +42,6 @@ private static class MainMenu extends JFrame {
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setLayout(new BoxLayout(getContentPane(), BoxLayout.X_AXIS));
 
-    LinkedList<Object> a=new LinkedList<Object>();
-    a.add(0.3);
-    a.add(0.3);
-
     //JMenuBar menuBar= new JMenuBar();
     //JMenuItem debugItem;
     //setJMenuBar(menuBar);

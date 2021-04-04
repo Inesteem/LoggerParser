@@ -42,23 +42,27 @@ public class TreeWriter implements TreeVisitor<Boolean> {
     public void monthly_overview(DataTree yearMap) {
         long valid_month_range = timeRange.get_val(MONTH);
         try {
-            ostream.write("\nOVERALL MONTHLY STATS (num of meas, min, max, val): \n\n".getBytes());
+            ostream.write("\nOVERALL MONTHLY STATS (num of meas, num of avg months, min, max, val): \n\n".getBytes());
             timeRange.unset_range(MONTH,0,12);
+            yearMap.reset();
             for(int i = 0; i < 12; ++i){
-                yearMap.reset();
                 timeRange.set_idx(Metric.MONTH,i);
-                yearMap.reset();
                 ostream.write((Month.toString(i) + ": ").getBytes());
-                if (yearMap.get_num(timeRange) == 0){
+                int num = yearMap.get_num(timeRange);
+                if (num == 0) {
                     ostream.write(( "- \n").getBytes());
+                    yearMap.reset();
                     continue;
                 }
-                ostream.write(("\t " +String.valueOf(yearMap.get_num(timeRange)) + " ").getBytes());
-                ostream.write(("\t " + df.format(yearMap.get_min(method, timeRange, MONTH)) + " ").getBytes());
-                ostream.write(("\t " + df.format(yearMap.get_max(method, timeRange, MONTH)) + " ").getBytes());
-
                 double val = yearMap.get_val(timeRange, method);
+                //number of years having data belonging to this month
+                int num_month = yearMap.get_num_valid_subUnits(timeRange, MONTH);
+                assert(num_month != 0);
+                if (method == Method.SUM) val /= num_month;
 
+                ostream.write(("\t " + num + "\t " + num_month + " ").getBytes());
+                ostream.write(("\t " + df.format(yearMap.get_min(method, timeRange,DAY)) + " ").getBytes());
+                ostream.write(("\t " + df.format(yearMap.get_max(method, timeRange,DAY)) + " ").getBytes());
                 ostream.write(("\t " + df.format(val) + "\n").getBytes());
                 timeRange.unset_idx(Metric.MONTH,i);
                 yearMap.reset();
@@ -69,35 +73,39 @@ public class TreeWriter implements TreeVisitor<Boolean> {
             e.printStackTrace();
             IOManager.asError("yearmap write failed");
         }
-        timeRange.set_val(MONTH, valid_month_range);
         yearMap.reset();
+        timeRange.set_val(MONTH, valid_month_range);
     }
 
 
     public void hourly_overview(DataTree yearMap) {
-        long valid_hour_range = timeRange.get_val(DAY);
+        long valid_hour_range = timeRange.get_val(HOUR);
         try {
-            ostream.write("\nOVERALL HOURLY STATS (num of meas, min, max, val): \n\n".getBytes());
+            ostream.write("\nOVERALL HOURLY STATS (num of meas, num of avg hours, val): \n\n".getBytes());
             timeRange.unset_range(HOUR,0,24);
+            yearMap.reset();
             for(int i = 0; i < 24; ++i){
-                yearMap.reset();
+//                if ( i == 3) yearMap.print = true;
+//                else yearMap.print = false;
                 timeRange.set_idx(Metric.HOUR,i);
-                yearMap.reset();
                 ostream.write((i + ": ").getBytes());
                 if (yearMap.get_num(timeRange) == 0){
                     ostream.write(( "- \n").getBytes());
+                    yearMap.reset();
                     continue;
                 }
-                ostream.write(("\t " +String.valueOf(yearMap.get_num(timeRange)) + " ").getBytes());
-                ostream.write(("\t " + df.format(yearMap.get_min(method, timeRange, HOUR)) + " ").getBytes());
-                ostream.write(("\t " + df.format(yearMap.get_max(method, timeRange, HOUR)) + " ").getBytes());
 
                 double val = yearMap.get_val(timeRange, method);
+                int num_hours = yearMap.get_num_valid_subUnits(timeRange, HOUR);
+                assert(num_hours != 0);
+                if (method == Method.SUM) val /= num_hours;
 
+                ostream.write(("\t " +yearMap.get_num(timeRange) + "\t" + num_hours + " ").getBytes());
                 ostream.write(("\t " + df.format(val) + "\n").getBytes());
                 timeRange.unset_idx(Metric.HOUR,i);
                 yearMap.reset();
             }
+            yearMap.reset();
             ostream.write(("\n").getBytes());
 
         } catch (IOException e) {
@@ -117,7 +125,7 @@ public class TreeWriter implements TreeVisitor<Boolean> {
         double min = ym.get_min(method, timeRange, YEAR);
         double max = ym.get_max(method, timeRange, YEAR);
         try {
-            if (min == Double.MAX_VALUE || max == Double.MIN_VALUE)  {
+            if (min == Double.MAX_VALUE || max == -Double.MAX_VALUE)  {
                 ostream.write(("no valid data\n").getBytes());
                 return false;
             }
@@ -133,7 +141,10 @@ public class TreeWriter implements TreeVisitor<Boolean> {
                 ostream.write(("no valid data\n").getBytes());
                 return false;
             }
-            ostream.write(("\navg years: " + df.format(ym.get_val(timeRange, method)/valid_subunits) + "\n").getBytes());
+            if(method == Method.SUM)
+                ostream.write(("\navg all: " + df.format(ym.get_val(timeRange, method)/valid_subunits) + "\n").getBytes());
+            else
+                ostream.write(("\navg all: " + df.format(ym.get_val(timeRange, method)) + "\n").getBytes());
             ostream.write(("min year: " + df.format(min) + "\n").getBytes());
             ostream.write(("max year: " + df.format(max) + "\n\n").getBytes());
         } catch (IOException e) {
@@ -150,7 +161,7 @@ public class TreeWriter implements TreeVisitor<Boolean> {
         double max = y.get_max(method, timeRange,MONTH);
         boolean hasContent = false;
         try {
-            if (min == Double.MAX_VALUE || max == Double.MIN_VALUE){
+            if (min == Double.MAX_VALUE || max == -Double.MAX_VALUE){
                 ostream.write((" no valid data\n\n").getBytes());
                 return false;
             }
@@ -180,7 +191,7 @@ public class TreeWriter implements TreeVisitor<Boolean> {
         m.get_val(timeRange,method);
         double min = m.get_min(method, timeRange, DAY);
         double max = m.get_max(method, timeRange, DAY);
-        if (min == Double.MAX_VALUE || max == Double.MIN_VALUE)  return false;
+        if (min == Double.MAX_VALUE || max == -Double.MAX_VALUE)  return false;
         boolean hasContent = false;
         try {
             ostream.write(("val: " + df.format(m.get_val(timeRange, method)) + " - ").getBytes());
@@ -210,7 +221,7 @@ public class TreeWriter implements TreeVisitor<Boolean> {
         d.get_val(timeRange,method);
         double min = d.get_min(method, timeRange,HOUR);
         double max = d.get_max(method, timeRange,HOUR);
-        if (min == Double.MAX_VALUE || max == Double.MIN_VALUE)  return false;
+        if (min == Double.MAX_VALUE || max == -Double.MAX_VALUE)  return false;
         boolean hasContent = false;
         try {
             ostream.write(("val: " + df.format(d.get_val(timeRange, method)) + " - ").getBytes());
